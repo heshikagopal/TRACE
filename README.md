@@ -2,6 +2,8 @@
 **CRIMEATHON'26 — Defense Track**  
 **Investigation Case File:** CR-26-047 (Harbor & Finch Freight Pvt. Ltd.)
 
+![TRACE Live Dashboard](docs/trace_output_screen.png)
+
 ---
 
 ## 1. Project Overview
