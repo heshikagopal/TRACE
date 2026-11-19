@@ -195,13 +195,13 @@ The application will open in your browser at `http://localhost:8501`.
 
 ---
 
-## 9. Contract Watch — Behavioral Defense Front-End
+## 9. TRACE — Behavioral Defense Front-End
 
-Contract Watch is the specialized, single-page behavioral defense interface built for Harbor & Finch Freight. It visualizes credential behavior inside defined shipping corridors, contrasts observed activity against behavioral contracts, explains why ordinary-looking events were set aside, and places a security gate in front of the monthly vendor payment run.
+TRACE is the specialized, single-page behavioral defense interface built for Harbor & Finch Freight. It visualizes credential behavior inside defined shipping corridors, contrasts observed activity against behavioral contracts, explains why ordinary-looking events were set aside, and places a security gate in front of the monthly vendor payment run.
 
-### Running Contract Watch (Single-Command Execution)
+### Running TRACE (Single-Command Execution)
 
-Contract Watch has zero build steps and zero runtime npm dependencies. Launch it locally with Python's built-in web server:
+TRACE has zero build steps and zero runtime npm dependencies. Launch it locally with Python's built-in web server:
 
 ```bash
 # Launch from project root
@@ -212,13 +212,13 @@ Open your browser to: **`http://localhost:8000/`** (or open `index.html` directl
 
 ### Plugging In Live Detector Output
 
-Contract Watch consumes three structured, human-readable JSON files:
+TRACE consumes three structured, human-readable JSON files:
 
 1. **`events.json`**: Replay telemetry containing the 8 verified breach records, 5 forensic set-aside events, and sampled baseline corridors.
 2. **`contracts.json`**: Behavioral contracts specifying allowed network CIDRs, client SDK versions, time-of-day sync windows, endpoint scopes, and dual-control approval rules.
-3. **`metrics.json`**: Ground-truth benchmark evaluation statistics comparing Contract Watch against traditional IOC blocklists.
+3. **`metrics.json`**: Ground-truth benchmark evaluation statistics comparing TRACE against traditional IOC blocklists.
 
-To update Contract Watch with live detector findings, simply export your detector results into `events.json` and `metrics.json`:
+To update TRACE with live detector findings, simply export your detector results into `events.json` and `metrics.json`:
 ```bash
 # Export latest evaluation run to metrics.json
 python -c "from trace_engine.evaluation import DefensiveEvaluationEngine; import json; res = DefensiveEvaluationEngine().run_all(); open('metrics.json', 'w').write(DefensiveEvaluationEngine().generate_report(res, format='json'))"

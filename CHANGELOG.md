@@ -1,4 +1,4 @@
-# Contract Watch — Frontend Architecture CHANGELOG
+# TRACE — Frontend Architecture CHANGELOG
 
 ## CRIMEATHON'26 Defense Track — Harbor & Finch Freight Security
 
@@ -45,7 +45,7 @@
 
 6. **Honest Metrics Scoreboard (Goal 6)**
    - Scoreboard loaded asynchronously from `metrics.json`.
-   - Side-by-side comparison between Contract Watch (100% detection, 0 false alarms on legitimate staff, 5 set aside correctly) vs. Traditional IOC Blocklist (14 false alarms on shared broadband, 5 misses).
+   - Side-by-side comparison between TRACE (100% detection, 0 false alarms on legitimate staff, 5 set aside correctly) vs. Traditional IOC Blocklist (14 false alarms on shared broadband, 5 misses).
    - Displayed tuning disclaimer acknowledging that detectors were calibrated on the supplied competition evidence pack.
 
 7. **Maritime Theme, Responsiveness & Accessibility (Goal 7)**

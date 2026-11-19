@@ -1,5 +1,5 @@
 /**
- * CONTRACT WATCH — Harbor & Finch Freight Defense System
+ * TRACE — Harbor & Finch Freight Defense System
  * Lead Frontend & Detection Engine Client Architecture
  */
 
@@ -1128,7 +1128,7 @@
     });
 
     document.getElementById('btn-export-intel')?.addEventListener('click', () => {
-      alert("CONTRACT WATCH INTEL BRIEFING EXPORT:\n\nCase: CR-26-047 (Harbor & Finch Freight)\nKey Findings:\n- Former employee account access (Rohan Menon) via Okta SSO\n- HelpDeskr bulk customer statement export overage\n- Shared storage S3 key leakage in ticket thread\n- Build host pivot (10.20.4.77) attempting unapproved bank routing alteration\n- 8 Sep payment-run padlock held disbursement; rollback to verified account ****1142 completed.");
+      alert("TRACE INTEL BRIEFING EXPORT:\n\nCase: CR-26-047 (Harbor & Finch Freight)\nKey Findings:\n- Former employee account access (Rohan Menon) via Okta SSO\n- HelpDeskr bulk customer statement export overage\n- Shared storage S3 key leakage in ticket thread\n- Build host pivot (10.20.4.77) attempting unapproved bank routing alteration\n- 8 Sep payment-run padlock held disbursement; rollback to verified account ****1142 completed.");
     });
 
     // Tactical Graph Controls (Image 3)

@@ -98,7 +98,7 @@
   ],
   "comparison_scoreboard": {
     "contract_watch": {
-      "system_name": "Contract Watch (Behavioral Contracts)",
+      "system_name": "TRACE (Threat Recognition, Analysis and Correlation Engine)",
       "breaches_detected": 8,
       "total_breaches": 8,
       "detection_rate_pct": 100.0,
