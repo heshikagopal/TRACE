@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "organization": "Harbor & Finch Freight Pvt. Ltd.",
+  "case_reference": "CR-26-047",
+  "generated_at": "2026-09-08T00:00:00Z",
+  "note": "Every breach and set-aside event originates from verified case evidence files (E01–E20). Sampled background dots are explicitly marked as synthetic baseline samples.",
+  "lanes": [
+    {
+      "id": "lane-ledgerone",
+      "name": "LedgerOne Financial API",
+      "credential": "key-tb-07",
+      "target_system": "LedgerOne ERP & Accounting",
+      "icon": "anchor"
+    },
+    {
+      "id": "lane-helpdeskr",
+      "name": "HelpDeskr Support Sync",
+      "credential": "tb-sync-svc",
+      "target_system": "HelpDeskr Support Portal",
+      "icon": "ship"
+    },
+    {
+      "id": "lane-bluevault",
+      "name": "BlueVault Cloud Backups",
+      "credential": "bvk-7f3a",
+      "target_system": "BlueVault S3 Storage",
+      "icon": "shield"
+    },
+    {
+      "id": "lane-sso",
+      "name": "Identity & Sign-ins",
+      "credential": "Okta SSO",
+      "target_system": "Corporate Identity Gateway",
+      "icon": "compass"
+    }
+  ],
+  "breaches": [
+    {
+      "id": "BR-01",
+      "timestamp_utc": "2026-08-09T14:22:00Z",
+      "lane_id": "lane-sso",
+      "credential": "Okta SSO / API Gateway",
+      "title": "Reconnaissance with Deprecated Client 3.4.1",
+      "source_ip": "198.18.7.41",
+      "host": "External Residential Gateway",
+      "severity": "HIGH",
+      "evidence_ids": ["E01", "E04", "E15"],
+      "what_happened": "Inbound API reconnaissance probe directed at LedgerOne authentication endpoint from 198.18.7.41 utilizing retired SDK client header 'LedgerSync/3.4.1'. This version was formally retired on 15 July 2026 per IT integration register.",
+      "contract_rule_broken": {
+        "rule_id": "RULE-CLIENT-VER",
+        "rule_name": "Minimum Supported Client Version Enforcement",
+        "expected": "Client version >= 4.0.0 (Version 3.4.1 retired on 2026-07-15).",
+        "observed": "User-Agent declared 'LedgerSync/3.4.1' connecting from external IP 198.18.7.41."
+      },
+      "ordinary_explanation_considered": "A legitimate developer or regional office employee running an un-updated legacy client script.",
+      "why_rejected": "IP 198.18.7.41 does not match registered corporate VPN subnets. The probe specifically polled integration schemas rather than normal sync transactions, indicating automated tooling.",
+      "what_would_change_our_mind": "A verified device compliance ticket from IT support confirming an un-patched laptop operating from employee home broadband with approved exception ticket.",
+      "graph_links": [
+        { "target_id": "BR-04", "type": "shared_ip_subnet", "label": "Shared Subnet 198.18.7.0/24" },
+        { "target_id": "BR-05", "type": "shared_ip_subnet", "label": "Shared Subnet 198.18.7.0/24" }
+      ]
+    },
+    {
+      "id": "BR-02",
+      "timestamp_utc": "2026-08-11T18:00:00Z",
+      "lane_id": "lane-helpdeskr",
+      "credential": "tb-sync-svc",
+      "title": "Bulk Support Ticket Export & Audit Erasure",
+      "source_ip": "10.20.4.12",
+      "host": "tb-sync-app01",
+      "severity": "HIGH",
+      "evidence_ids": ["E02", "E10"],
+      "what_happened": "Ten consecutive customer ticket bulk export jobs (EXP-5410 through EXP-5419) were initiated, downloaded in rapid succession, and subsequently deleted from the job queue within 8 minutes.",
+      "contract_rule_broken": {
+        "rule_id": "RULE-EXP-BURST",
+        "rule_name": "Export Rate Limiting & Retention Lock",
+        "expected": "Maximum 1 export job per calendar day; exported artifacts locked for 90-day compliance retention.",
+        "observed": "10 export jobs executed within 8 minutes, followed by immediate DELETE calls on audit log references."
+      },
+      "ordinary_explanation_considered": "Routine disk space cleanup following quarterly customer reporting export.",
+      "why_rejected": "Audit deletions violated IT Security Policy Section 4.3 (Mandatory 90-day retention lock). No matching scheduled reporting batch was registered on the IT calendar.",
+      "what_would_change_our_mind": "Written pre-authorization from the Head of Customer Support and compliance officer approving immediate ticket purge for GDPR redaction.",
+      "graph_links": [
+        { "target_id": "BR-03", "type": "sequential_harvest", "label": "Reconnaissance Phase" },
+        { "target_id": "BR-04", "type": "ticket_key_leak", "label": "Leaked Key in TKT-48213" }
+      ]
+    },
+    {
+      "id": "BR-03",
+      "timestamp_utc": "2026-08-12T03:41:00Z",
+      "lane_id": "lane-helpdeskr",
+      "credential": "tb-sync-svc",
+      "title": "Vendor Master Exfiltration (9,840 Records)",
+      "source_ip": "10.20.4.12",
+      "host": "tb-sync-app01",
+      "severity": "HIGH",
+      "evidence_ids": ["E02", "E10"],
+      "what_happened": "Mass extraction of HelpDeskr vendor knowledge base and supplier directory extracting 9,840 records containing bank names, payment terms, and vendor contact emails.",
+      "contract_rule_broken": {
+        "rule_id": "RULE-DATA-SCOPE",
+        "rule_name": "Restricted Master Directory Scope",
+        "expected": "Allowed scope limited to operational dispatch tickets; bulk vendor directory download restricted to Procurement Admin.",
+        "observed": "Full database dump of 9,840 vendor master profiles via synchronization service account."
+      },
+      "ordinary_explanation_considered": "Data migration job syncing suppliers to new customer portal.",
+      "why_rejected": "No change ticket in ERP change management register (E09). Operations occurred during off-peak hours without procurement notification.",
+      "what_would_change_our_mind": "Approved ERP migration ticket signed by Procurement Director referencing batch EXP-VENDOR-0812.",
+      "graph_links": [
+        { "target_id": "BR-07", "type": "exfil_target", "label": "Vendor Target Identification" }
+      ]
+    },
+    {
+      "id": "BR-04",
+      "timestamp_utc": "2026-08-14T21:06:00Z",
+      "lane_id": "lane-bluevault",
+      "credential": "bvk-7f3a",
+      "title": "Leaked Cloud Key Usage from Untrusted Subnet",
+      "source_ip": "198.18.7.23",
+      "host": "Remote Client (.23, .24, .77)",
+      "severity": "CRITICAL",
+      "evidence_ids": ["E02", "E05", "E13"],
+      "what_happened": "BlueVault backup access key 'bvk-7f3a'—pasted into resolved support ticket TKT-48213 during troubleshooting—was invoked from external broadband IPs (198.18.7.23, .24, .77) to enumerate financial archive buckets.",
+      "contract_rule_broken": {
+        "rule_id": "RULE-IP-BOUNDARY",
+        "rule_name": "PrivateLink Network Pool Restriction",
+        "expected": "Calls restricted to PrivateLink subnet 10.20.100.0/24; zero external internet ingress allowed.",
+        "observed": "API invocation originating from residential IP 198.18.7.23, subsequent rotation to .24 and .77."
+      },
+      "ordinary_explanation_considered": "On-call DevOps engineer conducting emergency backup verification from home without VPN.",
+      "why_rejected": "BlueVault key 'bvk-7f3a' was identical to the plaintext string accidentally included in customer ticket TKT-48213. Key rotation policy forbids direct internet exposure.",
+      "what_would_change_our_mind": "Signed affidavit from on-call engineer confirming emergency access, accompanied by MFA challenge log.",
+      "graph_links": [
+        { "target_id": "BR-02", "type": "ticket_key_leak", "label": "Key Discovered in TKT-48213" },
+        { "target_id": "BR-05", "type": "shared_ip", "label": "Attacker IP 198.18.7.77" }
+      ]
+    },
+    {
+      "id": "BR-05",
+      "timestamp_utc": "2026-08-15T16:20:00Z",
+      "lane_id": "lane-sso",
+      "credential": "Okta SSO (Admin Portal)",
+      "title": "Brute Force Admin Authentication Attempts",
+      "source_ip": "198.18.7.77",
+      "host": "Residential Endpoint 198.18.7.77",
+      "severity": "HIGH",
+      "evidence_ids": ["E03", "E15", "E17"],
+      "what_happened": "Three consecutive failed administrative sign-in attempts against Harbor & Finch SSO admin portal targeting 'admin.finance' and 'secops.root' originating from 198.18.7.77.",
+      "contract_rule_broken": {
+        "rule_id": "RULE-AUTH-MFA",
+        "rule_name": "Administrative Single Sign-On Access Baseline",
+        "expected": "Admin portal access restricted to physical headquarters subnets and managed devices with hardware FIDO2 key.",
+        "observed": "Password spraying from residential IP 198.18.7.77 lacking hardware token handshake."
+      },
+      "ordinary_explanation_considered": "Authorized administrator working remotely misplacing password.",
+      "why_rejected": "Targeted accounts ('secops.root') are canary accounts not assigned to real staff. Originating IP matches previous BlueVault reconnaissance actor.",
+      "what_would_change_our_mind": "None; targeted usernames do not exist in staff roster E14.",
+      "graph_links": [
+        { "target_id": "BR-04", "type": "shared_ip", "label": "Shared IP 198.18.7.77" },
+        { "target_id": "BR-06", "type": "attacker_pivot", "label": "Pivot to Build Host" }
+      ]
+    },
+    {
+      "id": "BR-06",
+      "timestamp_utc": "2026-08-17T12:10:00Z",
+      "lane_id": "lane-ledgerone",
+      "credential": "key-tb-07",
+      "title": "Build Server Out-of-Window Bank Detail Probing",
+      "source_ip": "10.20.4.77",
+      "host": "tb-build-02",
+      "severity": "CRITICAL",
+      "evidence_ids": ["E01", "E04", "E18"],
+      "what_happened": "TallyBridge continuous integration build server 'tb-build-02' (10.20.4.77) utilized integration key 'key-tb-07' to query '/v2/vendors/*/bank-details' at 12:10 UTC across 3 consecutive days (17-19 Aug), 10 hours outside the scheduled sync window.",
+      "contract_rule_broken": {
+        "rule_id": "RULE-TIME-WINDOW",
+        "rule_name": "Synchronisation Corridor Time-of-Day Window",
+        "expected": "API key-tb-07 permitted strictly between 01:00 UTC and 02:00 UTC during scheduled inventory reconciliation.",
+        "observed": "Queries executed at 12:10 UTC directly polling vendor banking tables from build host tb-build-02."
+      },
+      "ordinary_explanation_considered": "CI/CD build pipeline regression testing automated integration endpoints.",
+      "why_rejected": "Contract Section 3.2 prohibits build pipelines from accessing production database endpoints. Build host tb-build-02 has no legitimate need to inspect vendor bank accounts.",
+      "what_would_change_our_mind": "Approved emergency maintenance change ticket logged by TallyBridge CTO justifying daylight bank data inspection.",
+      "graph_links": [
+        { "target_id": "BR-07", "type": "sequential_harvest", "label": "Payment Details Harvested" },
+        { "target_id": "BR-08", "type": "credential_pivot", "label": "key-tb-07 Exploited" }
+      ]
+    },
+    {
+      "id": "BR-07",
+      "timestamp_utc": "2026-08-18T12:55:00Z",
+      "lane_id": "lane-ledgerone",
+      "credential": "key-tb-07",
+      "title": "Pending Payments Register Exfiltration (4,210 Records)",
+      "source_ip": "10.20.4.77",
+      "host": "tb-build-02",
+      "severity": "CRITICAL",
+      "evidence_ids": ["E01", "E02", "E18"],
+      "what_happened": "Extraction of 4,210 pending invoice disbursement records scheduled for the upcoming September payment run, followed by rapid deletion of temporary staging tables.",
+      "contract_rule_broken": {
+        "rule_id": "RULE-RESTRICTED-ENDPOINT",
+        "rule_name": "Disbursement Register Read Restriction",
+        "expected": "Disbursement records accessible solely by Finance Payment Gateway service account.",
+        "observed": "Third-party vendor key-tb-07 extracted full invoice payment ledger including amounts and account numbers."
+      },
+      "ordinary_explanation_considered": "TallyBridge freight calculator synchronizing invoice balances for shipping discounts.",
+      "why_rejected": "Freight integration requires only invoice totals and shipping weights, not full banking disbursement records. Immediate deletion indicates anti-forensic concealment.",
+      "what_would_change_our_mind": "Joint protocol agreement between Harbor & Finch CFO and TallyBridge auditing freight payment clearing.",
+      "graph_links": [
+        { "target_id": "BR-06", "type": "shared_credential", "label": "key-tb-07 on tb-build-02" },
+        { "target_id": "BR-08", "type": "target_diversion", "label": "Target V-0412 Selected" }
+      ]
+    },
+    {
+      "id": "BR-08",
+      "timestamp_utc": "2026-09-03T01:44:00Z",
+      "lane_id": "lane-ledgerone",
+      "credential": "key-tb-07",
+      "title": "Unauthorized Vendor Bank Account Diversion (V-0412)",
+      "source_ip": "10.20.4.77",
+      "host": "tb-build-02",
+      "severity": "CRITICAL",
+      "evidence_ids": ["E01", "E18", "E19", "E20"],
+      "what_happened": "API PATCH call submitted to '/v2/vendors/V-0412/bank-details' altering Coastal Packaging payment routing to fraudulent offshore account '****9083'. Request contained approval_ref: null, submitted exactly 5 days prior to the 8 September monthly payment disbursement.",
+      "contract_rule_broken": {
+        "rule_id": "RULE-APPROVAL-GATE",
+        "rule_name": "Dual-Control Approval Token Requirement",
+        "expected": "Vendor bank modifications require verified dual-control token (approval_ref: APP-xxxx or PO-xxxx) and out-of-band CFO confirmation.",
+        "observed": "Direct bank account alteration executed via API with approval_ref: null."
+      },
+      "ordinary_explanation_considered": "Coastal Packaging finance director submitting legitimate bank routing change before monthly billing.",
+      "why_rejected": "Vendor contract E08 mandates all bank changes occur via signed paper notice or encrypted vendor portal, never third-party API. Harbor & Finch controller had no record of request.",
+      "what_would_change_our_mind": "Signed bank change authorization from Coastal Packaging managing director verified via out-of-band telephone callback.",
+      "graph_links": [
+        { "target_id": "BR-06", "type": "shared_credential", "label": "key-tb-07 Pipeline" },
+        { "target_id": "BR-07", "type": "diversion_execution", "label": "Intercepts 8 Sep Run" }
+      ]
+    }
+  ],
+  "set_aside_ordinary": [
+    {
+      "id": "SA-01",
+      "timestamp_utc": "2026-07-09T10:15:00Z",
+      "lane_id": "lane-ledgerone",
+      "credential": "key-tb-07",
+      "title": "Build Host Sandbox Smoke Test",
+      "source_ip": "10.20.4.77",
+      "evidence_ids": ["E04", "E08"],
+      "what_happened": "Automated build host tb-build-02 initiated 15 test queries against the LedgerOne sandbox environment.",
+      "rule_evaluated": "RULE-API-BOUNDARY: Non-standard host accessing API endpoints.",
+      "ordinary_explanation": "Vendor-scheduled sandbox validation following TallyBridge platform v4.1 patch release.",
+      "why_accepted": "Matched scheduled change window CHG-2026-0709 published in integration register E04. All requests targeted sandbox port 8443 with test mock headers.",
+      "what_would_change_our_mind": "If sandbox calls had read production database tables or accessed real vendor bank accounts."
+    },
+    {
+      "id": "SA-02",
+      "timestamp_utc": "2026-07-22T14:30:00Z",
+      "lane_id": "lane-helpdeskr",
+      "credential": "tb-sync-svc",
+      "title": "Finance Monthly Reconciliation Export",
+      "source_ip": "10.20.4.12",
+      "evidence_ids": ["E02", "E13"],
+      "what_happened": "A batch export of 500 support tickets was generated, downloaded by user 'ananya.r', and deleted after ingestion.",
+      "rule_evaluated": "RULE-EXP-BURST: Support ticket export and subsequent deletion.",
+      "ordinary_explanation": "Legitimate finance reconciliation export announced in Slack 24 hours prior.",
+      "why_accepted": "Pre-announced in #finance-ops channel (E13) by senior finance lead Ananya Roy. Corresponded with monthly invoice verification cycle.",
+      "what_would_change_our_mind": "If export had taken place outside business hours or had been downloaded by an anonymous or service-only account."
+    },
+    {
+      "id": "SA-03",
+      "timestamp_utc": "2026-07-28T09:20:00Z",
+      "lane_id": "lane-helpdeskr",
+      "credential": "tb-sync-svc",
+      "title": "Support Ticket PII Redaction Routine",
+      "source_ip": "10.20.4.12",
+      "evidence_ids": ["E02", "E14"],
+      "what_happened": "Ticket cleanup job deleted 40 old customer export files from staging storage.",
+      "rule_evaluated": "RULE-DATA-RETENTION: Ticket archive deletion within retention window.",
+      "ordinary_explanation": "Scheduled GDPR data hygiene script pruning customer personal identifiable information.",
+      "why_accepted": "Action was authenticated by verified staff lead Priya Sharma (E14) under documented Privacy Protocol PII-2026-07.",
+      "what_would_change_our_mind": "If deletions included active audit logs or were executed without signed staff credentials."
+    },
+    {
+      "id": "SA-04",
+      "timestamp_utc": "2026-07-31T23:50:00Z",
+      "lane_id": "lane-ledgerone",
+      "credential": "key-tb-07",
+      "title": "Quarterly Vendor Master Ingestion with Token",
+      "source_ip": "10.20.4.12",
+      "evidence_ids": ["E01", "E07", "E10"],
+      "what_happened": "Bulk ingestion of 15,000 carrier rate sheet updates into LedgerOne ERP.",
+      "rule_evaluated": "RULE-BULK-VOLUME: Unusual high-volume data modification.",
+      "ordinary_explanation": "Approved quarterly freight tariff update for Q3 logistics rates.",
+      "why_accepted": "Transaction payload carried valid cryptographic approval token 'BULK-0731' authorized by Procurement Director.",
+      "what_would_change_our_mind": "If the token was invalid, expired, or modified payment routing numbers instead of freight rates."
+    },
+    {
+      "id": "SA-05",
+      "timestamp_utc": "2026-08-13T14:22:00Z",
+      "lane_id": "lane-sso",
+      "credential": "Okta SSO (r.menon)",
+      "title": "Departed Employee Kiosk Authentication",
+      "source_ip": "172.16.8.88",
+      "evidence_ids": ["E03", "E14"],
+      "what_happened": "Authentication using departed clerk Rohan Menon's account 21 days post-termination from an on-premise reception kiosk.",
+      "rule_evaluated": "RULE-AUTH-DEPARTED: Authentication of terminated personnel.",
+      "ordinary_explanation": "Account deprovisioning administrative lag combined with receptionist testing kiosk touchscreen.",
+      "why_accepted": "HR roster E14 confirms termination date 2026-06-30. Building badge logs confirm Rohan Menon was not on premises. Zero API keys, financial records, or systems connected to the attack were touched.",
+      "what_would_change_our_mind": "If this session had accessed vendor banking records, downloaded API credentials, or communicated with external IP 198.18.7.77."
+    }
+  ],
+  "sampled_normal_traffic": [
+    { "lane_id": "lane-ledgerone", "count": 28, "label": "Sampled inventory sync transactions (01:00-02:00 UTC)" },
+    { "lane_id": "lane-helpdeskr", "count": 34, "label": "Sampled customer support ticket updates (03:00-11:00 UTC)" },
+    { "lane_id": "lane-bluevault", "count": 22, "label": "Sampled automated database snapshot chunks (02:00-03:30 UTC)" },
+    { "lane_id": "lane-sso", "count": 40, "label": "Sampled employee 2FA logins across shift rotations" }
+  ]
+}
