@@ -512,7 +512,7 @@ if nav_page == "1. Security Overview":
         """, unsafe_allow_html=True)
 
     with k4:
-        crit_count = sum(1 for a in alerts if a["severity"] in ("Critical", "High"))
+        crit_count = sum(1 for a in alerts if str(a.get("severity", "")).upper() in ("CRITICAL", "HIGH"))
         st.markdown(f"""
         <div class="metric-card metric-red">
             <div class="metric-card-header">
@@ -550,15 +550,15 @@ if nav_page == "1. Security Overview":
         """, unsafe_allow_html=True)
         sev_counts = {}
         for a in alerts:
-            s = a.get("severity", "Info")
+            s = str(a.get("severity", "INFO")).upper()
             sev_counts[s] = sev_counts.get(s, 0) + 1
 
         color_map = {
-            "Critical": "#EF4444",
-            "High": "#F97316",
-            "Medium": "#F59E0B",
-            "Low": "#3B82F6",
-            "Info": "#64748B"
+            "CRITICAL": "#EF4444",
+            "HIGH": "#F97316",
+            "MEDIUM": "#F59E0B",
+            "LOW": "#3B82F6",
+            "INFO": "#64748B"
         }
         fig_donut = go.Figure(data=[go.Pie(
             labels=list(sev_counts.keys()),
@@ -847,9 +847,9 @@ elif nav_page == "3. Threat Detection":
     alerts = get_alerts(base_dir)
 
     # 1. Severity Counters Banner
-    sev_counts = {"Critical": 0, "High": 0, "Medium": 0, "Low": 0}
+    sev_counts = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
     for a in alerts:
-        s = a.get("severity", "Info")
+        s = str(a.get("severity", "INFO")).upper()
         if s in sev_counts:
             sev_counts[s] += 1
 
@@ -858,28 +858,28 @@ elif nav_page == "3. Threat Detection":
         st.markdown(f"""
         <div style="background-color: #0F172A; border-left: 4px solid #EF4444; border-radius: 6px; padding: 12px 16px; border-top: 1px solid #1E293B; border-right: 1px solid #1E293B; border-bottom: 1px solid #1E293B;">
             <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">CRITICAL SEVERITY</div>
-            <div style="font-size: 1.6rem; font-weight: 700; color: #FCA5A5;">{sev_counts['Critical']} Alerts</div>
+            <div style="font-size: 1.6rem; font-weight: 700; color: #FCA5A5;">{sev_counts['CRITICAL']} Alerts</div>
         </div>
         """, unsafe_allow_html=True)
     with s_c2:
         st.markdown(f"""
         <div style="background-color: #0F172A; border-left: 4px solid #F97316; border-radius: 6px; padding: 12px 16px; border-top: 1px solid #1E293B; border-right: 1px solid #1E293B; border-bottom: 1px solid #1E293B;">
             <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">HIGH SEVERITY</div>
-            <div style="font-size: 1.6rem; font-weight: 700; color: #FDBA74;">{sev_counts['High']} Alerts</div>
+            <div style="font-size: 1.6rem; font-weight: 700; color: #FDBA74;">{sev_counts['HIGH']} Alerts</div>
         </div>
         """, unsafe_allow_html=True)
     with s_c3:
         st.markdown(f"""
         <div style="background-color: #0F172A; border-left: 4px solid #F59E0B; border-radius: 6px; padding: 12px 16px; border-top: 1px solid #1E293B; border-right: 1px solid #1E293B; border-bottom: 1px solid #1E293B;">
             <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">MEDIUM SEVERITY</div>
-            <div style="font-size: 1.6rem; font-weight: 700; color: #FCD34D;">{sev_counts['Medium']} Alerts</div>
+            <div style="font-size: 1.6rem; font-weight: 700; color: #FCD34D;">{sev_counts['MEDIUM']} Alerts</div>
         </div>
         """, unsafe_allow_html=True)
     with s_c4:
         st.markdown(f"""
         <div style="background-color: #0F172A; border-left: 4px solid #3B82F6; border-radius: 6px; padding: 12px 16px; border-top: 1px solid #1E293B; border-right: 1px solid #1E293B; border-bottom: 1px solid #1E293B;">
             <div style="font-size: 0.75rem; color: #94A3B8; text-transform: uppercase;">LOW SEVERITY</div>
-            <div style="font-size: 1.6rem; font-weight: 700; color: #93C5FD;">{sev_counts['Low']} Alerts</div>
+            <div style="font-size: 1.6rem; font-weight: 700; color: #93C5FD;">{sev_counts['LOW']} Alerts</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -888,11 +888,11 @@ elif nav_page == "3. Threat Detection":
     # 2. Filters & Alert Table
     flt_col1, flt_col2 = st.columns([1, 1.5])
     with flt_col1:
-        sev_filter = st.multiselect("Filter by Severity:", ["Critical", "High", "Medium", "Low"], default=["Critical", "High", "Medium"])
+        sev_filter = st.multiselect("Filter by Severity:", ["CRITICAL", "HIGH", "MEDIUM", "LOW"], default=["CRITICAL", "HIGH", "MEDIUM", "LOW"])
     with flt_col2:
         cat_filter = st.multiselect("Filter by Threat Category:", list(set(a["threat_category"] for a in alerts)), default=list(set(a["threat_category"] for a in alerts)))
 
-    filtered_alerts = [a for a in alerts if (not sev_filter or a["severity"] in sev_filter) and (not cat_filter or a["threat_category"] in cat_filter)]
+    filtered_alerts = [a for a in alerts if (not sev_filter or str(a.get("severity", "")).upper() in sev_filter) and (not cat_filter or a["threat_category"] in cat_filter)]
 
     t_rows = []
     for a in filtered_alerts:
