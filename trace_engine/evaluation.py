@@ -35,6 +35,7 @@ logger = logging.getLogger("trace.evaluation")
 @dataclass
 class TestCase:
     """Represents an individual ground-truth test case for evaluation."""
+    __test__ = False
     test_id: str
     name: str
     description: str
@@ -49,6 +50,7 @@ class TestCase:
 @dataclass
 class TestCaseResult:
     """Individual result after running a TestCase through the ThreatDetectionEngine."""
+    __test__ = False
     test_id: str
     scenario: str
     mode: str
