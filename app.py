@@ -14,6 +14,7 @@ from trace_engine.correlation import CrossSystemCorrelationEngine
 from trace_engine.graph_builder import EvidenceGraphBuilder
 from trace_engine.scenario_templates import ScenarioTemplateEngine, HELD_OUT_EVALUATION_SUITE
 from trace_engine.simulation import SimulationLabRunner
+from trace_engine.evaluation import DefensiveEvaluationEngine
 
 st.set_page_config(
     page_title="TRACE — Threat Recognition, Analysis & Correlation Engine",
@@ -172,7 +173,8 @@ nav_choice = st.sidebar.radio(
         "4. Detections & Alerts",
         "5. Cross-System Correlation & Cases",
         "6. Cybersecurity Simulation Lab",
-        "7. Ingestion & Integrity Audit"
+        "7. Defensive Evaluation Engine",
+        "8. Ingestion & Integrity Audit"
     ]
 )
 
@@ -730,9 +732,166 @@ elif nav_choice == "6. Cybersecurity Simulation Lab":
                 st.dataframe(df_held_out, use_container_width=True, hide_index=True)
 
 # -------------------------------------------------------------------------------------------------
-# TAB 7: INGESTION & INTEGRITY AUDIT
+# TAB 7: DEFENSIVE EVALUATION ENGINE
 # -------------------------------------------------------------------------------------------------
-elif nav_choice == "7. Ingestion & Integrity Audit":
+elif nav_choice == "7. Defensive Evaluation Engine":
+    st.header("Defensive Performance Evaluation Engine")
+    st.markdown("""
+    A reproducible, scientifically rigorous diagnostic framework measuring TRACE's detection capability,
+    alert precision, false-alarm mitigation, and adversarial robustness across enterprise cybersecurity telemetry.
+    """)
+
+    st.info("""
+    **Evidence-Grounding & Evaluation Principles**:
+    - **Original Evidence Separation**: In real competition evidence ($E01$–$E20$), ground truth is unlabelled for background telemetry. Supervised accuracy metrics are strictly NOT calculated on unlabelled case evidence to avoid unscientific bias.
+    - **Isolated Benchmark Dataset**: All 34 benchmark test cases are programmatically synthesized with strict ground-truth labels (**$1$ = Suspicious**, **$0$ = Legitimate**), tagged with `SIMULATED_TEST_LAB` and `is_synthetic: True`.
+    - **Safe Zero-Denominator Handling**: Where denominators evaluate to zero, metrics report `N/A` with an explicit mathematical note rather than arbitrary coercion.
+    """)
+
+    eval_engine = DefensiveEvaluationEngine()
+
+    mode_options = [
+        "Comprehensive Benchmark (All 34 Test Cases)",
+        "Mode A: Rule Validation (14 Test Cases)",
+        "Mode B: Scenario Validation (6 Test Cases)",
+        "Mode C: Unseen Variation Testing (6 Test Cases)",
+        "Mode D: Robustness Stress-Testing (8 Test Cases)"
+    ]
+
+    selected_mode = st.selectbox("Select Evaluation Mode:", mode_options)
+
+    if st.button("🚀 Execute Defensive Performance Evaluation", key="btn_run_eval"):
+        with st.spinner("Executing evaluation battery through ThreatDetectionEngine..."):
+            if "All" in selected_mode:
+                suite_res = eval_engine.run_all()
+            elif "Mode A" in selected_mode:
+                suite_res = eval_engine.run_rule_validation()
+            elif "Mode B" in selected_mode:
+                suite_res = eval_engine.run_scenario_validation()
+            elif "Mode C" in selected_mode:
+                suite_res = eval_engine.run_unseen_variation_testing()
+            else:
+                suite_res = eval_engine.run_robustness_testing()
+
+            st.session_state["evaluation_result"] = suite_res
+
+    suite_res = st.session_state.get("evaluation_result", None)
+
+    if suite_res is not None:
+        m = suite_res.metrics
+
+        st.markdown("---")
+        st.subheader(f"Evaluation Results: {suite_res.mode}")
+
+        # KPI Metrics Row 1
+        c1, c2, c3, c4, c5 = st.columns(5)
+        with c1:
+            st.metric("Total Test Cases", m.total_cases)
+        with c2:
+            st.metric("True Positives (TP)", m.true_positives, "Detected Threats")
+        with c3:
+            st.metric("True Negatives (TN)", m.true_negatives, "Passed Legitimate")
+        with c4:
+            st.metric("False Positives (FP)", m.false_positives, "False Alarms", delta_color="inverse")
+        with c5:
+            st.metric("False Negatives (FN)", m.false_negatives, "Missed Threats", delta_color="inverse")
+
+        # KPI Metrics Row 2
+        p_str = f"{m.precision:.2%}" if m.precision is not None else "N/A"
+        r_str = f"{m.recall:.2%}" if m.recall is not None else "N/A"
+        f1_str = f"{m.f1_score:.2%}" if m.f1_score is not None else "N/A"
+        fpr_str = f"{m.false_positive_rate:.2%}" if m.false_positive_rate is not None else "N/A"
+
+        c6, c7, c8, c9, c10 = st.columns(5)
+        with c6:
+            st.metric("Precision", p_str, m.precision_note)
+        with c7:
+            st.metric("Recall / Detection Rate", r_str, m.recall_note)
+        with c8:
+            st.metric("F1-Score", f1_str, m.f1_note)
+        with c9:
+            st.metric("False Positive Rate", fpr_str, m.fpr_note, delta_color="inverse")
+        with c10:
+            st.metric("Avg Latency", f"{m.avg_detection_time_ms} ms", "Execution time")
+
+        st.markdown("---")
+        
+        col_cm, col_rob = st.columns([1, 1])
+
+        with col_cm:
+            st.markdown("### 2x2 Confusion Matrix")
+            df_cm = pd.DataFrame([
+                {"Ground Truth": "Actual Suspicious (GT=1)", "Predicted Suspicious (Alerted)": f"TP: {m.true_positives}", "Predicted Legitimate (No Alert)": f"FN: {m.false_negatives}"},
+                {"Ground Truth": "Actual Legitimate (GT=0)", "Predicted Suspicious (Alerted)": f"FP: {m.false_positives}", "Predicted Legitimate (No Alert)": f"TN: {m.true_negatives}"}
+            ])
+            st.table(df_cm)
+
+        with col_rob:
+            st.markdown("### Robustness Stress-Testing Dimensions")
+            if suite_res.robustness_breakdown:
+                for r_type, stats in suite_res.robustness_breakdown.items():
+                    pass_pct = int((stats["passed"] / stats["total"]) * 100) if stats["total"] > 0 else 0
+                    st.write(f"**{r_type.replace('_', ' ').title()}**: {stats['passed']}/{stats['total']} Passed ({pass_pct}%)")
+                    st.progress(pass_pct / 100.0)
+            else:
+                st.caption("Select 'Comprehensive Benchmark' or 'Mode D: Robustness Stress-Testing' to inspect all 8 perturbation dimensions.")
+
+        st.markdown("---")
+        st.subheader("Detailed Test Case Evaluation Breakdown")
+
+        # Filter option
+        filter_choice = st.selectbox("Filter Test Cases by Outcome:", ["All", "True Positives (TP)", "True Negatives (TN)", "False Positives (FP)", "False Negatives (FN)"])
+        filtered_cases = suite_res.case_results
+        if filter_choice == "True Positives (TP)":
+            filtered_cases = [c for c in filtered_cases if c.classification == "TP"]
+        elif filter_choice == "True Negatives (TN)":
+            filtered_cases = [c for c in filtered_cases if c.classification == "TN"]
+        elif filter_choice == "False Positives (FP)":
+            filtered_cases = [c for c in filtered_cases if c.classification == "FP"]
+        elif filter_choice == "False Negatives (FN)":
+            filtered_cases = [c for c in filtered_cases if c.classification == "FN"]
+
+        data_rows = []
+        for c in filtered_cases:
+            data_rows.append({
+                "Test ID": c.test_id,
+                "Scenario Name": c.scenario,
+                "Mode": c.mode,
+                "Ground Truth": "1 (Suspicious)" if c.ground_truth == 1 else "0 (Legitimate)",
+                "Detected": "Yes" if c.detection_result == 1 else "No",
+                "Outcome": c.classification,
+                "Expected Alert(s)": c.expected_alert,
+                "Actual Alert(s)": c.actual_alert,
+                "Latency": f"{c.execution_time_ms}ms"
+            })
+        st.dataframe(pd.DataFrame(data_rows), use_container_width=True, hide_index=True)
+
+        st.markdown("---")
+        st.subheader("📥 Download Evaluation Reports")
+        
+        md_content = eval_engine.generate_report(suite_res, format="markdown")
+        json_content = eval_engine.generate_report(suite_res, format="json")
+
+        d_col1, d_col2 = st.columns(2)
+        with d_col1:
+            st.download_button(
+                label="📄 Download Full Markdown Evaluation Report (.md)",
+                data=md_content,
+                file_name=f"TRACE_Defensive_Evaluation_Report.md",
+                mime="text/markdown"
+            )
+        with d_col2:
+            st.download_button(
+                label="📊 Download Evaluation Results Data (.json)",
+                data=json_content,
+                file_name=f"TRACE_Defensive_Evaluation_Data.json",
+                mime="application/json"
+            )
+
+# -------------------------------------------------------------------------------------------------
+# TAB 8: INGESTION & INTEGRITY AUDIT
+# -------------------------------------------------------------------------------------------------
+elif nav_choice == "8. Ingestion & Integrity Audit":
     st.header("Data Ingestion Pipeline & Integrity Verification")
     st.markdown("Audit report confirming evidence preservation, zero synthetic distortion, and timezone handling.")
 

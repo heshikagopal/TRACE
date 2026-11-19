@@ -264,3 +264,60 @@ class SyntheticEventBuilder:
             "expected_classification": expected_classification,
             "scenario_configuration": config_snapshot or {}
         }
+
+    @staticmethod
+    def create_bluevault_event(
+        simulation_id: str,
+        scenario_id: str,
+        principal: str,
+        path: str,
+        action: str = "read",
+        timestamp: Optional[datetime] = None,
+        source_ip: str = "172.16.8.99",
+        bytes_transferred: int = 1048576,
+        expected_classification: str = "BENIGN_BLUEVAULT",
+        config_snapshot: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """Generates a synthetic BlueVault shared storage event (analogous to E05)."""
+        evt_id = f"sim-bv-{uuid.uuid4().hex[:8]}"
+        timestamp = timestamp or datetime(2026, 8, 15, 14, 0, tzinfo=timezone.utc)
+        epoch_s = int(timestamp.timestamp())
+        ts_orig = str(epoch_s)
+
+        raw_record = {
+            "epoch_s": epoch_s,
+            "event_id": evt_id,
+            "principal": principal,
+            "source_ip": source_ip,
+            "action": action,
+            "path": path,
+            "bytes": bytes_transferred,
+            "data_source": SIMULATION_TAG
+        }
+
+        return {
+            "event_id": f"SIM:{evt_id}",
+            "original_event_id": evt_id,
+            "timestamp": timestamp,
+            "timestamp_orig": ts_orig,
+            "timezone_assumption": "Unix Epoch (Simulated approximate)",
+            "source_evidence_id": "E05",
+            "system": "BlueVault",
+            "actor": principal,
+            "actor_type": "user",
+            "action": f"storage.{action}",
+            "target": path,
+            "source_ip": source_ip,
+            "result": "success",
+            "details": {
+                "path": path,
+                "bytes": bytes_transferred,
+                "action": action
+            },
+            "raw_record": raw_record,
+            "is_synthetic": True,
+            "simulation_id": simulation_id,
+            "scenario_id": scenario_id,
+            "expected_classification": expected_classification,
+            "scenario_configuration": config_snapshot or {}
+        }

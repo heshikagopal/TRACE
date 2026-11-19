@@ -86,14 +86,18 @@ crimeathon/
 │   ├── correlation.py             # CrossSystemCorrelationEngine (Cases 01–04)
 │   ├── synthetic_data.py          # Synthetic telemetry generator (safe, labeled SIMULATED)
 │   ├── scenario_templates.py      # Scenarios A–E generators & held-out variation tests
-│   └── simulation.py              # SimulationLabRunner & confusion matrix metrics
+│   ├── simulation.py              # SimulationLabRunner & confusion matrix metrics
+│   └── evaluation.py              # Defensive Performance Evaluation Engine (Modes A–D, Metrics, Reports)
+├── reports/
+│   ├── defensive_performance_report.md   # Downloadable comprehensive evaluation report
+│   └── defensive_performance_report.json # Exported evaluation results data
 └── tests/
     ├── __init__.py
     ├── test_foundation.py         # Ingestion, schema, and baseline detection tests
     ├── test_detection_engine.py   # Detection rules, negatives, duplicates, invalid timestamps
     ├── test_correlation_engine.py # Typed relationships, timelines, clock drift, NetworkX graph
-    └── test_simulation_lab.py     # Scenarios A–E, confusion matrix, held-out variation battery
-```
+    ├── test_simulation_lab.py     # Scenarios A–E, confusion matrix, held-out variation battery
+    └── test_evaluation_engine.py  # Diagnostic metrics, zero-safe math, evaluation modes, robustness
 
 ---
 
@@ -139,7 +143,37 @@ TRACE features a completely local, self-contained simulation laboratory to bench
 
 ---
 
-## 7. Installation & Exact Run Commands
+## 7. Defensive Performance Evaluation Engine
+
+A reproducible diagnostic evaluation framework assessing detection efficacy, false-alarm mitigation, and robustness across 34 ground-truth benchmark cases:
+
+### Evaluation Modes
+1. **Mode A: Rule Validation (14 test cases)**: Tests individual detection rules against isolated positive and negative controls.
+2. **Mode B: Scenario Validation (6 test cases)**: Tests complete multi-event scenarios through the detection and correlation pipeline.
+3. **Mode C: Unseen Variation Testing (6 test cases)**: Assesses generalization against novel IPs, mixed casing, non-standard approval tokens, and off-hours logins.
+4. **Mode D: Robustness Stress-Testing (8 test cases)**: Stress-tests performance under 8 perturbation dimensions:
+   - Missing optional fields
+   - Microsecond timestamp variation
+   - Arbitrary external IP subnets
+   - Out-of-order sequence inversion
+   - High-frequency duplicate telemetry bursts
+   - Legitimate portal bank modifications with dual-authorization
+   - High-volume routine API order syncs
+   - Unrelated background diagnostic noise
+
+### Performance Metrics & Confusion Matrix
+- **Ground Truth**: Explicitly labeled for benchmark cases ($1$ = Suspicious, $0$ = Legitimate).
+- **Separation of Evidence**: Raw competition evidence ($E01$–$E20$) has unknown ground truth and is strictly excluded from supervised accuracy calculations.
+- **Zero-Safe Math**: Safe division handling zero denominators with informative diagnostic notes.
+
+```bash
+# Standalone CLI evaluation
+python -m trace_engine.evaluation
+```
+
+---
+
+## 8. Installation & Exact Run Commands
 
 ### Step 1: Install Dependencies
 ```bash
@@ -150,7 +184,7 @@ pip install -r requirements.txt
 ```bash
 python -m unittest discover tests
 ```
-*Expected output: `Ran 28 tests in ~39s ... OK` across foundation, detection engine, correlation engine, and simulation lab.*
+*Expected output: `Ran 38 tests in ~44s ... OK` across foundation, detection engine, correlation engine, simulation lab, and defensive evaluation engine.*
 
 ### Step 3: Launch Streamlit Application
 ```bash

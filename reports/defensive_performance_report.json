@@ -1,0 +1,884 @@
+{
+  "mode": "Comprehensive Performance Benchmark (All Modes)",
+  "timestamp": "2026-11-19T13:17:05.299731+00:00",
+  "engine_version": "1.0.0-PROD",
+  "metrics": {
+    "total_cases": 34,
+    "true_positives": 22,
+    "false_positives": 0,
+    "true_negatives": 12,
+    "false_negatives": 0,
+    "precision": 1.0,
+    "precision_note": "Valid (Calculated on positive detections)",
+    "recall": 1.0,
+    "recall_note": "Valid (Calculated on ground-truth suspicious cases)",
+    "f1_score": 1.0,
+    "f1_note": "Valid harmonic mean of Precision and Recall",
+    "false_positive_rate": 0.0,
+    "fpr_note": "Valid (Calculated on ground-truth legitimate cases)",
+    "detection_rate": 1.0,
+    "detection_rate_note": "Valid (Calculated on ground-truth suspicious cases)",
+    "avg_detection_time_ms": 9.5,
+    "confusion_matrix": {
+      "Actual_Suspicious": {
+        "Predicted_Suspicious": 22,
+        "Predicted_Legitimate": 0
+      },
+      "Actual_Legitimate": {
+        "Predicted_Suspicious": 0,
+        "Predicted_Legitimate": 12
+      }
+    }
+  },
+  "case_results": [
+    {
+      "test_id": "TC-RULE-AUTH-01",
+      "scenario": "Terminated Employee Account Access (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-AUTH-001",
+      "actual_alert": "RULE-AUTH-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-AUTH-001'].",
+      "execution_time_ms": 11.06,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-AUTH-001"
+      ],
+      "details": {
+        "description": "Departed employee r.menon logs in successfully 44 days post-termination date.",
+        "robustness_type": null,
+        "target_rule": "RULE-AUTH-001"
+      }
+    },
+    {
+      "test_id": "TC-RULE-AUTH-02",
+      "scenario": "Active Employee Routine Login (Negative Control)",
+      "mode": "rule_validation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 13.27,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Active employee p.sharma logs in during regular business hours with valid MFA.",
+        "robustness_type": null,
+        "target_rule": "RULE-AUTH-001"
+      }
+    },
+    {
+      "test_id": "TC-RULE-API-01",
+      "scenario": "API Key Querying High-Risk Financial Endpoint (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-API-001",
+      "actual_alert": "RULE-API-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-API-001'].",
+      "execution_time_ms": 10.8,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-API-001"
+      ],
+      "details": {
+        "description": "Integration credential key-tb-07 probes /v2/vendors/V-0412/bank-details.",
+        "robustness_type": null,
+        "target_rule": "RULE-API-001"
+      }
+    },
+    {
+      "test_id": "TC-RULE-API-02",
+      "scenario": "API Key Used from Threat Indicator Host IP (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-API-002",
+      "actual_alert": "RULE-API-002",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-API-002'].",
+      "execution_time_ms": 5.06,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-API-002"
+      ],
+      "details": {
+        "description": "Integration credential key-tb-07 called from external threat indicator IP 198.18.7.41 (E17).",
+        "robustness_type": null,
+        "target_rule": "RULE-API-002"
+      }
+    },
+    {
+      "test_id": "TC-RULE-API-03",
+      "scenario": "Routine Inventory Sync from Approved Pool IP (Negative Control)",
+      "mode": "rule_validation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 10.35,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Normal scheduled API query to /v2/sync/orders originating from approved sync host 10.20.4.12.",
+        "robustness_type": null,
+        "target_rule": "RULE-API-001"
+      }
+    },
+    {
+      "test_id": "TC-RULE-EXP-01",
+      "scenario": "Support Ticket Reconnaissance for Secrets (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-EXP-001",
+      "actual_alert": "RULE-EXP-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-EXP-001'].",
+      "execution_time_ms": 10.32,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-EXP-001"
+      ],
+      "details": {
+        "description": "Targeted keyword query in HelpDeskr searching for secret keys (bvk-7f3a, api_key).",
+        "robustness_type": null,
+        "target_rule": "RULE-EXP-001"
+      }
+    },
+    {
+      "test_id": "TC-RULE-EXP-02",
+      "scenario": "Abnormal HelpDeskr Bulk Ticket Export Surge (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-EXP-002",
+      "actual_alert": "RULE-EXP-002",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-EXP-002'].",
+      "execution_time_ms": 7.82,
+      "events_count": 16,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-EXP-002"
+      ],
+      "details": {
+        "description": "Burst of 16 ticket exports in 32 minutes triggering billing anomaly (E06 corroboration).",
+        "robustness_type": null,
+        "target_rule": "RULE-EXP-002"
+      }
+    },
+    {
+      "test_id": "TC-RULE-EXP-03",
+      "scenario": "Routine Single Support Ticket View (Negative Control)",
+      "mode": "rule_validation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 11.32,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Standard support agent view operation on an individual customer ticket.",
+        "robustness_type": null,
+        "target_rule": "RULE-EXP-002"
+      }
+    },
+    {
+      "test_id": "TC-RULE-FIN-01",
+      "scenario": "Vendor Bank Detail Modification Without Approval (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-FIN-001, RULE-FIN-002",
+      "actual_alert": "RULE-FIN-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-FIN-001'].",
+      "execution_time_ms": 4.54,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-FIN-001"
+      ],
+      "details": {
+        "description": "Bank account changed with no dual-authorization reference (breaches Policy Section 4.1).",
+        "robustness_type": null,
+        "target_rule": "RULE-FIN-001"
+      }
+    },
+    {
+      "test_id": "TC-RULE-FIN-02",
+      "scenario": "Vendor Bank Detail Modification via UI Missing Approval Reference (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-FIN-002",
+      "actual_alert": "RULE-FIN-002",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-FIN-002'].",
+      "execution_time_ms": 8.77,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-FIN-002"
+      ],
+      "details": {
+        "description": "Vendor bank changes via UI without an approval reference trigger procedural alert RULE-FIN-002.",
+        "robustness_type": null,
+        "target_rule": "RULE-FIN-002"
+      }
+    },
+    {
+      "test_id": "TC-RULE-FIN-03",
+      "scenario": "Legitimate Approved Vendor Address Update (Negative Control)",
+      "mode": "rule_validation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 5.27,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Routine address change submitted via Web Portal with valid dual approval APV-2026-8812.",
+        "robustness_type": null,
+        "target_rule": "RULE-FIN-001"
+      }
+    },
+    {
+      "test_id": "TC-RULE-DOC-01",
+      "scenario": "BlueVault Download of Sensitive Vendor Bank Instructions (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-DOC-001",
+      "actual_alert": "RULE-DOC-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-DOC-001'].",
+      "execution_time_ms": 11.89,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-DOC-001"
+      ],
+      "details": {
+        "description": "Shared storage access to banking instruction sheet using service principal.",
+        "robustness_type": null,
+        "target_rule": "RULE-DOC-001"
+      }
+    },
+    {
+      "test_id": "TC-RULE-DOC-02",
+      "scenario": "Mass Customer Directory Traversal in Shared Storage (Positive)",
+      "mode": "rule_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-DOC-002",
+      "actual_alert": "RULE-DOC-002",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-DOC-002'].",
+      "execution_time_ms": 9.66,
+      "events_count": 55,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-DOC-002"
+      ],
+      "details": {
+        "description": "High volume download of 55 customer statement files within 5 minutes.",
+        "robustness_type": null,
+        "target_rule": "RULE-DOC-002"
+      }
+    },
+    {
+      "test_id": "TC-RULE-DOC-03",
+      "scenario": "Single Routine Policy Document Read (Negative Control)",
+      "mode": "rule_validation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 5.98,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Standard single read access to IT security policy by authorized internal auditor.",
+        "robustness_type": null,
+        "target_rule": "RULE-DOC-001"
+      }
+    },
+    {
+      "test_id": "TC-SCEN-A-POS",
+      "scenario": "Scenario A: Unrevoked Former Employee Access",
+      "mode": "scenario_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-AUTH-001",
+      "actual_alert": "RULE-AUTH-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-AUTH-001'].",
+      "execution_time_ms": 9.98,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-AUTH-001"
+      ],
+      "details": {
+        "description": "Departed employee logs in after exit date, triggering RULE-AUTH-001.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-SCEN-B-POS",
+      "scenario": "Scenario B: Compromised Integration Credential Probe",
+      "mode": "scenario_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-API-001, RULE-API-002",
+      "actual_alert": "RULE-API-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-API-001'].",
+      "execution_time_ms": 5.27,
+      "events_count": 3,
+      "alerts_count": 3,
+      "detected_rule_ids": [
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001"
+      ],
+      "details": {
+        "description": "Integration credential key-tb-07 accesses financial endpoints from build server host.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-SCEN-C-POS",
+      "scenario": "Scenario C: Unauthorized Vendor Bank Detail Modification",
+      "mode": "scenario_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-FIN-001, RULE-FIN-002",
+      "actual_alert": "RULE-API-001, RULE-FIN-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-API-001', 'RULE-FIN-001'].",
+      "execution_time_ms": 9.86,
+      "events_count": 2,
+      "alerts_count": 2,
+      "detected_rule_ids": [
+        "RULE-FIN-001",
+        "RULE-API-001"
+      ],
+      "details": {
+        "description": "Vendor bank details changed via API channel without approval reference.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-SCEN-D-POS",
+      "scenario": "Scenario D: HelpDeskr Credential Reconnaissance & Export Burst",
+      "mode": "scenario_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-EXP-001, RULE-EXP-002",
+      "actual_alert": "RULE-EXP-001, RULE-EXP-002",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-EXP-001', 'RULE-EXP-002'].",
+      "execution_time_ms": 12.12,
+      "events_count": 15,
+      "alerts_count": 2,
+      "detected_rule_ids": [
+        "RULE-EXP-001",
+        "RULE-EXP-002"
+      ],
+      "details": {
+        "description": "Targeted searches for credential terms followed by abnormal ticket export burst.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-SCEN-E-POS",
+      "scenario": "Scenario E: Multi-Stage Cross-System Attack Sequence",
+      "mode": "scenario_validation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-CORR-001, RULE-AUTH-001, RULE-API-001, RULE-FIN-001",
+      "actual_alert": "RULE-EXP-001, RULE-FIN-001, RULE-CORR-001, RULE-AUTH-001, RULE-API-001, RULE-EXP-002",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-EXP-001', 'RULE-FIN-001', 'RULE-CORR-001', 'RULE-AUTH-001', 'RULE-API-001', 'RULE-EXP-002'].",
+      "execution_time_ms": 16.35,
+      "events_count": 19,
+      "alerts_count": 9,
+      "detected_rule_ids": [
+        "RULE-FIN-001",
+        "RULE-CORR-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-AUTH-001",
+        "RULE-EXP-001",
+        "RULE-EXP-002"
+      ],
+      "details": {
+        "description": "Full kill chain spanning HelpDeskr recon, credential theft, build server pivot, and financial fraud.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-SCEN-BENIGN-01",
+      "scenario": "Enterprise Routine Baseline Activity (Negative Control)",
+      "mode": "scenario_validation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 16.62,
+      "events_count": 8,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Interleaved routine operations: active staff logins, approved vendor portal updates, and order syncs.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-UNSEEN-01",
+      "scenario": "Terminated Employee Login from Novel Residential Subnet (Positive)",
+      "mode": "unseen_variation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-AUTH-001",
+      "actual_alert": "RULE-AUTH-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-AUTH-001'].",
+      "execution_time_ms": 8.89,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-AUTH-001"
+      ],
+      "details": {
+        "description": "Tests detection of terminated staff from unobserved public IP 198.51.100.222.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-UNSEEN-02",
+      "scenario": "Sensitive Endpoint Access with Mixed URL Casing (Positive)",
+      "mode": "unseen_variation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-API-001, RULE-API-002",
+      "actual_alert": "RULE-API-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-API-001'].",
+      "execution_time_ms": 7.02,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-API-001"
+      ],
+      "details": {
+        "description": "Tests case-insensitive path matching for high-risk financial endpoints.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-UNSEEN-03",
+      "scenario": "Vendor Bank Modification with Novel Approval Token (Negative Control)",
+      "mode": "unseen_variation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 12.84,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Tests that non-standard approval token prefixes (CHG-MGMT-*) do not generate false alarms.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-UNSEEN-04",
+      "scenario": "Benign Synchronization to Novel Sub-Endpoint (Negative Control)",
+      "mode": "unseen_variation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 4.74,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Tests that queries to new benign sync sub-routes (/v2/sync/catalog) remain alert-free.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-UNSEEN-05",
+      "scenario": "API Bank Modification with Fraudulent Bypass Reference (Positive)",
+      "mode": "unseen_variation",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-FIN-002",
+      "actual_alert": "RULE-FIN-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-FIN-001'].",
+      "execution_time_ms": 7.89,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-FIN-001"
+      ],
+      "details": {
+        "description": "Tests that API bank changes are flagged under RULE-FIN-002 even if an attacker injects a fake ref.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-UNSEEN-06",
+      "scenario": "Active On-Call Engineer Night Login (Negative Control)",
+      "mode": "unseen_variation",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 7.07,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Tests that off-hours logins by verified active staff with hardware MFA do not produce false positives.",
+        "robustness_type": null,
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-ROB-01-MISSING-FIELDS",
+      "scenario": "Robustness: Missing Optional Fields in Vendor Change",
+      "mode": "robustness",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-FIN-001, RULE-FIN-002",
+      "actual_alert": "RULE-FIN-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-FIN-001'].",
+      "execution_time_ms": 5.78,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-FIN-001"
+      ],
+      "details": {
+        "description": "Evaluates rule resilience when optional telemetry fields (vendor_name, request_id) are omitted.",
+        "robustness_type": "missing_optional_fields",
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-ROB-02-TIMESTAMP-VARIATION",
+      "scenario": "Robustness: Microsecond Timestamp Representation",
+      "mode": "robustness",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-API-001, RULE-API-002",
+      "actual_alert": "RULE-API-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-API-001'].",
+      "execution_time_ms": 6.13,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-API-001"
+      ],
+      "details": {
+        "description": "Evaluates parser resilience with sub-second microsecond timestamps and ISO-8601 formatting.",
+        "robustness_type": "timestamp_variation",
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-ROB-03-DIFFERENT-IPS",
+      "scenario": "Robustness: Arbitrary External Public IP Address",
+      "mode": "robustness",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-API-002",
+      "actual_alert": "RULE-API-002",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-API-002'].",
+      "execution_time_ms": 6.68,
+      "events_count": 1,
+      "alerts_count": 1,
+      "detected_rule_ids": [
+        "RULE-API-002"
+      ],
+      "details": {
+        "description": "Evaluates unauthorized network caller detection against unseen external IPv4 addresses.",
+        "robustness_type": "different_ips",
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-ROB-04-CHANGED-SEQUENCE",
+      "scenario": "Robustness: Out-of-Order Event Sequence Inversion",
+      "mode": "robustness",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-AUTH-001, RULE-API-001, RULE-FIN-001",
+      "actual_alert": "RULE-EXP-001, RULE-FIN-001, RULE-CORR-001, RULE-AUTH-001, RULE-API-001, RULE-EXP-002",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-EXP-001', 'RULE-FIN-001', 'RULE-CORR-001', 'RULE-AUTH-001', 'RULE-API-001', 'RULE-EXP-002'].",
+      "execution_time_ms": 17.76,
+      "events_count": 19,
+      "alerts_count": 9,
+      "detected_rule_ids": [
+        "RULE-FIN-001",
+        "RULE-CORR-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-AUTH-001",
+        "RULE-EXP-001",
+        "RULE-EXP-002"
+      ],
+      "details": {
+        "description": "Evaluates multi-stage detection when log ingestion arrives out of strict chronological sequence.",
+        "robustness_type": "changed_sequence",
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-ROB-05-DUPLICATE-RECORDS",
+      "scenario": "Robustness: High-Frequency Duplicate Telemetry Stream",
+      "mode": "robustness",
+      "ground_truth": 1,
+      "detection_result": 1,
+      "classification": "TP",
+      "expected_alert": "RULE-API-001, RULE-API-002",
+      "actual_alert": "RULE-API-001",
+      "result": "Correct Detection (TP)",
+      "explanation": "Suspicious scenario correctly detected. Triggered rule(s): ['RULE-API-001'].",
+      "execution_time_ms": 8.44,
+      "events_count": 15,
+      "alerts_count": 15,
+      "detected_rule_ids": [
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001",
+        "RULE-API-001"
+      ],
+      "details": {
+        "description": "Evaluates engine resilience against log replays and deduplicates excessive alert floods.",
+        "robustness_type": "duplicate_records",
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-ROB-06-LEGITIMATE-VENDOR",
+      "scenario": "Robustness: Dual-Authorized Portal Bank Modification (Negative Control)",
+      "mode": "robustness",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 7.07,
+      "events_count": 1,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Evaluates specificity on legitimate bank changes submitted via UI with valid dual approval APV-2026-7701.",
+        "robustness_type": "legitimate_vendor_change",
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-ROB-07-NORMAL-API",
+      "scenario": "Robustness: 50 High-Frequency Normal Sync API Calls (Negative Control)",
+      "mode": "robustness",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 10.72,
+      "events_count": 50,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Evaluates noise suppression across high-volume automated sync traffic from approved pool host.",
+        "robustness_type": "normal_api_activity",
+        "target_rule": null
+      }
+    },
+    {
+      "test_id": "TC-ROB-08-UNRELATED-NOISE",
+      "scenario": "Robustness: Unrelated Multi-System Diagnostic Noise (Negative Control)",
+      "mode": "robustness",
+      "ground_truth": 0,
+      "detection_result": 0,
+      "classification": "TN",
+      "expected_alert": "None (Legitimate)",
+      "actual_alert": "None (No Alert)",
+      "result": "Correct Pass (TN)",
+      "explanation": "Legitimate/benign activity correctly passed without raising false alerts.",
+      "execution_time_ms": 15.79,
+      "events_count": 2,
+      "alerts_count": 0,
+      "detected_rule_ids": [],
+      "details": {
+        "description": "Evaluates false-alarm immunity against unrelated operational background telemetry.",
+        "robustness_type": "unrelated_events",
+        "target_rule": null
+      }
+    }
+  ],
+  "false_positive_examples": [],
+  "false_negative_examples": [],
+  "robustness_breakdown": {
+    "missing_optional_fields": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "timestamp_variation": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "different_ips": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "changed_sequence": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "duplicate_records": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "legitimate_vendor_change": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "normal_api_activity": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    },
+    "unrelated_events": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0
+    }
+  },
+  "test_configuration": {
+    "evaluation_engine_version": "1.0.0-PROD",
+    "suite_name": "Comprehensive Performance Benchmark (All Modes)",
+    "rules_evaluated": [
+      "RULE-AUTH-001",
+      "RULE-API-001",
+      "RULE-EXP-001",
+      "RULE-FIN-001",
+      "RULE-DOC-001"
+    ],
+    "total_test_cases": 34,
+    "simulated_tag": "SIMULATED_TEST_LAB"
+  }
+}

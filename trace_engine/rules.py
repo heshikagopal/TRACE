@@ -209,31 +209,44 @@ class RuleSuspiciousAPIActivity(BaseRule):
                     rule_metadata={"endpoint": target, "method": method}
                 ))
 
-            # Condition 2: Indicators from E17
-            if caller_ip in ["198.18.7.41", "198.18.7.58"] or key_id == "key-tb-03":
+            # Condition 2: Unauthorized network source or Indicators from E17
+            is_ioc_match = caller_ip in ["198.18.7.41", "198.18.7.58"] or key_id == "key-tb-03"
+            is_unapproved_pool = False
+            if key_id.startswith("key-tb"):
+                if caller_ip.startswith("10.20.4."):
+                    try:
+                        last_octet = int(caller_ip.split(".")[-1])
+                        if not (11 <= last_octet <= 16) and caller_ip != "10.20.4.77":
+                            is_unapproved_pool = True
+                    except ValueError:
+                        is_unapproved_pool = True
+                elif caller_ip not in ("127.0.0.1", "localhost"):
+                    is_unapproved_pool = True
+
+            if is_ioc_match or is_unapproved_pool:
                 score, severity = RiskScoreCalculator.calculate(
                     asset_type="general_telemetry",
                     is_success=(str(evt["result"]) == "200"),
                     is_api_channel=True,
                     unusual_network_source=True,
-                    evidence_confidence="Unverified Indicator"
+                    evidence_confidence="Unverified Indicator" if is_ioc_match else "High Confidence"
                 )
                 alerts.append(ThreatAlert(
                     alert_id=f"ALT-IOC-{evt['original_event_id']}",
                     rule_id="RULE-API-002",
-                    threat_category="Threat Intelligence",
+                    threat_category="Network & Threat Intelligence",
                     severity=severity,
                     risk_score=score,
                     detection_explanation=(
-                        f"Observed API invocation matching third-party threat indicator (E17): "
-                        f"caller_ip={caller_ip}, credential={key_id} on {target}. Preserved with unverified confidence."
+                        f"Observed API invocation from unauthorized source IP {caller_ip} using credential '{key_id}' on {target}. "
+                        f"Violates registered IP boundary (approved sync pool: 10.20.4.11-10.20.4.16)."
                     ),
                     triggering_event_ids=[evt["event_id"]],
-                    evidence_ids=[evt["source_evidence_id"], "E17"],
+                    evidence_ids=[evt["source_evidence_id"], "E17" if is_ioc_match else "E04"],
                     original_timestamps=[evt["timestamp_orig"]],
                     normalised_timestamps=[evt["timestamp"].isoformat() if evt["timestamp"] else evt["timestamp_orig"]],
-                    confidence="Unverified Indicator",
-                    recommended_action="Validate indicator validity with TallyBridge security team and review associated session logs.",
+                    confidence="Unverified Indicator" if is_ioc_match else "High Confidence",
+                    recommended_action="Validate caller identity, block unauthorized IP, and enforce mTLS on API gateway.",
                     target_entity=key_id or caller_ip,
                     source_ip=caller_ip
                 ))
@@ -269,14 +282,14 @@ class RuleHelpdeskExportActivity(BaseRule):
 
         # Sub-rule A: Targeted credential keyword searches
         sensitive_keywords = ["password", "api_key", "secret", "token", "bearer", "private key", "bluevault", "bvk-"]
-        searches = hd_events[hd_events["action"] == "ticket.search"]
+        searches = hd_events[hd_events["action"].isin(["ticket.search", "search.tickets"])]
         flagged_searches = []
         for _, s in searches.iterrows():
             details_str = str(s.get("details", {}).get("details", "")).lower()
             if any(k in details_str for k in sensitive_keywords):
                 flagged_searches.append(s)
 
-        if len(flagged_searches) >= 3:
+        if len(flagged_searches) >= 1:
             first_s = flagged_searches[0]
             score, severity = RiskScoreCalculator.calculate(
                 asset_type="identity_credential",
@@ -509,12 +522,12 @@ class RuleUnusualDocumentAccess(BaseRule):
             ))
 
         # Condition B: Key bvk-7f3a accessing broad cross-customer directories
-        bvk_events = bv_events[bv_events["actor"] == "key:bvk-7f3a"]
+        bvk_events = bv_events[bv_events["actor"].str.contains("bvk-7f3a", case=False, na=False)]
         if not bvk_events.empty:
             cust_dirs = set()
             for path in bvk_events["target"]:
                 parts = str(path).split("/")
-                if len(parts) > 2 and parts[1] == "customer-docs":
+                if len(parts) > 2 and ("customer" in parts[1].lower()):
                     cust_dirs.add(parts[2])
 
             if len(cust_dirs) > 10:

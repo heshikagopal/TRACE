@@ -345,6 +345,46 @@ class ScenarioTemplateEngine:
         all_events.sort(key=lambda e: e["timestamp"])
         return all_events, combined_context
 
+    # -------------------------------------------------------------------------
+    # BENIGN ENTERPRISE BASELINE
+    # -------------------------------------------------------------------------
+    @staticmethod
+    def generate_benign_baseline() -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
+        """
+        Generates a comprehensive stream of legitimate enterprise activities spanning
+        SSO, LedgerOne API, HelpDeskr, and Vendor Master changes with full compliance.
+        """
+        events = []
+        context = {}
+        
+        # 1. Active staff login
+        evs_a, ctx_a = ScenarioTemplateEngine.generate_scenario_a_former_employee(
+            is_terminated=False, login_success=True, source_ip="172.16.8.20", username="v.kumar"
+        )
+        events.extend(evs_a)
+        context.update(ctx_a)
+        
+        # 2. Legitimate API order sync from approved pool
+        evs_b, _ = ScenarioTemplateEngine.generate_scenario_b_api_activity(
+            is_suspicious_caller=False, is_sensitive_endpoint=False, caller_ip="10.20.4.11", event_count=5
+        )
+        events.extend(evs_b)
+        
+        # 3. Approved vendor address update via Portal
+        evs_c, _ = ScenarioTemplateEngine.generate_scenario_c_vendor_modification(
+            field_changed="address", channel="UI", has_approval_ref=True, approval_ref_val="APV-2026-9001"
+        )
+        events.extend(evs_c)
+        
+        # 4. Routine single ticket resolution
+        evs_d, _ = ScenarioTemplateEngine.generate_scenario_d_export_activity(
+            is_burst=False, include_recon_searches=False, export_count=1
+        )
+        events.extend(evs_d)
+        
+        events.sort(key=lambda e: e["timestamp"])
+        return events, context
+
 
 # -----------------------------------------------------------------------------
 # HELD-OUT EVALUATION TEST SUITE
