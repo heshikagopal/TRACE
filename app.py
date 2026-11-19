@@ -927,29 +927,24 @@ elif nav_page == "3. Threat Detection":
             d_left, d_right = st.columns([1.7, 1])
 
             with d_left:
-                st.markdown(f"""
-                <div class="forensic-panel">
-                    <div class="forensic-title forensic-title-blue">🎯 WHY WAS THIS FLAGGED?</div>
-                    <div class="forensic-body">{sel_alert['detection_explanation']}</div>
-                    
-                    <div class="forensic-title forensic-title-emerald">📑 WHAT EVIDENCE SUPPORTS IT?</div>
-                    <div class="forensic-body">
-                        Direct forensic telemetry extracted from: <b>{', '.join(sel_alert['evidence_ids'])}</b>.<br>
-                        Triggered by event record: <code>{sel_alert['triggering_event_ids'][0] if sel_alert['triggering_event_ids'] else 'System Event'}</code>.
-                    </div>
-                    
-                    <div class="forensic-title forensic-title-amber">⚖️ WHICH RULE WAS VIOLATED?</div>
-                    <div class="forensic-body">
-                        Rule Code: <code>{sel_alert['rule_id']}</code> (Category: {sel_alert['threat_category']})<br>
-                        Enterprise Policy: Violated Dual-Control & Least-Privilege Access Baseline (SOC Policy Clause 4.2).
-                    </div>
-                    
-                    <div class="forensic-title forensic-title-crimson">🛡️ WHAT SHOULD THE INVESTIGATOR DO NEXT?</div>
-                    <div class="forensic-body" style="background-color: rgba(239, 68, 68, 0.08); border-left: 3px solid #EF4444; padding: 10px 12px; border-radius: 4px; color: #FCA5A5;">
-                        {sel_alert['recommended_action']}
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f"""<div class="forensic-panel">
+<div class="forensic-title forensic-title-blue">🎯 WHY WAS THIS FLAGGED?</div>
+<div class="forensic-body">{sel_alert['detection_explanation']}</div>
+<div class="forensic-title forensic-title-emerald">📑 WHAT EVIDENCE SUPPORTS IT?</div>
+<div class="forensic-body">
+Direct forensic telemetry extracted from: <b>{', '.join(sel_alert['evidence_ids'])}</b>.<br>
+Triggered by event record: <code>{sel_alert['triggering_event_ids'][0] if sel_alert['triggering_event_ids'] else 'System Event'}</code>.
+</div>
+<div class="forensic-title forensic-title-amber">⚖️ WHICH RULE WAS VIOLATED?</div>
+<div class="forensic-body">
+Rule Code: <code>{sel_alert['rule_id']}</code> (Category: {sel_alert['threat_category']})<br>
+Enterprise Policy: Violated Dual-Control & Least-Privilege Access Baseline (SOC Policy Clause 4.2).
+</div>
+<div class="forensic-title forensic-title-crimson">🛡️ WHAT SHOULD THE INVESTIGATOR DO NEXT?</div>
+<div class="forensic-body" style="background-color: rgba(239, 68, 68, 0.08); border-left: 3px solid #EF4444; padding: 10px 12px; border-radius: 4px; color: #FCA5A5;">
+{sel_alert['recommended_action']}
+</div>
+</div>""", unsafe_allow_html=True)
 
             with d_right:
                 score = sel_alert["risk_score"]
@@ -1022,29 +1017,35 @@ elif nav_page == "4. Investigation Workspace":
         sel_case_id = st.selectbox("Select Active Investigation Case:", case_keys, format_func=lambda k: f"{k}: {cases[k].title}")
     
     current_case = cases[sel_case_id]
+    all_systems = sorted(list(set(e.source_system for e in current_case.timeline)))
+    all_rels = sorted(list(set(e.relationship_type for e in current_case.timeline)))
 
     with c_sel2:
-        system_filter = st.multiselect("Filter Systems:", list(set(e.source_system for e in current_case.events)), default=list(set(e.source_system for e in current_case.events)))
+        system_filter = st.multiselect("Filter Systems:", all_systems, default=all_systems)
     with c_sel3:
-        rel_filter = st.multiselect("Filter Relationships:", ["Direct Match", "Temporal", "Contextual", "Unverified"], default=["Direct Match", "Temporal", "Contextual", "Unverified"])
+        rel_filter = st.multiselect("Filter Relationships:", all_rels, default=all_rels)
 
     case_events = [
-        e for e in current_case.events
-        if (not system_filter or e.source_system in system_filter) and (not rel_filter or e.relationship_type.value in rel_filter)
+        e for e in current_case.timeline
+        if (not system_filter or e.source_system in system_filter) and (not rel_filter or e.relationship_type in rel_filter)
     ]
 
     # Case Summary Card
+    final_score = current_case.risk_assessment.get("final_score", 0.0)
+    sev_level = current_case.risk_assessment.get("severity", "MEDIUM")
+    involved_sys_count = len(set(e.source_system for e in current_case.timeline))
+
     st.markdown(f"""
     <div style="background-color: #0F172A; border: 1px solid #1E293B; border-radius: 8px; padding: 18px; margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
             <div style="font-size: 1.2rem; font-weight: 700; color: #F8FAFC;">{current_case.title}</div>
-            <span class="badge-sev badge-critical">COMPOSITE RISK: {current_case.composite_score:.1f} / 100</span>
+            <span class="badge-sev badge-{sev_level.lower()}">COMPOSITE RISK: {final_score:.1f} / 100 ({sev_level})</span>
         </div>
         <div style="font-size: 0.9rem; color: #94A3B8; margin-bottom: 14px; line-height: 1.5;">{current_case.summary}</div>
         <div style="display: flex; gap: 24px; font-size: 0.82rem; color: #CBD5E1; border-top: 1px solid #1E293B; padding-top: 10px;">
-            <div><b>Systems Spanned:</b> <span style="color: #38BDF8;">{len(current_case.involved_systems)}</span></div>
+            <div><b>Systems Spanned:</b> <span style="color: #38BDF8;">{involved_sys_count}</span></div>
             <div><b>Correlated Events:</b> <span style="color: #10B981;">{len(case_events)}</span></div>
-            <div><b>Supporting Evidence:</b> <span style="color: #FBBF24;">{', '.join(current_case.involved_evidence)}</span></div>
+            <div><b>Supporting Evidence:</b> <span style="color: #FBBF24;">{', '.join(current_case.primary_evidence_ids)}</span></div>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1060,13 +1061,13 @@ elif nav_page == "4. Investigation Workspace":
     if case_events:
         timeline_data = []
         for e in case_events:
-            dt = e.normalised_timestamp if e.normalised_timestamp else datetime.now(timezone.utc)
+            dt = e.timestamp if e.timestamp is not None else datetime.now(timezone.utc)
             timeline_data.append({
                 "Timestamp": dt,
                 "System": e.source_system,
-                "Description": e.event_description,
+                "Description": e.description,
                 "Evidence": e.evidence_id,
-                "Relationship": e.relationship_type.value,
+                "Relationship": e.relationship_type,
                 "Confidence": e.confidence
             })
         df_tl = pd.DataFrame(timeline_data)
@@ -1096,11 +1097,11 @@ elif nav_page == "4. Investigation Workspace":
             tl_table_rows = []
             for e in case_events:
                 tl_table_rows.append({
-                    "Normalised UTC": e.normalised_timestamp.strftime("%Y-%m-%d %H:%M:%S") if e.normalised_timestamp else "N/A",
+                    "Normalised UTC": e.normalised_timestamp_str,
                     "Source System": e.source_system,
-                    "Description": e.event_description,
+                    "Description": e.description,
                     "Evidence ID": e.evidence_id,
-                    "Relationship Type": e.relationship_type.value,
+                    "Relationship Type": e.relationship_type,
                     "Uncertainty / Caveat": e.uncertainty_notes or "Verified Ground Truth"
                 })
             st.dataframe(pd.DataFrame(tl_table_rows), use_container_width=True, hide_index=True)
@@ -1133,13 +1134,13 @@ elif nav_page == "4. Investigation Workspace":
             <div style="font-size: 0.78rem; color: #94A3B8;">Mathematical breakdown of composite case risk</div>
         </div>
         """, unsafe_allow_html=True)
-        factors = current_case.risk_factors
+        bd = current_case.risk_assessment.get("breakdown", {})
         df_factors = pd.DataFrame([
-            {"Scoring Dimension": "System Diversity Contribution", "Points Awarded": f"+{factors.get('system_diversity_points', 0):.1f}"},
-            {"Scoring Dimension": "Direct Identifier Matches", "Points Awarded": f"+{factors.get('direct_match_points', 0):.1f}"},
-            {"Scoring Dimension": "Policy & Control Breaches", "Points Awarded": f"+{factors.get('policy_breach_points', 0):.1f}"},
-            {"Scoring Dimension": "Attack Sequence Progression", "Points Awarded": f"+{factors.get('sequence_points', 0):.1f}"},
-            {"Scoring Dimension": "Clock Drift & Unverified Deductions", "Points Awarded": f"-{factors.get('uncertainty_penalty', 0):.1f}"}
+            {"Scoring Dimension": "System Diversity Contribution", "Points Awarded": f"+{bd.get('independent_systems_involved', {}).get('points', 0):.1f}"},
+            {"Scoring Dimension": "Direct Identifier Matches", "Points Awarded": f"+{bd.get('direct_identifier_matches', {}).get('points', 0):.1f}"},
+            {"Scoring Dimension": "Policy & Control Breaches", "Points Awarded": f"+{bd.get('policy_and_control_breaches', {}).get('points', 0):.1f}"},
+            {"Scoring Dimension": "Attack Sequence Progression", "Points Awarded": f"+{bd.get('multi_stage_progression', {}).get('points', 0):.1f}"},
+            {"Scoring Dimension": "Clock Drift & Unverified Deductions", "Points Awarded": f"-{bd.get('timestamp_and_source_uncertainty', {}).get('deductions', 0):.1f}"}
         ])
         st.table(df_factors)
 
@@ -1152,7 +1153,7 @@ elif nav_page == "4. Investigation Workspace":
         """, unsafe_allow_html=True)
         st.markdown("<div style='background-color:#0F172A; border:1px solid #1E293B; border-radius:8px; padding:14px;'>", unsafe_allow_html=True)
         st.markdown("<b style='color:#34D399; font-size:0.85rem;'>CONFIRMED FORENSIC FACTS:</b>", unsafe_allow_html=True)
-        for fact in current_case.confirmed_facts:
+        for fact in current_case.facts_observed:
             st.markdown(f"<div style='font-size:0.83rem; margin-bottom:4px; color:#E2E8F0;'>✅ {fact}</div>", unsafe_allow_html=True)
 
         st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
