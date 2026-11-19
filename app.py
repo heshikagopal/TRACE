@@ -9,7 +9,9 @@ import streamlit as st
 import pandas as pd
 from trace_engine.ingestion import EvidenceIngestor, EVIDENCE_CATALOG
 from trace_engine.normalisation import EventNormaliser, load_and_normalise_all
-from trace_engine.detection import DetectionEngine
+from trace_engine.detection import ThreatDetectionEngine
+from trace_engine.correlation import CrossSystemCorrelationEngine
+from trace_engine.graph_builder import EvidenceGraphBuilder
 
 st.set_page_config(
     page_title="TRACE — Threat Recognition, Analysis & Correlation Engine",
@@ -64,13 +66,37 @@ st.markdown("""
         font-weight: 600;
         font-size: 0.85rem;
     }
-    .alert-card {
-        border-left: 5px solid #DC2626;
-        background-color: #FFFFFF;
-        padding: 16px;
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        margin-bottom: 15px;
+    .badge-direct {
+        background-color: #D1FAE5;
+        color: #065F46;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+    .badge-temporal {
+        background-color: #EDE9FE;
+        color: #5B21B6;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+    .badge-contextual {
+        background-color: #E0F2FE;
+        color: #0369A1;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
+    }
+    .badge-unverified {
+        background-color: #F3F4F6;
+        color: #4B5563;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.8rem;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -97,8 +123,29 @@ def get_normalised_events(base_dir: str = "data/original"):
 def get_alerts(base_dir: str = "data/original"):
     ingestor = get_ingestor(base_dir)
     df_events = get_normalised_events(base_dir)
-    engine = DetectionEngine(ingestor)
-    return engine.run_all_detections(df_events)
+    engine = ThreatDetectionEngine(ingestor)
+    return [a.to_dict() for a in engine.evaluate_events(df_events)]
+
+
+@st.cache_data
+def get_investigation_cases(base_dir: str = "data/original"):
+    ingestor = get_ingestor(base_dir)
+    df_events = get_normalised_events(base_dir)
+    corr_engine = CrossSystemCorrelationEngine(ingestor)
+    return corr_engine.build_all_cases(df_events)
+
+
+@st.cache_data
+def get_graph_data(base_dir: str = "data/original"):
+    ingestor = get_ingestor(base_dir)
+    cases = get_investigation_cases(base_dir)
+    context = {
+        "E14": ingestor.load_csv("E14"),
+        "E04": ingestor.load_json("E04")
+    }
+    builder = EvidenceGraphBuilder()
+    builder.build_full_case_graph(context, list(cases.values()))
+    return builder
 
 
 # Sidebar
@@ -113,7 +160,7 @@ nav_choice = st.sidebar.radio(
         "2. Evidence Inventory & Centre",
         "3. Common Event Stream",
         "4. Detections & Alerts",
-        "5. Cross-System Attack Chain",
+        "5. Cross-System Correlation & Cases",
         "6. Ingestion & Integrity Audit"
     ]
 )
@@ -139,7 +186,7 @@ if nav_choice == "1. Overview & Strategy":
     with col3:
         st.metric("Active Detection Rules", "5", "Evidence-Backed")
     with col4:
-        st.metric("Critical Security Alerts", "6", "Correlated Findings")
+        st.metric("Investigation Cases", "4", "Cross-System Correlated")
 
     st.markdown("---")
     
@@ -306,87 +353,179 @@ elif nav_choice == "4. Detections & Alerts":
                 </div>
             </div>
             <div style="color: #4B5563; font-size: 0.9rem; margin-bottom: 10px;">
-                <b>Category:</b> {a['detection_category']} | <b>Target:</b> {a.get('target_entity', 'N/A')} | <b>Source IP:</b> {a.get('source_ip', 'N/A')} | <b>Timestamp:</b> {a.get('timestamp', 'N/A')}
+                <b>Category:</b> {a['threat_category']} | <b>Target:</b> {a.get('target_entity', 'N/A')} | <b>Source IP:</b> {a.get('source_ip', 'N/A')} | <b>Timestamp:</b> {a.get('timestamp', 'N/A')}
             </div>
             <div style="color: #1F2937; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.5;">
-                {a['explanation']}
+                {a['detection_explanation']}
             </div>
             <div style="background-color: #EFF6FF; border-left: 3px solid #3B82F6; padding: 10px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 10px;">
                 <b>💡 Recommended Action:</b> {a['recommended_action']}
             </div>
             <div style="font-size: 0.82rem; color: #6B7280;">
-                <b>Supporting Evidence IDs:</b> {', '.join(a['original_evidence_ids'])} | <b>Related Event IDs:</b> {', '.join(a['related_event_ids'][:5])}
+                <b>Supporting Evidence IDs:</b> {', '.join(a['evidence_ids'])} | <b>Related Event IDs:</b> {', '.join(a['triggering_event_ids'][:5])}
             </div>
         </div>
         """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------------------------------------------
-# TAB 5: CROSS-SYSTEM ATTACK CHAIN
+# TAB 5: CROSS-SYSTEM CORRELATION & CASES
 # -------------------------------------------------------------------------------------------------
-elif nav_choice == "5. Cross-System Attack Chain":
-    st.header("Investigation Timeline & Cross-System Correlation")
-    st.markdown("Chronological reconstruction linking disparate records across HelpDeskr, BlueVault, LedgerOne, and Private-Link Flow Logs.")
+elif nav_choice == "5. Cross-System Correlation & Cases":
+    st.header("Cross-System Correlation Engine & Investigation Cases")
+    st.markdown("Ground-truth correlation linking disparate records across E01–E20 with typed relationships and transparent risk scoring.")
 
-    st.subheader("Reconstructed Attack Sequence")
-    
-    timeline_steps = [
-        {
-            "date": "10 June 2024",
-            "phase": "Governance & Onboarding",
-            "evidence": "E07, E08, E04",
-            "summary": "TallyBridge Connect integration approved without CISO sign-off; MSA signed with broad unscoped permissions (key-tb-07 issued with 'read:write all-modules' and no IP restriction). Annual review due June 2025 was never conducted."
-        },
-        {
-            "date": "30 June 2026",
-            "phase": "Access Management Gap",
-            "evidence": "E14, E09, E11",
-            "summary": "Accounts Payable clerk Rohan Menon exits company. Account is left active in directory due to manual HR-IT synchronization gaps (Risk R-018, Audit Finding 3)."
-        },
-        {
-            "date": "11–12 August 2026",
-            "phase": "Credential Reconnaissance & Exfiltration",
-            "evidence": "E02, E06, E13",
-            "summary": "Actor searches HelpDeskr tickets for secret keywords ('password', 'bvk-', 'token', 'private key') and executes 30 bulk ticket export jobs. Triggers E06 billing alert (14 exports above plan allowance)."
-        },
-        {
-            "date": "13 August 2026",
-            "phase": "Former Employee Sign-In",
-            "evidence": "E03, E14",
-            "summary": "SSO sign-in event sso-bb8ab61e08 recorded for terminated clerk r.menon from warehouse kiosk IP. Substantiates employee exit deprovisioning failure."
-        },
-        {
-            "date": "21 & 28 August 2026",
-            "phase": "Vendor Disclosure Context",
-            "evidence": "E12, E16, E17",
-            "summary": "TallyBridge sends email notices advising of 'precautionary measures' and compromises in upstream environments. Attached indicator list E17 provides unverified threat intelligence."
-        },
-        {
-            "date": "03 September 2026",
-            "phase": "Unauthorized Financial Tampering",
-            "evidence": "E15, E18, E19, E20",
-            "summary": "Using key-tb-07 from internal build host 10.20.4.77 (tb-build-02), attacker queries /v2/vendors/V-0412/bank-details and /v2/payments/scheduled, then issues PATCH changing Coastal Packaging Ltd bank account to ****9083 with no approval reference."
-        }
-    ]
+    cases = get_investigation_cases(base_dir)
+    graph_builder = get_graph_data(base_dir)
 
-    for step in timeline_steps:
-        st.markdown(f"""
-        <div style="border-left: 4px solid #2563EB; padding-left: 15px; margin-bottom: 18px;">
-            <div style="font-weight: 700; color: #1E40AF; font-size: 1.05rem;">{step['date']} — {step['phase']}</div>
-            <div style="color: #374151; font-size: 0.95rem; margin: 4px 0;">{step['summary']}</div>
-            <div style="font-size: 0.8rem; color: #6B7280;"><b>Cites Evidence:</b> {step['evidence']}</div>
-        </div>
-        """, unsafe_allow_html=True)
+    selected_case_id = st.selectbox(
+        "Select Active Investigation Case",
+        list(cases.keys()),
+        format_func=lambda cid: f"{cid}: {cases[cid].title}"
+    )
+    active_case = cases[selected_case_id]
+
+    # Overview of the selected case
+    c1, c2, c3 = st.columns([2, 1, 1])
+    with c1:
+        st.subheader(active_case.title)
+        st.markdown(f"**Focus:** {active_case.focus}")
+        st.markdown(f"**Summary:** {active_case.summary}")
+    with c2:
+        risk_data = active_case.risk_assessment
+        st.metric("Case Risk Score", f"{risk_data['final_score']} / 100", f"Severity: {risk_data['severity']}")
+        st.markdown(f"**Primary Entities:** {', '.join(active_case.primary_entities)}")
+    with c3:
+        st.markdown(f"**Cites Evidence IDs:** {', '.join(active_case.primary_evidence_ids)}")
+        st.markdown(f"**Timeline Events:** {len(active_case.timeline)}")
 
     st.markdown("---")
-    st.subheader("Correlated Entities & Cross-References")
-    corr_df = pd.DataFrame([
-        {"Entity": "key-tb-07", "Appears In": "E04 (Register), E18 (API Log), E19 (Vendor Master)", "Role in Case": "TallyBridge integration key used to alter vendor bank account"},
-        {"Entity": "10.20.4.77", "Appears In": "E15 (Flow Log), E18 (API Access), E20 (Status Page)", "Role in Case": "Source IP of unauthorized API calls; identified as tb-build-02"},
-        {"Entity": "r.menon", "Appears In": "E14 (Staff Roster), E03 (SSO Log)", "Role in Case": "Terminated clerk whose credentials remained active and were accessed 13 Aug"},
-        {"Entity": "bvk-7f3a", "Appears In": "E13 (Chat Export), E02 (Audit Log), E05 (BlueVault)", "Role in Case": "BlueVault shared access key exposed in support ticket TKT-48213"},
-        {"Entity": "V-0412", "Appears In": "E18 (API Endpoint), E19 (Change Log)", "Role in Case": "Coastal Packaging Ltd; targeted vendor whose bank account was modified"}
+
+    # Tabs inside Case Investigation: Timeline, Transparent Risk Scoring, Facts vs Hypotheses, NetworkX Graph
+    sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
+        "📅 Correlated Incident Timeline",
+        "📊 Transparent Risk Score Breakdown",
+        "⚖️ Facts vs. Hypotheses",
+        "🕸️ Evidence Relationship Graph"
     ])
-    st.dataframe(corr_df, use_container_width=True, hide_index=True)
+
+    # 1. Incident Timeline
+    with sub_tab1:
+        st.markdown("### Incident Chronology")
+        st.markdown("*Filter events by system or relationship type:*")
+
+        t_col1, t_col2 = st.columns(2)
+        with t_col1:
+            systems_in_case = ["All"] + sorted(list(set(e.source_system for e in active_case.timeline)))
+            filter_sys = st.selectbox("Filter System", systems_in_case, key=f"f_sys_{selected_case_id}")
+        with t_col2:
+            rel_types = ["All"] + sorted(list(set(e.relationship_type for e in active_case.timeline)))
+            filter_rel = st.selectbox("Filter Relationship Type", rel_types, key=f"f_rel_{selected_case_id}")
+
+        filtered_timeline = active_case.timeline
+        if filter_sys != "All":
+            filtered_timeline = [e for e in filtered_timeline if e.source_system == filter_sys]
+        if filter_rel != "All":
+            filtered_timeline = [e for e in filtered_timeline if e.relationship_type == filter_rel]
+
+        st.markdown(f"**Displaying {len(filtered_timeline)} timeline events:**")
+
+        for event in filtered_timeline:
+            rel = event.relationship_type
+            badge_style = "badge-direct" if "Direct" in rel else ("badge-temporal" if "Temporal" in rel else ("badge-contextual" if "Contextual" in rel else "badge-unverified"))
+            
+            st.markdown(f"""
+            <div style="border-left: 4px solid #3B82F6; background-color: #F8FAFC; padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-weight: 700; color: #1E3A8A; font-size: 1.0rem;">
+                        {event.normalised_timestamp_str} (Orig: <code>{event.timestamp_orig}</code>)
+                    </span>
+                    <div>
+                        <span class="{badge_style}">{rel}</span>
+                        <span class="badge-info" style="margin-left: 5px;">{event.source_system} ({event.evidence_id})</span>
+                    </div>
+                </div>
+                <div style="color: #1F2937; font-size: 0.95rem; margin-bottom: 6px;">
+                    {event.description}
+                </div>
+                <div style="font-size: 0.82rem; color: #4B5563;">
+                    <b>Matched Identifiers:</b> {', '.join(event.identifiers_matched) if event.identifiers_matched else 'None'} | <b>Confidence:</b> {event.confidence}
+                </div>
+                {f'<div style="font-size: 0.8rem; color: #B45309; margin-top: 4px;">⚠️ <i>{event.uncertainty_notes}</i></div>' if event.uncertainty_notes else ''}
+            </div>
+            """, unsafe_allow_html=True)
+
+    # 2. Transparent Risk Scoring Breakdown
+    with sub_tab2:
+        st.markdown("### Transparent Scoring Attribution")
+        st.markdown("Shows how each factor contributes to the case risk score without double-counting evidence.")
+
+        breakdown = active_case.risk_assessment.get("breakdown", {})
+        score_rows = []
+        for factor_key, factor_val in breakdown.items():
+            if isinstance(factor_val, dict):
+                score_rows.append({
+                    "Risk Factor": factor_key.replace("_", " ").title(),
+                    "Points Awarded / Deducted": factor_val.get("points", factor_val.get("deductions", 0.0)),
+                    "Evidence-Backed Attribution": factor_val.get("explanation", "")
+                })
+        
+        df_score = pd.DataFrame(score_rows)
+        st.table(df_score)
+        st.info(f"**Final Calculated Risk Score:** {active_case.risk_assessment['final_score']} / 100 ({active_case.risk_assessment['severity']})")
+
+    # 3. Facts vs Hypotheses
+    with sub_tab3:
+        st.markdown("### Evidentiary Separation: Observed Facts vs Investigative Hypotheses")
+        col_f, col_h = st.columns(2)
+        with col_f:
+            st.markdown("#### ✅ Observed Facts (Documented in Logs)")
+            for f in active_case.facts_observed:
+                st.markdown(f"- {f}")
+        with col_h:
+            st.markdown("#### 🔍 Investigative Hypotheses (Requiring Verification)")
+            for h in active_case.investigative_hypotheses:
+                st.markdown(f"- {h}")
+
+        st.markdown("#### 💡 Recommended Investigative Actions")
+        for rec in active_case.recommended_actions:
+            st.markdown(f"1. {rec}")
+
+    # 4. NetworkX Evidence Relationship Graph
+    with sub_tab4:
+        st.markdown("### Grounded NetworkX Evidence Relationship Graph")
+        st.markdown("Query entities, inspect verified relationship edges, and reveal connected evidence sources.")
+
+        subgraph = graph_builder.get_case_subgraph(active_case.primary_entities)
+        
+        g_col1, g_col2 = st.columns([1, 2])
+        with g_col1:
+            st.markdown(f"**Subgraph Entities:** {len(subgraph.nodes)}")
+            st.markdown(f"**Relationship Edges:** {len(subgraph.edges)}")
+            
+            selected_node = st.selectbox(
+                "Select Node to Inspect Connected Evidence",
+                sorted(list(subgraph.nodes)),
+                format_func=lambda n: f"{n} ({subgraph.nodes[n].get('label', n)})"
+            )
+
+            connected_evidence = graph_builder.get_connected_evidence(selected_node)
+            st.markdown(f"**Connected Evidence Files for `{selected_node}`:**")
+            for ev in connected_evidence:
+                st.markdown(f"- **{ev}**: {EVIDENCE_CATALOG.get(ev, {}).get('filename', '')}")
+
+        with g_col2:
+            st.markdown(f"**Verified Relationships in Case Subgraph:**")
+            edge_list = []
+            for u, v, d in subgraph.edges(data=True):
+                edge_list.append({
+                    "Source Entity": u,
+                    "Target Entity": v,
+                    "Relationship": d.get("label", ""),
+                    "Type": d.get("relationship_type", ""),
+                    "Evidence": d.get("evidence_source", "")
+                })
+            df_edges = pd.DataFrame(edge_list)
+            st.dataframe(df_edges, use_container_width=True, hide_index=True)
 
 # -------------------------------------------------------------------------------------------------
 # TAB 6: INGESTION & INTEGRITY AUDIT
@@ -420,4 +559,5 @@ elif nav_choice == "6. Ingestion & Integrity Audit":
             inv = ingestor.get_inventory()
             events = get_normalised_events(base_dir)
             alerts = get_alerts(base_dir)
-            st.success(f"Self-test passed: {len(inv)} evidence items, {len(events):,} events normalised, {len(alerts)} alerts generated!")
+            cases = get_investigation_cases(base_dir)
+            st.success(f"Self-test passed: {len(inv)} evidence items, {len(events):,} events normalised, {len(alerts)} alerts generated, {len(cases)} investigation cases correlated!")
