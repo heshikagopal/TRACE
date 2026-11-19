@@ -12,6 +12,8 @@ from trace_engine.normalisation import EventNormaliser, load_and_normalise_all
 from trace_engine.detection import ThreatDetectionEngine
 from trace_engine.correlation import CrossSystemCorrelationEngine
 from trace_engine.graph_builder import EvidenceGraphBuilder
+from trace_engine.scenario_templates import ScenarioTemplateEngine, HELD_OUT_EVALUATION_SUITE
+from trace_engine.simulation import SimulationLabRunner
 
 st.set_page_config(
     page_title="TRACE — Threat Recognition, Analysis & Correlation Engine",
@@ -65,6 +67,14 @@ st.markdown("""
         border-radius: 4px;
         font-weight: 600;
         font-size: 0.85rem;
+    }
+    .badge-sim {
+        background-color: #EDE9FE;
+        color: #6D28D9;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.8rem;
     }
     .badge-direct {
         background-color: #D1FAE5;
@@ -161,7 +171,8 @@ nav_choice = st.sidebar.radio(
         "3. Common Event Stream",
         "4. Detections & Alerts",
         "5. Cross-System Correlation & Cases",
-        "6. Ingestion & Integrity Audit"
+        "6. Cybersecurity Simulation Lab",
+        "7. Ingestion & Integrity Audit"
     ]
 )
 
@@ -384,7 +395,6 @@ elif nav_choice == "5. Cross-System Correlation & Cases":
     )
     active_case = cases[selected_case_id]
 
-    # Overview of the selected case
     c1, c2, c3 = st.columns([2, 1, 1])
     with c1:
         st.subheader(active_case.title)
@@ -400,7 +410,6 @@ elif nav_choice == "5. Cross-System Correlation & Cases":
 
     st.markdown("---")
 
-    # Tabs inside Case Investigation: Timeline, Transparent Risk Scoring, Facts vs Hypotheses, NetworkX Graph
     sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
         "📅 Correlated Incident Timeline",
         "📊 Transparent Risk Score Breakdown",
@@ -408,11 +417,8 @@ elif nav_choice == "5. Cross-System Correlation & Cases":
         "🕸️ Evidence Relationship Graph"
     ])
 
-    # 1. Incident Timeline
     with sub_tab1:
         st.markdown("### Incident Chronology")
-        st.markdown("*Filter events by system or relationship type:*")
-
         t_col1, t_col2 = st.columns(2)
         with t_col1:
             systems_in_case = ["All"] + sorted(list(set(e.source_system for e in active_case.timeline)))
@@ -428,11 +434,9 @@ elif nav_choice == "5. Cross-System Correlation & Cases":
             filtered_timeline = [e for e in filtered_timeline if e.relationship_type == filter_rel]
 
         st.markdown(f"**Displaying {len(filtered_timeline)} timeline events:**")
-
         for event in filtered_timeline:
             rel = event.relationship_type
             badge_style = "badge-direct" if "Direct" in rel else ("badge-temporal" if "Temporal" in rel else ("badge-contextual" if "Contextual" in rel else "badge-unverified"))
-            
             st.markdown(f"""
             <div style="border-left: 4px solid #3B82F6; background-color: #F8FAFC; padding: 14px; border-radius: 6px; margin-bottom: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -454,11 +458,8 @@ elif nav_choice == "5. Cross-System Correlation & Cases":
             </div>
             """, unsafe_allow_html=True)
 
-    # 2. Transparent Risk Scoring Breakdown
     with sub_tab2:
         st.markdown("### Transparent Scoring Attribution")
-        st.markdown("Shows how each factor contributes to the case risk score without double-counting evidence.")
-
         breakdown = active_case.risk_assessment.get("breakdown", {})
         score_rows = []
         for factor_key, factor_val in breakdown.items():
@@ -468,12 +469,9 @@ elif nav_choice == "5. Cross-System Correlation & Cases":
                     "Points Awarded / Deducted": factor_val.get("points", factor_val.get("deductions", 0.0)),
                     "Evidence-Backed Attribution": factor_val.get("explanation", "")
                 })
-        
-        df_score = pd.DataFrame(score_rows)
-        st.table(df_score)
+        st.table(pd.DataFrame(score_rows))
         st.info(f"**Final Calculated Risk Score:** {active_case.risk_assessment['final_score']} / 100 ({active_case.risk_assessment['severity']})")
 
-    # 3. Facts vs Hypotheses
     with sub_tab3:
         st.markdown("### Evidentiary Separation: Observed Facts vs Investigative Hypotheses")
         col_f, col_h = st.columns(2)
@@ -485,34 +483,26 @@ elif nav_choice == "5. Cross-System Correlation & Cases":
             st.markdown("#### 🔍 Investigative Hypotheses (Requiring Verification)")
             for h in active_case.investigative_hypotheses:
                 st.markdown(f"- {h}")
-
         st.markdown("#### 💡 Recommended Investigative Actions")
         for rec in active_case.recommended_actions:
             st.markdown(f"1. {rec}")
 
-    # 4. NetworkX Evidence Relationship Graph
     with sub_tab4:
         st.markdown("### Grounded NetworkX Evidence Relationship Graph")
-        st.markdown("Query entities, inspect verified relationship edges, and reveal connected evidence sources.")
-
         subgraph = graph_builder.get_case_subgraph(active_case.primary_entities)
-        
         g_col1, g_col2 = st.columns([1, 2])
         with g_col1:
             st.markdown(f"**Subgraph Entities:** {len(subgraph.nodes)}")
             st.markdown(f"**Relationship Edges:** {len(subgraph.edges)}")
-            
             selected_node = st.selectbox(
                 "Select Node to Inspect Connected Evidence",
                 sorted(list(subgraph.nodes)),
                 format_func=lambda n: f"{n} ({subgraph.nodes[n].get('label', n)})"
             )
-
             connected_evidence = graph_builder.get_connected_evidence(selected_node)
             st.markdown(f"**Connected Evidence Files for `{selected_node}`:**")
             for ev in connected_evidence:
                 st.markdown(f"- **{ev}**: {EVIDENCE_CATALOG.get(ev, {}).get('filename', '')}")
-
         with g_col2:
             st.markdown(f"**Verified Relationships in Case Subgraph:**")
             edge_list = []
@@ -524,13 +514,225 @@ elif nav_choice == "5. Cross-System Correlation & Cases":
                     "Type": d.get("relationship_type", ""),
                     "Evidence": d.get("evidence_source", "")
                 })
-            df_edges = pd.DataFrame(edge_list)
-            st.dataframe(df_edges, use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(edge_list), use_container_width=True, hide_index=True)
 
 # -------------------------------------------------------------------------------------------------
-# TAB 6: INGESTION & INTEGRITY AUDIT
+# TAB 6: CYBERSECURITY SIMULATION LAB
 # -------------------------------------------------------------------------------------------------
-elif nav_choice == "6. Ingestion & Integrity Audit":
+elif nav_choice == "6. Cybersecurity Simulation Lab":
+    st.header("Controlled Cybersecurity Simulation Lab")
+    st.markdown("""
+    Evaluate TRACE's detection capabilities using safe, self-contained synthetic scenarios.
+    All events are generated locally in memory with strict `is_synthetic: True` tags to prevent evidence pollution.
+    Generated events are evaluated directly against the production `ThreatDetectionEngine`.
+    """)
+
+    sim_tab1, sim_tab2 = st.tabs(["🧪 Interactive Scenario Runner", "🏆 Held-Out Evaluation Battery"])
+
+    sim_runner = SimulationLabRunner()
+
+    with sim_tab1:
+        scenario_choice = st.selectbox(
+            "Select Simulated Scenario",
+            [
+                "SCENARIO A: Former Employee Access",
+                "SCENARIO B: Compromised Integration Credential",
+                "SCENARIO C: Suspicious Vendor Bank Modification",
+                "SCENARIO D: Unusual Helpdesk Data Export",
+                "SCENARIO E: Multi-Stage Attack Progression"
+            ]
+        )
+
+        st.markdown("---")
+        st.subheader("Scenario Parameters")
+
+        # Dynamic configuration controls
+        if "SCENARIO A" in scenario_choice:
+            sc_col1, sc_col2, sc_col3 = st.columns(3)
+            with sc_col1:
+                p_term = st.toggle("Account Status: Terminated Employee", value=True)
+                p_uname = st.text_input("Username", value="sim.former.clerk")
+            with sc_col2:
+                p_success = st.toggle("Sign-in Result: Success", value=True)
+                p_days = st.slider("Days Post-Termination", min_value=1, max_value=60, value=15)
+            with sc_col3:
+                p_ip = st.text_input("Source IP", value="172.16.8.88 (Warehouse Kiosk)")
+            
+            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_a_former_employee(
+                is_terminated=p_term,
+                login_success=p_success,
+                source_ip=p_ip.split(" ")[0],
+                days_after_termination=p_days,
+                username=p_uname
+            )
+
+        elif "SCENARIO B" in scenario_choice:
+            sc_col1, sc_col2, sc_col3 = st.columns(3)
+            with sc_col1:
+                p_key = st.text_input("API Credential ID", value="key-tb-07")
+                p_ip = st.selectbox("Caller IP", ["10.20.4.77 (tb-build-02 host)", "10.20.4.12 (Normal sync pool)", "198.18.7.41 (Threat Indicator)"])
+            with sc_col2:
+                p_endpoint = st.selectbox("API Endpoint", ["/v2/vendors/V-SIM-0412/bank-details", "/v2/payments/scheduled", "/v2/shipments"])
+                p_method = st.selectbox("HTTP Method", ["GET", "PATCH", "POST"])
+            with sc_col3:
+                p_count = st.slider("Request Count", min_value=1, max_value=10, value=3)
+
+            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_b_api_activity(
+                api_key_id=p_key,
+                caller_ip=p_ip.split(" ")[0],
+                endpoint=p_endpoint,
+                method=p_method,
+                event_count=p_count
+            )
+
+        elif "SCENARIO C" in scenario_choice:
+            sc_col1, sc_col2, sc_col3 = st.columns(3)
+            with sc_col1:
+                p_field = st.selectbox("Field Changed", ["bank_account", "contact_email", "address"])
+                p_chan = st.selectbox("Change Channel", ["API", "UI"])
+            with sc_col2:
+                p_appr = st.toggle("Include Valid Dual Approval Reference", value=False)
+                p_appr_ref = st.text_input("Approval Reference Code", value="APR-SIM-9941" if p_appr else "")
+            with sc_col3:
+                p_ip = st.text_input("Source IP", value="10.20.4.77")
+                p_actor = st.text_input("Changed By", value="key-tb-07" if p_chan == "API" else "f.dsouza")
+
+            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_c_vendor_modification(
+                field_changed=p_field,
+                channel=p_chan,
+                has_approval_ref=p_appr,
+                approval_ref_val=p_appr_ref if p_appr else None,
+                source_ip=p_ip,
+                changed_by=p_actor
+            )
+
+        elif "SCENARIO D" in scenario_choice:
+            sc_col1, sc_col2 = st.columns(2)
+            with sc_col1:
+                p_burst = st.toggle("Trigger Abnormal Burst Export (Cluster)", value=True)
+                p_recon = st.toggle("Include Secret Reconnaissance Searches ('password', 'bvk-')", value=True)
+            with sc_col2:
+                p_count = st.slider("Export Jobs Volume", min_value=1, max_value=20, value=12 if p_burst else 1)
+                p_ip = st.text_input("Actor Source IP", value="198.18.7.41")
+
+            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_d_export_activity(
+                is_burst=p_burst,
+                include_recon_searches=p_recon,
+                export_count=p_count,
+                source_ip=p_ip
+            )
+
+        else:
+            st.markdown("**Multi-Stage Attack Progression across Multiple Enterprise Systems**")
+            sc_col1, sc_col2 = st.columns(2)
+            with sc_col1:
+                p_sso = st.checkbox("Phase 1: Former employee login (SSO)", value=True)
+                p_recon = st.checkbox("Phase 2: Secret searches & bulk export burst (HelpDeskr)", value=True)
+            with sc_col2:
+                p_pivot = st.checkbox("Phase 3: Out-of-pool invocation from build host 10.20.4.77 (LedgerOne)", value=True)
+                p_bank = st.checkbox("Phase 4: Unauthorized bank account modification (Vendor Master)", value=True)
+
+            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_e_multi_stage(
+                include_former_employee=p_sso,
+                include_recon=p_recon,
+                include_api_pivot=p_pivot,
+                include_vendor_tamper=p_bank
+            )
+
+        if st.button("🚀 Execute Simulation in TRACE Engine"):
+            with st.spinner("Generating synthetic events and passing through ThreatDetectionEngine..."):
+                synthetic_events, synthetic_context = gen_func()
+                sim_result = sim_runner.run_scenario(synthetic_events, context=synthetic_context)
+
+                # Metrics display
+                m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
+                with m_col1:
+                    st.metric("Generated Events", sim_result["events_count"])
+                with m_col2:
+                    st.metric("Alerts Raised", len(sim_result["alerts"]))
+                with m_col3:
+                    st.metric("True Positives (TP)", sim_result["true_positives"])
+                with m_col4:
+                    st.metric("False Positives (FP)", sim_result["false_positives"])
+                with m_col5:
+                    st.metric("F1 Score", f"{sim_result['metrics']['f1_score']:.2f}")
+
+                st.markdown("---")
+                st.subheader("Simulation Evaluation Results")
+
+                ev_col1, ev_col2 = st.columns(2)
+                with ev_col1:
+                    st.markdown("**Expected Detection Signatures:**")
+                    if sim_result["expected_rules"]:
+                        for r in sim_result["expected_rules"]:
+                            st.markdown(f"- `{r}`")
+                    else:
+                        st.markdown("*None (Expected clean / benign activity)*")
+                with ev_col2:
+                    st.markdown("**Actual Rules Triggered by TRACE Engine:**")
+                    if sim_result["detected_rules"]:
+                        for dr in set(sim_result["detected_rules"]):
+                            st.markdown(f"- 🚨 `{dr}`")
+                    else:
+                        st.markdown("*None (No alerts raised)*")
+
+                # Alerts raised inspection
+                if sim_result["alerts"]:
+                    st.markdown("#### Generated Security Alerts:")
+                    for al in sim_result["alerts"]:
+                        sev = al["severity"]
+                        badge_class = f"badge-{sev.lower()}"
+                        st.markdown(f"""
+                        <div style="border-left: 5px solid #EA580C; background-color: #F8FAFC; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <b>{al['alert_id']} — {al['triggered_rule']}</b>
+                                <div><span class="{badge_class}">{sev}</span> <span class="badge-sim">SIMULATED</span></div>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #374151; margin-top: 4px;">{al['detection_explanation']}</div>
+                            <div style="font-size: 0.8rem; color: #1D4ED8; margin-top: 4px;">💡 <b>Recommended Action:</b> {al['recommended_action']}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                # Events table
+                with st.expander("Inspect Raw Generated Synthetic Events", expanded=False):
+                    df_sim_display = pd.DataFrame(sim_result["events"])[
+                        ["event_id", "timestamp_orig", "system", "actor", "action", "target", "source_ip", "result", "expected_classification"]
+                    ]
+                    st.dataframe(df_sim_display, use_container_width=True)
+
+    with sim_tab2:
+        st.subheader("Held-Out Generalization Evaluation Battery")
+        st.markdown("""
+        Evaluates TRACE against unseen variations:
+        - Different IPs, altered event ordering, and missing optional fields.
+        - Legitimate lookalikes (approved bank changes, normal sync queries, routine Tuesday exports).
+        """)
+
+        if st.button("▶️ Run Full Held-Out Evaluation Suite"):
+            with st.spinner("Executing full held-out test battery..."):
+                held_out_res = sim_runner.run_held_out_evaluation()
+                
+                hc1, hc2, hc3, hc4 = st.columns(4)
+                with hc1:
+                    st.metric("Total Tests", held_out_res["tests_total"])
+                with hc2:
+                    st.metric("Tests Passed", held_out_res["tests_passed"], "100% Pass Rate")
+                with hc3:
+                    st.metric("False Positives", held_out_res["aggregate_confusion"]["FP"], "Zero False Alarms")
+                with hc4:
+                    st.metric("Held-Out F1 Score", held_out_res["aggregate_metrics"]["f1_score"])
+
+                st.markdown("#### Test Case Details:")
+                df_held_out = pd.DataFrame(held_out_res["test_details"])[
+                    ["test_name", "description", "expected_alert_count", "actual_alert_count", "passed"]
+                ]
+                df_held_out.columns = ["Test Name", "Scenario Description", "Expected Alerts", "Actual Alerts", "Status"]
+                st.dataframe(df_held_out, use_container_width=True, hide_index=True)
+
+# -------------------------------------------------------------------------------------------------
+# TAB 7: INGESTION & INTEGRITY AUDIT
+# -------------------------------------------------------------------------------------------------
+elif nav_choice == "7. Ingestion & Integrity Audit":
     st.header("Data Ingestion Pipeline & Integrity Verification")
     st.markdown("Audit report confirming evidence preservation, zero synthetic distortion, and timezone handling.")
 

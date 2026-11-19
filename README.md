@@ -75,27 +75,82 @@ crimeathon/
 ├── trace_engine/
 │   ├── __init__.py
 │   ├── ingestion.py               # Robust evidence loaders (CSV, JSON, Excel, PDF)
-│   ├── normalisation.py           # Unified event schema and timezone engine
-│   └── detection.py               # Evidence-supported detection rules & alert schemas
+│   ├── normalisation.py           # Unified event schema and timezone engine (109k events)
+│   ├── alert_schema.py            # Standardized ThreatAlert dataclass & schema
+│   ├── risk_scoring.py            # Transparent composite risk calculation model
+│   ├── rules.py                   # Modular BaseRule detection rules (Auth, API, Doc, Exp, Fin)
+│   ├── detection.py               # ThreatDetectionEngine orchestrator & multi-stage synthesis
+│   ├── correlation_models.py      # CorrelatedEvent, RelationshipType & InvestigationCase
+│   ├── correlation_scoring.py     # CaseRiskScorer multi-factor attribution & penalty engine
+│   ├── graph_builder.py           # NetworkX entity-relationship knowledge graph
+│   ├── correlation.py             # CrossSystemCorrelationEngine (Cases 01–04)
+│   ├── synthetic_data.py          # Synthetic telemetry generator (safe, labeled SIMULATED)
+│   ├── scenario_templates.py      # Scenarios A–E generators & held-out variation tests
+│   └── simulation.py              # SimulationLabRunner & confusion matrix metrics
 └── tests/
     ├── __init__.py
-    └── test_foundation.py         # Automated verification test suite
+    ├── test_foundation.py         # Ingestion, schema, and baseline detection tests
+    ├── test_detection_engine.py   # Detection rules, negatives, duplicates, invalid timestamps
+    ├── test_correlation_engine.py # Typed relationships, timelines, clock drift, NetworkX graph
+    └── test_simulation_lab.py     # Scenarios A–E, confusion matrix, held-out variation battery
 ```
 
 ---
 
-## 5. Installation & Exact Run Commands
+## 5. Investigation Cases & Relationship Correlation
+
+TRACE correlates evidence across E01–E20 into 4 dedicated investigation cases with 4 typed relationships:
+1. **Direct Identifier Matching** (e.g. `r.menon`, `key-tb-07`, `10.20.4.77`, `V-0412`, `req-5f61b0de8`)
+2. **Temporal Correlation** (events within calibrated time windows, recording clock-drift uncertainty)
+3. **Contextual Association** (integration scopes from E04, staff roster from E14, contract from E08)
+4. **Unverified Association** (vendor self-reported indicators from E17, external notices E12/E16)
+
+### Investigation Cases
+- **CASE-01: Terminated Employee Account Activity (Rohan Menon / `r.menon`)**
+  - Confirmed departure on 30 June 2026 (E14).
+  - Unrevoked SSO sign-in on 13 August 2026 at 09:02 UTC from warehouse kiosk (E03 `sso-bb8ab61e08`).
+  - Corroborates historical audit finding IA-2025-09 Finding 3 (E11) and Risk Register R-018 (E09).
+- **CASE-02: Integration Credential Abuse & Sensitive Reconnaissance (`key-tb-07`)**
+  - Legitimate integration scope in E04 is `/v2/sync/orders` and `/v2/sync/inventory` from `10.20.4.11-16`.
+  - Abused on 3 Sep 2026 from unauthorized build server `10.20.4.77` to probe `/v2/vendors/V-0412/bank-details` and `/v2/payments/scheduled` (E18).
+- **CASE-03: Unauthorized Vendor Master Modification (Coastal Packaging / `V-0412`)**
+  - Unapproved PATCH request on 3 Sep 2026 at 01:44:30 UTC changing bank account to `****9083` (E18/E19 `req-5f61b0de8`).
+  - Breaches dual-authorization control mandated in IT Security Policy Section 4.1 (E10).
+- **CASE-04: Support Ticket Reconnaissance & Bulk Exfiltration (HelpDeskr -> BlueVault)**
+  - Targeted searches for credentials (`bvk-`, `api_key`) and 30 bulk export jobs on 11–12 Aug 2026 (E02).
+  - Corroborated by HelpDeskr billing overage invoice (E06) and support ticket chat revealing key `bvk-7f3a` (E13).
+  - Cross-system download of customer statements and bank instructions in BlueVault (E05).
+
+---
+
+## 6. Controlled Cybersecurity Simulation Lab
+
+TRACE features a completely local, self-contained simulation laboratory to benchmark detection rules against variations and adversary behavior:
+- **Zero Real-World Risk**: Telemetry is generated locally in-memory; never attacks or connects to external systems.
+- **Strict Integrity Separation**: Every synthetic record is explicitly tagged with `is_synthetic: True`, `SIMULATED_TEST_LAB`, and fictional synthetic IDs (`SIM-...`).
+- **5 Evaluation Scenarios**:
+  - **Scenario A**: Former employee access (success/failure, trusted/untrusted IPs, timing variations).
+  - **Scenario B**: Compromised integration key (`key-tb-07` off-scope sensitive endpoint access, build server IP).
+  - **Scenario C**: Suspicious vendor bank modification (unapproved API changes vs. approved portal changes).
+  - **Scenario D**: Unusual bulk ticket exports (abnormal export bursts vs. routine single-ticket exports).
+  - **Scenario E**: Full multi-stage attack sequence combining Scenarios A through D across time windows.
+- **Generalization Battery**: 6 held-out variations testing unseen IPs, missing optional fields, altered event orders, and legitimate lookalikes.
+- **Evaluation Metrics**: Automated calculation of True Positives ($TP$), False Positives ($FP$), True Negatives ($TN$), False Negatives ($FN$), Precision, Recall, and F1 Score.
+
+---
+
+## 7. Installation & Exact Run Commands
 
 ### Step 1: Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 2: Run Automated Tests
+### Step 2: Run Full Automated Test Suite
 ```bash
-python -m unittest tests/test_foundation.py
+python -m unittest discover tests
 ```
-*Expected output: `Ran 5 tests in ~5s ... OK (Total normalised events ingested: 109,428)`*
+*Expected output: `Ran 28 tests in ~39s ... OK` across foundation, detection engine, correlation engine, and simulation lab.*
 
 ### Step 3: Launch Streamlit Application
 ```bash

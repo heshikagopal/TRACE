@@ -54,6 +54,11 @@ class RuleFormerEmployeeAccess(BaseRule):
         if not self.enabled:
             return alerts
 
+        # Inspect SSO events from E03 first
+        sso_events = df_events[(df_events["source_evidence_id"] == "E03") & (df_events["action"] == "sso.signin")]
+        if sso_events.empty:
+            return alerts
+
         roster = context.get("E14")
         if roster is None or roster.empty:
             logger.warning("Roster (E14) missing in context for RuleFormerEmployeeAccess")
