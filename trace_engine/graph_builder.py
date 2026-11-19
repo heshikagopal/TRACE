@@ -206,3 +206,101 @@ class EvidenceGraphBuilder:
             })
 
         return {"nodes": nodes_data, "edges": edges_data}
+
+    def to_plotly_figure(self, graph: Optional[nx.DiGraph] = None, title: str = "Enterprise Evidence & Entity Relationship Graph") -> Any:
+        """Constructs an interactive Plotly 2D network visualization from the NetworkX graph."""
+        try:
+            import plotly.graph_objects as go
+        except ImportError:
+            return None
+
+        target_graph = graph if graph is not None else self.graph
+        if len(target_graph) == 0:
+            fig = go.Figure()
+            fig.update_layout(title="No graph nodes to display")
+            return fig
+
+        pos = nx.spring_layout(target_graph, seed=42, k=0.9, iterations=60)
+
+        edge_x = []
+        edge_y = []
+        for edge in target_graph.edges():
+            u, v = edge[0], edge[1]
+            if u in pos and v in pos:
+                x0, y0 = pos[u]
+                x1, y1 = pos[v]
+                edge_x.extend([x0, x1, None])
+                edge_y.extend([y0, y1, None])
+
+        edge_trace = go.Scatter(
+            x=edge_x, y=edge_y,
+            line=dict(width=1.5, color='#475569'),
+            hoverinfo='none',
+            mode='lines'
+        )
+
+        node_x = []
+        node_y = []
+        node_text = []
+        node_color = []
+        node_size = []
+        node_labels = []
+
+        color_map = {
+            "System": "#3B82F6",         # Blue
+            "Evidence": "#10B981",       # Emerald Green
+            "Credential": "#EF4444",     # Crimson Red
+            "Host": "#F97316",           # Amber Orange
+            "Network": "#8B5CF6",        # Purple
+            "Vendor": "#EAB308",         # Yellow
+            "FinancialAccount": "#EC4899", # Pink
+            "Employee": "#06B6D4"        # Cyan
+        }
+
+        for node in target_graph.nodes():
+            if node in pos:
+                x, y = pos[node]
+                node_x.append(x)
+                node_y.append(y)
+                data = target_graph.nodes[node]
+                lbl = data.get("label", node)
+                ntype = data.get("node_type", "Entity")
+                evs = ", ".join(list(data.get("evidence_sources", [])))
+                hover_info = f"<b>{lbl}</b><br>Type: {ntype}<br>ID: {node}<br>Evidence: {evs}"
+                node_text.append(hover_info)
+                node_color.append(color_map.get(ntype, "#94A3B8"))
+                node_size.append(26 if ntype in ("System", "Credential", "Host", "FinancialAccount") else 20)
+                node_labels.append(lbl.split(" ")[0])
+
+        node_trace = go.Scatter(
+            x=node_x, y=node_y,
+            mode='markers+text',
+            hoverinfo='text',
+            text=node_labels,
+            textposition="bottom center",
+            textfont=dict(size=10, color="#E2E8F0"),
+            marker=dict(
+                showscale=False,
+                color=node_color,
+                size=node_size,
+                line=dict(width=2, color='#1E293B')
+            ),
+            hovertext=node_text
+        )
+
+        fig = go.Figure(
+            data=[edge_trace, node_trace],
+            layout=go.Layout(
+                title=dict(text=title, font=dict(color='#F8FAFC', size=15)),
+                showlegend=False,
+                hovermode='closest',
+                margin=dict(b=20, l=10, r=10, t=40),
+                xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                plot_bgcolor='#0F172A',
+                paper_bgcolor='#0F172A',
+                height=560
+            )
+        )
+        return fig
+

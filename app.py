@@ -5,8 +5,16 @@ Lead Python Developer & Cybersecurity Detection Engineer Interface
 """
 
 import os
+import json
+from datetime import datetime, timezone
+from typing import List, Dict, Any, Optional
+
 import streamlit as st
 import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+import networkx as nx
+
 from trace_engine.ingestion import EvidenceIngestor, EVIDENCE_CATALOG
 from trace_engine.normalisation import EventNormaliser, load_and_normalise_all
 from trace_engine.detection import ThreatDetectionEngine
@@ -16,103 +24,123 @@ from trace_engine.scenario_templates import ScenarioTemplateEngine, HELD_OUT_EVA
 from trace_engine.simulation import SimulationLabRunner
 from trace_engine.evaluation import DefensiveEvaluationEngine
 
+# -------------------------------------------------------------------------------------------------
+# STREAMLIT PAGE CONFIGURATION
+# -------------------------------------------------------------------------------------------------
 st.set_page_config(
-    page_title="TRACE — Threat Recognition, Analysis & Correlation Engine",
+    page_title="TRACE — Security Operations & Threat Correlation Engine",
     page_icon="🛡️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS styling for professional DFIR dashboard
+# -------------------------------------------------------------------------------------------------
+# PROFESSIONAL SOC VISUAL THEME (DARK NAVY / NEUTRAL)
+# -------------------------------------------------------------------------------------------------
 st.markdown("""
 <style>
-    .main-header {
-        font-size: 2.2rem;
+    /* Main Layout */
+    .stApp {
+        background-color: #0A0F1D;
+        color: #E2E8F0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    /* Headers */
+    .soc-header {
+        font-size: 2.1rem;
         font-weight: 700;
-        color: #1E3A8A;
+        color: #F8FAFC;
+        letter-spacing: -0.02em;
         margin-bottom: 0.2rem;
     }
-    .sub-header {
-        font-size: 1.05rem;
-        color: #4B5563;
-        margin-bottom: 1.5rem;
+    .soc-subheader {
+        font-size: 0.95rem;
+        color: #94A3B8;
+        margin-bottom: 1.2rem;
     }
-    .badge-critical {
-        background-color: #FEE2E2;
-        color: #991B1B;
-        padding: 3px 8px;
-        border-radius: 4px;
+    
+    /* Data Source Badges */
+    .source-badge-evidence {
+        display: inline-flex;
+        align-items: center;
+        background-color: rgba(16, 185, 129, 0.12);
+        color: #10B981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.82rem;
         font-weight: 600;
-        font-size: 0.85rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 1.2rem;
     }
-    .badge-high {
-        background-color: #FFEDD5;
-        color: #9A3412;
-        padding: 3px 8px;
-        border-radius: 4px;
+    .source-badge-simulated {
+        display: inline-flex;
+        align-items: center;
+        background-color: rgba(139, 92, 246, 0.12);
+        color: #A78BFA;
+        border: 1px solid rgba(139, 92, 246, 0.35);
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.82rem;
         font-weight: 600;
-        font-size: 0.85rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 1.2rem;
     }
-    .badge-medium {
-        background-color: #FEF3C7;
-        color: #92400E;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-    .badge-info {
-        background-color: #DBEAFE;
-        color: #1E40AF;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-    .badge-sim {
-        background-color: #EDE9FE;
-        color: #6D28D9;
-        padding: 3px 8px;
+    
+    /* Severity Badges */
+    .sev-critical {
+        background-color: #450A0A;
+        color: #FCA5A5;
+        border: 1px solid #7F1D1D;
+        padding: 2px 8px;
         border-radius: 4px;
         font-weight: 700;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
     }
-    .badge-direct {
-        background-color: #D1FAE5;
-        color: #065F46;
-        padding: 3px 8px;
+    .sev-high {
+        background-color: #431407;
+        color: #FDBA74;
+        border: 1px solid #7C2D12;
+        padding: 2px 8px;
         border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.8rem;
+        font-weight: 700;
+        font-size: 0.78rem;
     }
-    .badge-temporal {
-        background-color: #EDE9FE;
-        color: #5B21B6;
-        padding: 3px 8px;
+    .sev-medium {
+        background-color: #451A03;
+        color: #FCD34D;
+        border: 1px solid #78350F;
+        padding: 2px 8px;
         border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.8rem;
+        font-weight: 700;
+        font-size: 0.78rem;
     }
-    .badge-contextual {
-        background-color: #E0F2FE;
-        color: #0369A1;
-        padding: 3px 8px;
+    .sev-low {
+        background-color: #172554;
+        color: #93C5FD;
+        border: 1px solid #1E3A8A;
+        padding: 2px 8px;
         border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.8rem;
+        font-weight: 700;
+        font-size: 0.78rem;
     }
-    .badge-unverified {
-        background-color: #F3F4F6;
-        color: #4B5563;
-        padding: 3px 8px;
-        border-radius: 4px;
-        font-weight: 600;
-        font-size: 0.8rem;
+    
+    /* Card Container */
+    .soc-card {
+        background-color: #111827;
+        border: 1px solid #1F2937;
+        border-radius: 8px;
+        padding: 18px;
+        margin-bottom: 16px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 
+# -------------------------------------------------------------------------------------------------
+# BACKEND CACHING PIPELINE (REACTIVE & FAST)
+# -------------------------------------------------------------------------------------------------
 @st.cache_resource
 def get_ingestor(base_dir: str = "data/original"):
     return EvidenceIngestor(base_dir)
@@ -120,14 +148,12 @@ def get_ingestor(base_dir: str = "data/original"):
 
 @st.cache_data
 def get_inventory_cached(base_dir: str = "data/original"):
-    ingestor = get_ingestor(base_dir)
-    return ingestor.get_inventory()
+    return get_ingestor(base_dir).get_inventory()
 
 
 @st.cache_data
 def get_normalised_events(base_dir: str = "data/original"):
-    ingestor = get_ingestor(base_dir)
-    return load_and_normalise_all(ingestor)
+    return load_and_normalise_all(get_ingestor(base_dir))
 
 
 @st.cache_data
@@ -146,8 +172,8 @@ def get_investigation_cases(base_dir: str = "data/original"):
     return corr_engine.build_all_cases(df_events)
 
 
-@st.cache_data
-def get_graph_data(base_dir: str = "data/original"):
+@st.cache_resource
+def get_graph_builder(base_dir: str = "data/original"):
     ingestor = get_ingestor(base_dir)
     cases = get_investigation_cases(base_dir)
     context = {
@@ -159,555 +185,619 @@ def get_graph_data(base_dir: str = "data/original"):
     return builder
 
 
-# Sidebar
-st.sidebar.image("https://img.icons8.com/color/96/shield.png", width=70)
-st.sidebar.title("TRACE Navigation")
-st.sidebar.markdown("**Case File CR-26-047**  \n*Harbor & Finch Freight*")
-
-nav_choice = st.sidebar.radio(
-    "Modules",
-    [
-        "1. Overview & Strategy",
-        "2. Evidence Inventory & Centre",
-        "3. Common Event Stream",
-        "4. Detections & Alerts",
-        "5. Cross-System Correlation & Cases",
-        "6. Cybersecurity Simulation Lab",
-        "7. Defensive Evaluation Engine",
-        "8. Ingestion & Integrity Audit"
-    ]
-)
-
 base_dir = "data/original"
 ingestor = get_ingestor(base_dir)
 
-# Header
-st.markdown('<div class="main-header">🛡️ TRACE: Threat Recognition, Analysis and Correlation Engine</div>', unsafe_allow_html=True)
-st.markdown('<div class="sub-header">CRIMEATHON\'26 Defense Track | Automated Evidence Ingestion, Normalisation & Cross-System Detection</div>', unsafe_allow_html=True)
+# -------------------------------------------------------------------------------------------------
+# SIDEBAR NAVIGATION
+# -------------------------------------------------------------------------------------------------
+st.sidebar.markdown("""
+<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+    <span style="font-size: 2rem;">🛡️</span>
+    <div>
+        <div style="font-weight: 700; font-size: 1.15rem; color: #F8FAFC;">TRACE</div>
+        <div style="font-size: 0.75rem; color: #94A3B8;">CRIMEATHON'26 DEFENSE</div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
-# -------------------------------------------------------------------------------------------------
-# TAB 1: OVERVIEW & STRATEGY
-# -------------------------------------------------------------------------------------------------
-if nav_choice == "1. Overview & Strategy":
-    st.header("Executive Summary & Defense Architecture")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Evidence Items", "20 / 20", "All Formats Extracted")
-    with col2:
-        st.metric("Normalised Events", "109,428", "Preserved Raw Records")
-    with col3:
-        st.metric("Active Detection Rules", "5", "Evidence-Backed")
-    with col4:
-        st.metric("Investigation Cases", "4", "Cross-System Correlated")
+nav_page = st.sidebar.radio(
+    "Navigation",
+    [
+        "1. Security Overview",
+        "2. Evidence Centre",
+        "3. Threat Detection",
+        "4. Investigation Workspace",
+        "5. Simulation Lab",
+        "6. Performance Lab"
+    ]
+)
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("""
+<div style="background-color: #111827; border: 1px solid #1E293B; border-radius: 6px; padding: 10px; font-size: 0.8rem;">
+    <div style="color: #94A3B8; font-weight: 600;">ACTIVE INVESTIGATION</div>
+    <div style="color: #F8FAFC; font-weight: 700;">Case CR-26-047</div>
+    <div style="color: #64748B;">Harbor & Finch Freight Pvt. Ltd.</div>
+    <div style="color: #10B981; margin-top: 6px; font-size: 0.75rem;">● Engine Status: Online</div>
+</div>
+""", unsafe_allow_html=True)
+
+
+# =================================================================================================
+# PAGE 1: SECURITY OVERVIEW
+# =================================================================================================
+if nav_page == "1. Security Overview":
+    st.markdown('<div class="source-badge-evidence">🟢 DATA SOURCE: ORIGINAL CASE EVIDENCE (E01–E20)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-header">Security Operations Centre Overview</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-subheader">Executive threat telemetry, event ingestion volume, alert severity distributions, and active attack chains.</div>', unsafe_allow_html=True)
+
+    with st.spinner("Ingesting evidence and evaluating security telemetry..."):
+        inventory = get_inventory_cached(base_dir)
+        df_events = get_normalised_events(base_dir)
+        alerts = get_alerts(base_dir)
+        cases = get_investigation_cases(base_dir)
+
+    # 1. Top KPI Metrics Cards
+    k1, k2, k3, k4, k5 = st.columns(5)
+    with k1:
+        st.metric("Imported Evidence Files", f"{len(inventory)} / 20", "100% Extracted")
+    with k2:
+        st.metric("Total Events Analysed", f"{len(df_events):,}", "Heterogeneous Logs")
+    with k3:
+        st.metric("Total Alerts Raised", f"{len(alerts)}", "Actionable Threats")
+    with k4:
+        crit_count = sum(1 for a in alerts if a["severity"] in ("Critical", "High"))
+        st.metric("Critical / High Severity", f"{crit_count}", "Priority Response", delta_color="inverse")
+    with k5:
+        st.metric("Correlated Cases", f"{len(cases)}", "Cross-System Chains")
 
     st.markdown("---")
-    
-    st.subheader("Investigative Findings Summary")
-    st.markdown("""
-    Based on systematic ingestion and cross-system correlation of all 20 evidence files, TRACE has identified **two distinct security failures** rather than a single isolated incident:
-    
-    1. **Primary Security Incident: Vendor Supply Chain Compromise (TallyBridge Connect)**
-       - **Initial Reconnaissance**: On 11–12 August 2026, HelpDeskr audit logs (`E02`) record targeted searches for credential terms (`password`, `api_key`, `secret`, `bearer`, `bvk-`) followed by **30 bulk ticket export jobs**, directly corroborating the billing overage alert in `E06`.
-       - **Host & Credential Pivot**: Network flow logs (`E15`) and public status records (`E20`) identify internal host `10.20.4.77` as `tb-build-02` (a build server).
-       - **Financial Execution**: On 3 September 2026 at 01:44:30 UTC, LedgerOne API logs (`E18`) and Vendor Master audit logs (`E19`) show `key-tb-07` originating from `10.20.4.77` calling sensitive endpoints (`/v2/vendors/V-0412/bank-details`, `/v2/payments/scheduled`) and executing a **PATCH modifying the bank account of Coastal Packaging Ltd (`V-0412`) to `****9083` without any approval reference**.
-       - **Immediate Impact**: A payment run is scheduled for 8 September 2026. Without intervention, vendor funds would be diverted.
-    
-    2. **Secondary Control Failure: Unrevoked Former Employee Account Access**
-       - Accounts Payable clerk **Rohan Menon (`r.menon`)** left Harbor & Finch on **30 June 2026** (`E14`).
-       - On **13 August 2026 at 09:02:00 UTC**, SSO logs (`E03`, event `sso-bb8ab61e08`) record a successful login to `r.menon`'s account from a warehouse kiosk IP (`172.16.8.x`).
-       - Staff roster `E14` shows known recordkeeping errors: the `status` column is uniformly marked `'active'` for all 420 personnel despite `termination_date` being recorded. This directly substantiates Risk `R-018` in `E09` and Audit Finding 3 in `E11`.
-    """)
+
+    # 2. Charts Row (Severity Distribution + Ingested Volume by System)
+    c_chart1, c_chart2 = st.columns([1, 1.2])
+
+    with c_chart1:
+        st.markdown("#### Alert Severity Distribution")
+        sev_counts = {}
+        for a in alerts:
+            s = a.get("severity", "Info")
+            sev_counts[s] = sev_counts.get(s, 0) + 1
+
+        color_map = {
+            "Critical": "#DC2626",
+            "High": "#EA580C",
+            "Medium": "#D97706",
+            "Low": "#2563EB",
+            "Info": "#64748B"
+        }
+        fig_donut = go.Figure(data=[go.Pie(
+            labels=list(sev_counts.keys()),
+            values=list(sev_counts.values()),
+            hole=0.6,
+            marker_colors=[color_map.get(k, "#94A3B8") for k in sev_counts.keys()],
+            textinfo="label+value"
+        )])
+        fig_donut.update_layout(
+            margin=dict(t=10, b=10, l=10, r=10),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#E2E8F0"),
+            height=260,
+            showlegend=True
+        )
+        st.plotly_chart(fig_donut, use_container_width=True)
+
+    with c_chart2:
+        st.markdown("#### Telemetry Volume by Enterprise System")
+        sys_counts = df_events["system"].value_counts().reset_index()
+        sys_counts.columns = ["System", "Count"]
+
+        fig_bar = px.bar(
+            sys_counts,
+            x="Count",
+            y="System",
+            orientation="h",
+            color="System",
+            color_discrete_sequence=["#3B82F6", "#10B981", "#8B5CF6", "#F59E0B", "#EC4899", "#06B6D4"],
+            text="Count"
+        )
+        fig_bar.update_layout(
+            margin=dict(t=10, b=10, l=10, r=10),
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            font=dict(color="#E2E8F0"),
+            height=260,
+            showlegend=False,
+            xaxis=dict(showgrid=True, gridcolor="#1E293B", title="Event Count"),
+            yaxis=dict(title="")
+        )
+        st.plotly_chart(fig_bar, use_container_width=True)
 
     st.markdown("---")
-    st.subheader("Data Integrity Guarantees")
-    st.info("""
-    - **Pristine Source Evidence**: Original files in `data/original/` are strictly read-only and never modified.
-    - **Original Timestamp Preservation**: Source timestamp strings are preserved verbatim alongside UTC-normalised timestamps.
-    - **Explicit Timezone Assumptions**: Timezones (UTC, IST +05:30, Unix Epoch drift) are recorded per event.
-    - **Zero Synthetic Distortion**: No missing records, identities, or hashes have been fabricated.
-    """)
 
-# -------------------------------------------------------------------------------------------------
-# TAB 2: EVIDENCE INVENTORY & CENTRE
-# -------------------------------------------------------------------------------------------------
-elif nav_choice == "2. Evidence Inventory & Centre":
-    st.header("Evidence Inventory & Source Inspection Centre")
-    st.markdown("Comprehensive inventory of all 20 evidence files provided in CR-26-047.")
+    # 3. Recent Detected Events & High-Risk Alerts Table
+    st.markdown("#### Recent Detected Threats & Primary Alerts")
+    alert_display_rows = []
+    for a in alerts:
+        alert_display_rows.append({
+            "Alert ID": a["alert_id"],
+            "Threat Category": a["threat_category"],
+            "Severity": a["severity"],
+            "Risk Score": f"{a['risk_score']:.1f}",
+            "Target Entity": a["target_entity"],
+            "Evidence Citations": ", ".join(a["evidence_ids"]),
+            "Triggered Rule": a["rule_id"],
+            "Confidence": a["confidence"]
+        })
+    df_alerts_disp = pd.DataFrame(alert_display_rows)
+    st.dataframe(df_alerts_disp, use_container_width=True, hide_index=True)
+
+    st.markdown("---")
+
+    # 4. Ingestion & Timezone Health Status
+    st.markdown("#### Evidence Ingestion & Telemetry Synchronization Status")
+    s1, s2, s3, s4 = st.columns(4)
+    with s1:
+        st.markdown("**LedgerOne API (E01, E18)**")
+        st.caption("Status: Ingested (45,800 events) | Timezone: UTC verified")
+    with s2:
+        st.markdown("**HelpDeskr Logs (E02)**")
+        st.caption("Status: Ingested (3,450 events) | Timezone: IST (+05:30) converted to UTC")
+    with s3:
+        st.markdown("**BlueVault Storage (E05)**")
+        st.caption("Status: Ingested (8,920 events) | Timezone: Epoch with recorded drift caveat")
+    with s4:
+        st.markdown("**HR Staff Roster (E14)**")
+        st.caption("Status: Ingested (420 records) | Status defect mitigated via termination_date")
+
+
+# =================================================================================================
+# PAGE 2: EVIDENCE CENTRE
+# =================================================================================================
+elif nav_page == "2. Evidence Centre":
+    st.markdown('<div class="source-badge-evidence">🟢 DATA SOURCE: ORIGINAL CASE EVIDENCE (E01–E20)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-header">Evidence Inventory & Inspection Centre</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-subheader">Pristine source evidence registry. Inspect original document metadata, tabular schemas, and raw telemetry payloads.</div>', unsafe_allow_html=True)
 
     inventory = get_inventory_cached(base_dir)
-    df_inv = pd.DataFrame(inventory)[["evidence_id", "filename", "format", "system", "rows_or_pages", "size_bytes", "time_basis", "reliability"]]
-    df_inv.columns = ["ID", "Filename", "Format", "System / Department", "Rows/Pages", "Size (Bytes)", "Time Basis", "Reliability Note"]
-    st.dataframe(df_inv, use_container_width=True, hide_index=True)
 
-    st.markdown("---")
-    st.subheader("Interactive Evidence File Inspector")
-    
-    selected_eid = st.selectbox("Select Evidence Item to Inspect", list(EVIDENCE_CATALOG.keys()), format_func=lambda k: f"{k} — {EVIDENCE_CATALOG[k]['filename']}")
-    meta = EVIDENCE_CATALOG[selected_eid]
-    
-    col_a, col_b = st.columns([1, 2])
-    with col_a:
-        st.markdown(f"**System:** {meta['system']}")
-        st.markdown(f"**Format:** `{meta['format']}`")
-        st.markdown(f"**Time Basis:** {meta['time_basis']}")
-        st.markdown(f"**Reliability:** {meta['reliability']}")
-        st.markdown(f"**Investigative Use:** {meta['investigative_use']}")
-
-    with col_b:
-        fmt = meta["format"].lower()
-        if fmt == "csv":
-            df_sample = ingestor.load_csv(selected_eid)
-            st.markdown(f"**Previewing Data (Total rows: {len(df_sample):,}):**")
-            st.dataframe(df_sample.head(20), use_container_width=True)
-        elif fmt == "json":
-            json_data = ingestor.load_json(selected_eid)
-            st.markdown("**Previewing JSON Structure:**")
-            st.json(json_data)
-        elif fmt == "excel":
-            st.markdown("**Previewing E09 Risk Register Extract:**")
-            df_risk = ingestor.load_risk_register()
-            st.dataframe(df_risk, use_container_width=True)
-        elif fmt == "pdf":
-            st.markdown("**Extracting Document Text & Sections:**")
-            pdf_data = ingestor.load_pdf(selected_eid)
-            st.markdown(f"*Total Pages: {pdf_data['total_pages']}*")
-            for page in pdf_data["pages"]:
-                with st.expander(f"Page {page['page_number']}"):
-                    st.text(page["text"])
-
-# -------------------------------------------------------------------------------------------------
-# TAB 3: COMMON EVENT STREAM
-# -------------------------------------------------------------------------------------------------
-elif nav_choice == "3. Common Event Stream":
-    st.header("TRACE Common Event Stream")
-    st.markdown("Unified chronological event representation covering LedgerOne, HelpDeskr, SSO, BlueVault, Flow Logs, and Vendor Audit Logs.")
-
-    with st.spinner("Loading and normalising events..."):
-        df_events = get_normalised_events(base_dir)
-
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Total Events", f"{len(df_events):,}")
-    with col2:
-        st.metric("Unique Systems", len(df_events["system"].unique()))
-    with col3:
-        st.metric("Unique Actors", len(df_events["actor"].unique()))
-    with col4:
-        st.metric("Earliest -> Latest", "01 Jun -> 07 Sep 2026")
-
-    # Filters
-    st.markdown("### Filter Event Stream")
-    f_col1, f_col2, f_col3 = st.columns(3)
+    # 1. Filters Row
+    f_col1, f_col2 = st.columns([2, 1])
     with f_col1:
-        systems = ["All"] + sorted(list(df_events["system"].unique()))
-        selected_system = st.selectbox("Filter by System", systems)
+        search_kw = st.text_input("🔍 Search Evidence Inventory:", placeholder="Filter by filename, system, or keyword...")
     with f_col2:
-        ev_ids = ["All"] + sorted(list(df_events["source_evidence_id"].unique()))
-        selected_ev = st.selectbox("Filter by Source Evidence ID", ev_ids)
-    with f_col3:
-        search_query = st.text_input("Search Actor, IP, Target, or Action", "")
+        format_filter = st.selectbox("File Format:", ["All Formats", "CSV", "JSON", "Excel", "PDF"])
 
-    filtered = df_events.copy()
-    if selected_system != "All":
-        filtered = filtered[filtered["system"] == selected_system]
-    if selected_ev != "All":
-        filtered = filtered[filtered["source_evidence_id"] == selected_ev]
-    if search_query.strip():
-        q = search_query.strip().lower()
-        mask = (
-            filtered["actor"].str.lower().str.contains(q, na=False) |
-            filtered["source_ip"].str.lower().str.contains(q, na=False) |
-            filtered["target"].str.lower().str.contains(q, na=False) |
-            filtered["action"].str.lower().str.contains(q, na=False)
-        )
-        filtered = filtered[mask]
+    # Filter inventory
+    filtered_inv = inventory
+    if format_filter != "All Formats":
+        filtered_inv = [item for item in filtered_inv if item["format"].upper() == format_filter]
+    if search_kw:
+        filtered_inv = [item for item in filtered_inv if search_kw.lower() in str(item).lower()]
 
-    st.markdown(f"**Showing {len(filtered):,} matching events:**")
-    display_cols = ["event_id", "timestamp", "timestamp_orig", "timezone_assumption", "source_evidence_id", "system", "actor", "action", "target", "source_ip", "result"]
-    st.dataframe(filtered[display_cols].head(500), use_container_width=True)
+    # 2. Evidence Table Display
+    df_inv_disp = pd.DataFrame(filtered_inv)[
+        ["evidence_id", "filename", "format", "system", "rows_or_pages", "size_bytes", "time_basis", "reliability"]
+    ]
+    df_inv_disp.columns = ["ID", "Filename", "Format", "System / Department", "Rows/Pages", "Size (Bytes)", "Time Basis", "Data Quality Note"]
+    st.dataframe(df_inv_disp, use_container_width=True, hide_index=True)
 
     st.markdown("---")
-    st.subheader("Event Record Detail Inspector")
-    if not filtered.empty:
-        idx = st.number_input("Inspect Row Index (0 to 100)", min_value=0, max_value=min(100, len(filtered)-1), value=0)
-        selected_record = filtered.iloc[idx].to_dict()
-        st.json(selected_record)
 
-# -------------------------------------------------------------------------------------------------
-# TAB 4: DETECTIONS & ALERTS
-# -------------------------------------------------------------------------------------------------
-elif nav_choice == "4. Detections & Alerts":
-    st.header("TRACE Detection Engine Alerts")
-    st.markdown("Rule-based, evidence-supported security alerts generated from normalised case telemetry.")
-
-    with st.spinner("Evaluating detection rules..."):
-        alerts = get_alerts(base_dir)
-
-    st.markdown(f"**Generated Alerts ({len(alerts)} alerts triggered):**")
-
-    # Filter by severity
-    sev_filter = st.multiselect("Filter by Severity", ["CRITICAL", "HIGH", "MEDIUM", "LOW"], default=["CRITICAL", "HIGH", "MEDIUM"])
+    # 3. Interactive File & Raw Record Inspector
+    st.markdown("### Interactive Evidence File & Record Inspector")
+    e_ids = [item["evidence_id"] for item in inventory]
+    selected_eid = st.selectbox("Select Evidence Item to Inspect:", e_ids, index=0)
     
-    displayed_alerts = [a for a in alerts if a["severity"] in sev_filter]
+    selected_meta = next((item for item in inventory if item["evidence_id"] == selected_eid), None)
 
-    for a in displayed_alerts:
-        sev = a["severity"]
-        badge_class = f"badge-{sev.lower()}"
-        border_color = "#DC2626" if sev == "CRITICAL" else ("#EA580C" if sev == "HIGH" else "#D97706")
+    if selected_meta:
+        m_col1, m_col2, m_col3, m_col4 = st.columns(4)
+        with m_col1:
+            st.caption(f"**Filename:** `{selected_meta['filename']}`")
+        with m_col2:
+            st.caption(f"**Format:** `{selected_meta['format']}`")
+        with m_col3:
+            st.caption(f"**Time Basis:** `{selected_meta['time_basis']}`")
+        with m_col4:
+            st.caption(f"**Quality:** `{selected_meta['reliability']}`")
 
-        st.markdown(f"""
-        <div style="border-left: 6px solid {border_color}; background-color: #F9FAFB; padding: 18px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 1.15rem; font-weight: 700; color: #111827;">{a['alert_id']} — {a['triggered_rule']}</span>
-                <div>
-                    <span class="{badge_class}">{sev}</span>
-                    <span class="badge-info" style="margin-left: 6px;">Risk Score: {a['risk_score']} / 100</span>
-                </div>
-            </div>
-            <div style="color: #4B5563; font-size: 0.9rem; margin-bottom: 10px;">
-                <b>Category:</b> {a['threat_category']} | <b>Target:</b> {a.get('target_entity', 'N/A')} | <b>Source IP:</b> {a.get('source_ip', 'N/A')} | <b>Timestamp:</b> {a.get('timestamp', 'N/A')}
-            </div>
-            <div style="color: #1F2937; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.5;">
-                {a['detection_explanation']}
-            </div>
-            <div style="background-color: #EFF6FF; border-left: 3px solid #3B82F6; padding: 10px; border-radius: 4px; font-size: 0.9rem; margin-bottom: 10px;">
-                <b>💡 Recommended Action:</b> {a['recommended_action']}
-            </div>
-            <div style="font-size: 0.82rem; color: #6B7280;">
-                <b>Supporting Evidence IDs:</b> {', '.join(a['evidence_ids'])} | <b>Related Event IDs:</b> {', '.join(a['triggering_event_ids'][:5])}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        # Load and display content based on file format
+        fmt = selected_meta["format"].upper()
+        if fmt == "CSV":
+            df_content = ingestor.load_csv(selected_eid)
+            st.markdown(f"**Tabular Preview (Showing top 100 of {len(df_content):,} rows):**")
+            st.dataframe(df_content.head(100), use_container_width=True)
 
-# -------------------------------------------------------------------------------------------------
-# TAB 5: CROSS-SYSTEM CORRELATION & CASES
-# -------------------------------------------------------------------------------------------------
-elif nav_choice == "5. Cross-System Correlation & Cases":
-    st.header("Cross-System Correlation Engine & Investigation Cases")
-    st.markdown("Ground-truth correlation linking disparate records across E01–E20 with typed relationships and transparent risk scoring.")
+            with st.expander("🔍 Column Schema & Raw JSON Record Inspector"):
+                c_schema1, c_schema2 = st.columns([1, 1])
+                with c_schema1:
+                    st.write("**Column Summary:**")
+                    schema_df = pd.DataFrame({
+                        "Column": df_content.columns,
+                        "Type": [str(t) for t in df_content.dtypes],
+                        "Non-Null Count": df_content.notnull().sum().values
+                    })
+                    st.dataframe(schema_df, hide_index=True)
+                with c_schema2:
+                    st.write("**Inspect Row as Raw JSON:**")
+                    row_idx = st.number_input("Row Index:", min_value=0, max_value=max(0, len(df_content)-1), value=0)
+                    if len(df_content) > 0:
+                        st.json(df_content.iloc[row_idx].to_dict())
 
-    cases = get_investigation_cases(base_dir)
-    graph_builder = get_graph_data(base_dir)
+        elif fmt == "JSON":
+            json_content = ingestor.load_json(selected_eid)
+            st.markdown(f"**Structured JSON Content:**")
+            st.json(json_content)
 
-    selected_case_id = st.selectbox(
-        "Select Active Investigation Case",
-        list(cases.keys()),
-        format_func=lambda cid: f"{cid}: {cases[cid].title}"
-    )
-    active_case = cases[selected_case_id]
+        elif fmt == "EXCEL":
+            excel_content = ingestor.load_excel(selected_eid)
+            st.markdown(f"**Worksheet Preview (Rows: {len(excel_content)}):**")
+            st.dataframe(excel_content, use_container_width=True)
 
-    c1, c2, c3 = st.columns([2, 1, 1])
-    with c1:
-        st.subheader(active_case.title)
-        st.markdown(f"**Focus:** {active_case.focus}")
-        st.markdown(f"**Summary:** {active_case.summary}")
-    with c2:
-        risk_data = active_case.risk_assessment
-        st.metric("Case Risk Score", f"{risk_data['final_score']} / 100", f"Severity: {risk_data['severity']}")
-        st.markdown(f"**Primary Entities:** {', '.join(active_case.primary_entities)}")
-    with c3:
-        st.markdown(f"**Cites Evidence IDs:** {', '.join(active_case.primary_evidence_ids)}")
-        st.markdown(f"**Timeline Events:** {len(active_case.timeline)}")
+        elif fmt == "PDF":
+            pdf_data = ingestor.load_pdf(selected_eid)
+            st.markdown(f"**Extracted Text from PDF ({pdf_data.get('total_pages', 0)} Pages):**")
+            pages_dict = pdf_data.get("pages", {})
+            if pages_dict:
+                page_sel = st.selectbox("Select Page:", list(pages_dict.keys()))
+                st.text_area("Extracted Document Text:", pages_dict[page_sel], height=260)
+            else:
+                st.info("No text content could be extracted from this PDF.")
+
+
+# =================================================================================================
+# PAGE 3: THREAT DETECTION
+# =================================================================================================
+elif nav_page == "3. Threat Detection":
+    st.markdown('<div class="source-badge-evidence">🟢 DATA SOURCE: ORIGINAL CASE EVIDENCE (E01–E20)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-header">Threat Detection & Alert Investigation</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-subheader">Rule-based threat signatures, transparent composite risk scores, and detailed forensic justification.</div>', unsafe_allow_html=True)
+
+    alerts = get_alerts(base_dir)
+
+    # 1. Alert Filtering
+    a_f1, a_f2 = st.columns([1, 1])
+    with a_f1:
+        sev_filter = st.multiselect("Filter by Severity:", ["Critical", "High", "Medium", "Low", "Info"], default=["Critical", "High", "Medium"])
+    with a_f2:
+        cat_filter = st.multiselect("Filter by Threat Category:", list(set(a["threat_category"] for a in alerts)), default=list(set(a["threat_category"] for a in alerts)))
+
+    filtered_alerts = [a for a in alerts if (not sev_filter or a["severity"] in sev_filter) and (not cat_filter or a["threat_category"] in cat_filter)]
+
+    st.markdown(f"**Active Alerts Displayed:** {len(filtered_alerts)} of {len(alerts)}")
+
+    # 2. Master Alert Table
+    t_rows = []
+    for a in filtered_alerts:
+        t_rows.append({
+            "Alert ID": a["alert_id"],
+            "Rule ID": a["rule_id"],
+            "Category": a["threat_category"],
+            "Severity": a["severity"],
+            "Risk Score": f"{a['risk_score']:.1f}",
+            "Target Entity": a["target_entity"],
+            "Source IP": a["source_ip"],
+            "Evidence IDs": ", ".join(a["evidence_ids"])
+        })
+    st.dataframe(pd.DataFrame(t_rows), use_container_width=True, hide_index=True)
 
     st.markdown("---")
 
-    sub_tab1, sub_tab2, sub_tab3, sub_tab4 = st.tabs([
-        "📅 Correlated Incident Timeline",
-        "📊 Transparent Risk Score Breakdown",
-        "⚖️ Facts vs. Hypotheses",
-        "🕸️ Evidence Relationship Graph"
-    ])
+    # 3. Master-Detail Selected Alert Inspection
+    st.markdown("### Deep Forensic Alert Inspection")
+    alert_ids = [a["alert_id"] for a in filtered_alerts]
+    if alert_ids:
+        sel_alert_id = st.selectbox("Select Alert for Deep Inspection:", alert_ids)
+        sel_alert = next((a for a in filtered_alerts if a["alert_id"] == sel_alert_id), None)
 
-    with sub_tab1:
-        st.markdown("### Incident Chronology")
-        t_col1, t_col2 = st.columns(2)
-        with t_col1:
-            systems_in_case = ["All"] + sorted(list(set(e.source_system for e in active_case.timeline)))
-            filter_sys = st.selectbox("Filter System", systems_in_case, key=f"f_sys_{selected_case_id}")
-        with t_col2:
-            rel_types = ["All"] + sorted(list(set(e.relationship_type for e in active_case.timeline)))
-            filter_rel = st.selectbox("Filter Relationship Type", rel_types, key=f"f_rel_{selected_case_id}")
+        if sel_alert:
+            d_col1, d_col2 = st.columns([1.6, 1])
 
-        filtered_timeline = active_case.timeline
-        if filter_sys != "All":
-            filtered_timeline = [e for e in filtered_timeline if e.source_system == filter_sys]
-        if filter_rel != "All":
-            filtered_timeline = [e for e in filtered_timeline if e.relationship_type == filter_rel]
+            with d_col1:
+                st.markdown(f"#### Alert Rationale: `{sel_alert['alert_id']}`")
+                st.info(f"**Why this alert was generated:**\n\n{sel_alert['detection_explanation']}")
 
-        st.markdown(f"**Displaying {len(filtered_timeline)} timeline events:**")
-        for event in filtered_timeline:
-            rel = event.relationship_type
-            badge_style = "badge-direct" if "Direct" in rel else ("badge-temporal" if "Temporal" in rel else ("badge-contextual" if "Contextual" in rel else "badge-unverified"))
-            st.markdown(f"""
-            <div style="border-left: 4px solid #3B82F6; background-color: #F8FAFC; padding: 14px; border-radius: 6px; margin-bottom: 12px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <span style="font-weight: 700; color: #1E3A8A; font-size: 1.0rem;">
-                        {event.normalised_timestamp_str} (Orig: <code>{event.timestamp_orig}</code>)
-                    </span>
-                    <div>
-                        <span class="{badge_style}">{rel}</span>
-                        <span class="badge-info" style="margin-left: 5px;">{event.source_system} ({event.evidence_id})</span>
-                    </div>
-                </div>
-                <div style="color: #1F2937; font-size: 0.95rem; margin-bottom: 6px;">
-                    {event.description}
-                </div>
-                <div style="font-size: 0.82rem; color: #4B5563;">
-                    <b>Matched Identifiers:</b> {', '.join(event.identifiers_matched) if event.identifiers_matched else 'None'} | <b>Confidence:</b> {event.confidence}
-                </div>
-                {f'<div style="font-size: 0.8rem; color: #B45309; margin-top: 4px;">⚠️ <i>{event.uncertainty_notes}</i></div>' if event.uncertainty_notes else ''}
-            </div>
-            """, unsafe_allow_html=True)
+                st.markdown("##### Recommended Tactical Response Actions:")
+                st.warning(sel_alert["recommended_action"])
 
-    with sub_tab2:
-        st.markdown("### Transparent Scoring Attribution")
-        breakdown = active_case.risk_assessment.get("breakdown", {})
-        score_rows = []
-        for factor_key, factor_val in breakdown.items():
-            if isinstance(factor_val, dict):
-                score_rows.append({
-                    "Risk Factor": factor_key.replace("_", " ").title(),
-                    "Points Awarded / Deducted": factor_val.get("points", factor_val.get("deductions", 0.0)),
-                    "Evidence-Backed Attribution": factor_val.get("explanation", "")
+                st.markdown("##### Triggering Event Telemetry Identifiers:")
+                st.code("\n".join(sel_alert["triggering_event_ids"]) if sel_alert["triggering_event_ids"] else "No specific event ID logged.")
+
+            with d_col2:
+                st.markdown("#### Risk Score & Confidence")
+                score = sel_alert["risk_score"]
+                sev = sel_alert["severity"]
+
+                # Metric and Score Gauge
+                st.metric("Objective Risk Score", f"{score:.1f} / 100.0", f"Severity: {sev}")
+                st.progress(min(1.0, score / 100.0))
+
+                st.markdown(f"""
+                - **Target Entity:** `{sel_alert['target_entity']}`
+                - **Attributed Host / IP:** `{sel_alert['source_ip']}`
+                - **Confidence Tier:** `{sel_alert['confidence']}`
+                - **Supporting Documents:** `{', '.join(sel_alert['evidence_ids'])}`
+                """)
+
+                st.markdown("##### Evidence Boundary & Limitations:")
+                st.caption("""
+                - **Unsynchronized Clocks:** Timestamps in BlueVault (E05) carry uncalibrated hardware clock uncertainty.
+                - **HR Defect (E14):** Status marked 'active' for all rows; termination verified by termination_date.
+                """)
+    else:
+        st.info("No alerts match the chosen severity and category filters.")
+
+
+# =================================================================================================
+# PAGE 4: INVESTIGATION WORKSPACE
+# =================================================================================================
+elif nav_page == "4. Investigation Workspace":
+    st.markdown('<div class="source-badge-evidence">🟢 DATA SOURCE: ORIGINAL CASE EVIDENCE (E01–E20)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-header">Cross-System Investigation Workspace</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-subheader">Multi-stage attack correlation, chronological incident progression, and NetworkX entity-relationship knowledge graph.</div>', unsafe_allow_html=True)
+
+    with st.spinner("Building cross-system correlation cases and knowledge graph..."):
+        cases = get_investigation_cases(base_dir)
+        graph_builder = get_graph_builder(base_dir)
+
+    # 1. Case Selector & Multi-Dimensional Filters
+    c_sel1, c_sel2, c_sel3 = st.columns([1.5, 1, 1])
+    case_keys = list(cases.keys())
+    with c_sel1:
+        sel_case_id = st.selectbox("Select Active Investigation Case:", case_keys, format_func=lambda k: f"{k}: {cases[k].title}")
+    
+    current_case = cases[sel_case_id]
+
+    with c_sel2:
+        system_filter = st.multiselect("Filter Systems:", list(set(e.source_system for e in current_case.events)), default=list(set(e.source_system for e in current_case.events)))
+    with c_sel3:
+        rel_filter = st.multiselect("Filter Relationships:", ["Direct Match", "Temporal", "Contextual", "Unverified"], default=["Direct Match", "Temporal", "Contextual", "Unverified"])
+
+    # Filter events
+    case_events = [
+        e for e in current_case.events
+        if (not system_filter or e.source_system in system_filter) and (not rel_filter or e.relationship_type.value in rel_filter)
+    ]
+
+    # Case Summary Card
+    st.markdown(f"""
+    <div class="soc-card">
+        <div style="font-size: 1.15rem; font-weight: 700; color: #F8FAFC; margin-bottom: 6px;">{current_case.title}</div>
+        <div style="font-size: 0.9rem; color: #94A3B8; margin-bottom: 12px;">{current_case.summary}</div>
+        <div style="display: flex; gap: 20px; font-size: 0.85rem;">
+            <div><b>Composite Risk Score:</b> <span style="color: #EF4444; font-weight: 700;">{current_case.composite_score:.1f} / 100</span></div>
+            <div><b>Systems Spanned:</b> {len(current_case.involved_systems)}</div>
+            <div><b>Correlated Events:</b> {len(case_events)}</div>
+            <div><b>Evidence Sources:</b> {', '.join(current_case.involved_evidence)}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 2. Interactive Incident Timeline
+    st.markdown("### Incident Timeline Progression")
+    
+    if case_events:
+        # Create Plotly timeline scatter chart
+        timeline_data = []
+        for e in case_events:
+            dt = e.normalised_timestamp if e.normalised_timestamp else datetime.now(timezone.utc)
+            timeline_data.append({
+                "Timestamp": dt,
+                "System": e.source_system,
+                "Description": e.event_description,
+                "Evidence": e.evidence_id,
+                "Relationship": e.relationship_type.value,
+                "Confidence": e.confidence
+            })
+        df_tl = pd.DataFrame(timeline_data)
+
+        fig_tl = px.scatter(
+            df_tl,
+            x="Timestamp",
+            y="System",
+            color="System",
+            hover_data=["Description", "Evidence", "Relationship", "Confidence"],
+            size=[14] * len(df_tl),
+            title="Chronological Multi-System Event Progression"
+        )
+        fig_tl.update_layout(
+            margin=dict(t=30, b=10, l=10, r=10),
+            paper_bgcolor="#0F172A",
+            plot_bgcolor="#0F172A",
+            font=dict(color="#E2E8F0"),
+            height=280,
+            showlegend=True,
+            xaxis=dict(showgrid=True, gridcolor="#1E293B", title="UTC Timestamp"),
+            yaxis=dict(title="")
+        )
+        st.plotly_chart(fig_tl, use_container_width=True)
+
+        # Tabular Timeline View
+        with st.expander("📋 View Chronological Event Stream Table"):
+            tl_table_rows = []
+            for e in case_events:
+                tl_table_rows.append({
+                    "Normalised UTC": e.normalised_timestamp.strftime("%Y-%m-%d %H:%M:%S") if e.normalised_timestamp else "N/A",
+                    "Source System": e.source_system,
+                    "Description": e.event_description,
+                    "Evidence ID": e.evidence_id,
+                    "Relationship Type": e.relationship_type.value,
+                    "Uncertainty / Caveat": e.uncertainty_notes or "Verified Ground Truth"
                 })
-        st.table(pd.DataFrame(score_rows))
-        st.info(f"**Final Calculated Risk Score:** {active_case.risk_assessment['final_score']} / 100 ({active_case.risk_assessment['severity']})")
+            st.dataframe(pd.DataFrame(tl_table_rows), use_container_width=True, hide_index=True)
 
-    with sub_tab3:
-        st.markdown("### Evidentiary Separation: Observed Facts vs Investigative Hypotheses")
-        col_f, col_h = st.columns(2)
-        with col_f:
-            st.markdown("#### ✅ Observed Facts (Documented in Logs)")
-            for f in active_case.facts_observed:
-                st.markdown(f"- {f}")
-        with col_h:
-            st.markdown("#### 🔍 Investigative Hypotheses (Requiring Verification)")
-            for h in active_case.investigative_hypotheses:
-                st.markdown(f"- {h}")
-        st.markdown("#### 💡 Recommended Investigative Actions")
-        for rec in active_case.recommended_actions:
-            st.markdown(f"1. {rec}")
+    st.markdown("---")
 
-    with sub_tab4:
-        st.markdown("### Grounded NetworkX Evidence Relationship Graph")
-        subgraph = graph_builder.get_case_subgraph(active_case.primary_entities)
-        g_col1, g_col2 = st.columns([1, 2])
-        with g_col1:
-            st.markdown(f"**Subgraph Entities:** {len(subgraph.nodes)}")
-            st.markdown(f"**Relationship Edges:** {len(subgraph.edges)}")
-            selected_node = st.selectbox(
-                "Select Node to Inspect Connected Evidence",
-                sorted(list(subgraph.nodes)),
-                format_func=lambda n: f"{n} ({subgraph.nodes[n].get('label', n)})"
-            )
-            connected_evidence = graph_builder.get_connected_evidence(selected_node)
-            st.markdown(f"**Connected Evidence Files for `{selected_node}`:**")
-            for ev in connected_evidence:
-                st.markdown(f"- **{ev}**: {EVIDENCE_CATALOG.get(ev, {}).get('filename', '')}")
-        with g_col2:
-            st.markdown(f"**Verified Relationships in Case Subgraph:**")
-            edge_list = []
-            for u, v, d in subgraph.edges(data=True):
-                edge_list.append({
-                    "Source Entity": u,
-                    "Target Entity": v,
-                    "Relationship": d.get("label", ""),
-                    "Type": d.get("relationship_type", ""),
-                    "Evidence": d.get("evidence_source", "")
-                })
-            st.dataframe(pd.DataFrame(edge_list), use_container_width=True, hide_index=True)
+    # 3. Interactive NetworkX Evidence Relationship Graph
+    st.markdown("### Evidence & Entity Relationship Graph (NetworkX + Plotly)")
+    st.caption("Interactive 2D topological graph of verified enterprise accounts, build servers, evidence documents, and diverted payment channels.")
 
-# -------------------------------------------------------------------------------------------------
-# TAB 6: CYBERSECURITY SIMULATION LAB
-# -------------------------------------------------------------------------------------------------
-elif nav_choice == "6. Cybersecurity Simulation Lab":
-    st.header("Controlled Cybersecurity Simulation Lab")
-    st.markdown("""
-    Evaluate TRACE's detection capabilities using safe, self-contained synthetic scenarios.
-    All events are generated locally in memory with strict `is_synthetic: True` tags to prevent evidence pollution.
-    Generated events are evaluated directly against the production `ThreatDetectionEngine`.
-    """)
+    fig_net = graph_builder.to_plotly_figure(
+        title=f"Entity-Relationship Graph: {current_case.title}"
+    )
+    if fig_net:
+        st.plotly_chart(fig_net, use_container_width=True)
+    else:
+        st.info("Network graph visualizer initializing...")
 
-    sim_tab1, sim_tab2 = st.tabs(["🧪 Interactive Scenario Runner", "🏆 Held-Out Evaluation Battery"])
+    st.markdown("---")
+
+    # 4. Transparent Risk Scoring Attribution & Facts vs Hypotheses
+    sc_col1, sc_col2 = st.columns([1, 1])
+
+    with sc_col1:
+        st.markdown("#### Transparent Risk Score Factor Attribution")
+        factors = current_case.risk_factors
+        df_factors = pd.DataFrame([
+            {"Scoring Dimension": "System Diversity Contribution", "Points Awarded": f"+{factors.get('system_diversity_points', 0):.1f}"},
+            {"Scoring Dimension": "Direct Identifier Matches", "Points Awarded": f"+{factors.get('direct_match_points', 0):.1f}"},
+            {"Scoring Dimension": "Policy & Control Breaches", "Points Awarded": f"+{factors.get('policy_breach_points', 0):.1f}"},
+            {"Scoring Dimension": "Attack Sequence Progression", "Points Awarded": f"+{factors.get('sequence_points', 0):.1f}"},
+            {"Scoring Dimension": "Clock Drift & Unverified Deductions", "Points Awarded": f"-{factors.get('uncertainty_penalty', 0):.1f}"}
+        ])
+        st.table(df_factors)
+
+    with sc_col2:
+        st.markdown("#### Confirmed Facts vs. Investigative Hypotheses")
+        st.markdown("**Confirmed Forensic Facts:**")
+        for fact in current_case.confirmed_facts:
+            st.markdown(f"- ✅ {fact}")
+
+        st.markdown("**Investigative Hypotheses (Requiring Verification):**")
+        for hyp in current_case.investigative_hypotheses:
+            st.markdown(f"- ❓ {hyp}")
+
+
+# =================================================================================================
+# PAGE 5: SIMULATION LAB
+# =================================================================================================
+elif nav_page == "5. Simulation Lab":
+    st.markdown('<div class="source-badge-simulated">🟣 DATA SOURCE: SIMULATED TEST DATA (ISOLATED IN-MEMORY LAB)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-header">Controlled Cybersecurity Simulation Lab</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-subheader">Evaluate TRACE detection capabilities using safe, local synthetic telemetry streams. Zero external network connections.</div>', unsafe_allow_html=True)
 
     sim_runner = SimulationLabRunner()
 
+    sim_tab1, sim_tab2 = st.tabs(["Interactive Scenario Simulator", "Generalization Evaluation Battery"])
+
     with sim_tab1:
-        scenario_choice = st.selectbox(
-            "Select Simulated Scenario",
-            [
-                "SCENARIO A: Former Employee Access",
-                "SCENARIO B: Compromised Integration Credential",
-                "SCENARIO C: Suspicious Vendor Bank Modification",
-                "SCENARIO D: Unusual Helpdesk Data Export",
-                "SCENARIO E: Multi-Stage Attack Progression"
-            ]
-        )
+        sc_col1, sc_col2 = st.columns([1, 2])
 
-        st.markdown("---")
-        st.subheader("Scenario Parameters")
-
-        # Dynamic configuration controls
-        if "SCENARIO A" in scenario_choice:
-            sc_col1, sc_col2, sc_col3 = st.columns(3)
-            with sc_col1:
-                p_term = st.toggle("Account Status: Terminated Employee", value=True)
-                p_uname = st.text_input("Username", value="sim.former.clerk")
-            with sc_col2:
-                p_success = st.toggle("Sign-in Result: Success", value=True)
-                p_days = st.slider("Days Post-Termination", min_value=1, max_value=60, value=15)
-            with sc_col3:
-                p_ip = st.text_input("Source IP", value="172.16.8.88 (Warehouse Kiosk)")
-            
-            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_a_former_employee(
-                is_terminated=p_term,
-                login_success=p_success,
-                source_ip=p_ip.split(" ")[0],
-                days_after_termination=p_days,
-                username=p_uname
+        with sc_col1:
+            st.subheader("Scenario Configuration")
+            scenario_choice = st.selectbox(
+                "Select Attack Scenario:",
+                [
+                    "SCENARIO A: Former Employee Access",
+                    "SCENARIO B: Compromised Integration Credential",
+                    "SCENARIO C: Suspicious Vendor Bank Modification",
+                    "SCENARIO D: Unusual Support Ticket Export",
+                    "SCENARIO E: Multi-Stage Attack Progression"
+                ]
             )
 
-        elif "SCENARIO B" in scenario_choice:
-            sc_col1, sc_col2, sc_col3 = st.columns(3)
-            with sc_col1:
-                p_key = st.text_input("API Credential ID", value="key-tb-07")
-                p_ip = st.selectbox("Caller IP", ["10.20.4.77 (tb-build-02 host)", "10.20.4.12 (Normal sync pool)", "198.18.7.41 (Threat Indicator)"])
-            with sc_col2:
-                p_endpoint = st.selectbox("API Endpoint", ["/v2/vendors/V-SIM-0412/bank-details", "/v2/payments/scheduled", "/v2/shipments"])
-                p_method = st.selectbox("HTTP Method", ["GET", "PATCH", "POST"])
-            with sc_col3:
-                p_count = st.slider("Request Count", min_value=1, max_value=10, value=3)
+            # Scenario-specific controls
+            sim_events = []
+            sim_context = {}
 
-            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_b_api_activity(
-                api_key_id=p_key,
-                caller_ip=p_ip.split(" ")[0],
-                endpoint=p_endpoint,
-                method=p_method,
-                event_count=p_count
-            )
+            if "SCENARIO A" in scenario_choice:
+                st.caption("Simulates authentication attempts by a departed employee.")
+                is_terminated = st.checkbox("Is Terminated Employee", value=True)
+                login_success = st.checkbox("Authentication Succeeded", value=True)
+                source_ip = st.text_input("Source IP:", "172.16.8.88")
+                days_after = st.slider("Days Post Termination:", 1, 60, 20)
 
-        elif "SCENARIO C" in scenario_choice:
-            sc_col1, sc_col2, sc_col3 = st.columns(3)
-            with sc_col1:
-                p_field = st.selectbox("Field Changed", ["bank_account", "contact_email", "address"])
-                p_chan = st.selectbox("Change Channel", ["API", "UI"])
-            with sc_col2:
-                p_appr = st.toggle("Include Valid Dual Approval Reference", value=False)
-                p_appr_ref = st.text_input("Approval Reference Code", value="APR-SIM-9941" if p_appr else "")
-            with sc_col3:
-                p_ip = st.text_input("Source IP", value="10.20.4.77")
-                p_actor = st.text_input("Changed By", value="key-tb-07" if p_chan == "API" else "f.dsouza")
+                if st.button("▶️ Generate & Run Scenario A"):
+                    sim_events, sim_context = ScenarioTemplateEngine.generate_scenario_a_former_employee(
+                        is_terminated=is_terminated, login_success=login_success, source_ip=source_ip, days_after_termination=days_after
+                    )
 
-            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_c_vendor_modification(
-                field_changed=p_field,
-                channel=p_chan,
-                has_approval_ref=p_appr,
-                approval_ref_val=p_appr_ref if p_appr else None,
-                source_ip=p_ip,
-                changed_by=p_actor
-            )
+            elif "SCENARIO B" in scenario_choice:
+                st.caption("Simulates API calls from anomalous internal or external hosts.")
+                is_susp_caller = st.checkbox("Unauthorized Caller IP (10.20.4.77 tb-build-02)", value=True)
+                is_sens_ep = st.checkbox("High-Risk Endpoint (/v2/vendors/.../bank-details)", value=True)
+                event_count = st.slider("Request Volume:", 1, 50, 5)
 
-        elif "SCENARIO D" in scenario_choice:
-            sc_col1, sc_col2 = st.columns(2)
-            with sc_col1:
-                p_burst = st.toggle("Trigger Abnormal Burst Export (Cluster)", value=True)
-                p_recon = st.toggle("Include Secret Reconnaissance Searches ('password', 'bvk-')", value=True)
-            with sc_col2:
-                p_count = st.slider("Export Jobs Volume", min_value=1, max_value=20, value=12 if p_burst else 1)
-                p_ip = st.text_input("Actor Source IP", value="198.18.7.41")
+                if st.button("▶️ Generate & Run Scenario B"):
+                    sim_events, sim_context = ScenarioTemplateEngine.generate_scenario_b_api_activity(
+                        is_suspicious_caller=is_susp_caller, is_sensitive_endpoint=is_sens_ep, event_count=event_count
+                    )
 
-            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_d_export_activity(
-                is_burst=p_burst,
-                include_recon_searches=p_recon,
-                export_count=p_count,
-                source_ip=p_ip
-            )
+            elif "SCENARIO C" in scenario_choice:
+                st.caption("Simulates vendor master changes (dual-control evaluation).")
+                field_changed = st.selectbox("Field Modified:", ["bank_account", "address", "phone"])
+                channel = st.selectbox("Channel:", ["API", "UI"])
+                has_approval = st.checkbox("Has Approval Reference", value=False)
 
-        else:
-            st.markdown("**Multi-Stage Attack Progression across Multiple Enterprise Systems**")
-            sc_col1, sc_col2 = st.columns(2)
-            with sc_col1:
-                p_sso = st.checkbox("Phase 1: Former employee login (SSO)", value=True)
-                p_recon = st.checkbox("Phase 2: Secret searches & bulk export burst (HelpDeskr)", value=True)
-            with sc_col2:
-                p_pivot = st.checkbox("Phase 3: Out-of-pool invocation from build host 10.20.4.77 (LedgerOne)", value=True)
-                p_bank = st.checkbox("Phase 4: Unauthorized bank account modification (Vendor Master)", value=True)
+                if st.button("▶️ Generate & Run Scenario C"):
+                    sim_events, sim_context = ScenarioTemplateEngine.generate_scenario_c_vendor_modification(
+                        field_changed=field_changed, channel=channel, has_approval_ref=has_approval
+                    )
 
-            gen_func = lambda: ScenarioTemplateEngine.generate_scenario_e_multi_stage(
-                include_former_employee=p_sso,
-                include_recon=p_recon,
-                include_api_pivot=p_pivot,
-                include_vendor_tamper=p_bank
-            )
+            elif "SCENARIO D" in scenario_choice:
+                st.caption("Simulates bulk data exports and reconnaissance ticket searches.")
+                is_burst = st.checkbox("Abnormal Export Burst", value=True)
+                include_recon = st.checkbox("Include Secret Keyword Searches", value=True)
+                export_count = st.slider("Export Job Count:", 1, 30, 15)
 
-        if st.button("🚀 Execute Simulation in TRACE Engine"):
-            with st.spinner("Generating synthetic events and passing through ThreatDetectionEngine..."):
-                synthetic_events, synthetic_context = gen_func()
-                sim_result = sim_runner.run_scenario(synthetic_events, context=synthetic_context)
+                if st.button("▶️ Generate & Run Scenario D"):
+                    sim_events, sim_context = ScenarioTemplateEngine.generate_scenario_d_export_activity(
+                        is_burst=is_burst, include_recon_searches=include_recon, export_count=export_count
+                    )
 
-                # Metrics display
-                m_col1, m_col2, m_col3, m_col4, m_col5 = st.columns(5)
-                with m_col1:
-                    st.metric("Generated Events", sim_result["events_count"])
-                with m_col2:
-                    st.metric("Alerts Raised", len(sim_result["alerts"]))
-                with m_col3:
-                    st.metric("True Positives (TP)", sim_result["true_positives"])
-                with m_col4:
-                    st.metric("False Positives (FP)", sim_result["false_positives"])
-                with m_col5:
-                    st.metric("F1 Score", f"{sim_result['metrics']['f1_score']:.2f}")
+            else: # SCENARIO E
+                st.caption("Full kill-chain combining reconnaissance, pivot, and payment fraud.")
+                inc_recon = st.checkbox("Include HelpDeskr Reconnaissance", value=True)
+                inc_api = st.checkbox("Include Build Server API Probing", value=True)
+                inc_vendor = st.checkbox("Include Vendor Bank Tampering", value=True)
 
-                st.markdown("---")
-                st.subheader("Simulation Evaluation Results")
+                if st.button("▶️ Generate & Run Scenario E"):
+                    sim_events, sim_context = ScenarioTemplateEngine.generate_scenario_e_multi_stage(
+                        include_recon=inc_recon, include_api_pivot=inc_api, include_vendor_tamper=inc_vendor
+                    )
 
-                ev_col1, ev_col2 = st.columns(2)
-                with ev_col1:
-                    st.markdown("**Expected Detection Signatures:**")
-                    if sim_result["expected_rules"]:
-                        for r in sim_result["expected_rules"]:
-                            st.markdown(f"- `{r}`")
-                    else:
-                        st.markdown("*None (Expected clean / benign activity)*")
-                with ev_col2:
-                    st.markdown("**Actual Rules Triggered by TRACE Engine:**")
-                    if sim_result["detected_rules"]:
-                        for dr in set(sim_result["detected_rules"]):
-                            st.markdown(f"- 🚨 `{dr}`")
-                    else:
-                        st.markdown("*None (No alerts raised)*")
+        with sc_col2:
+            st.subheader("Simulation Execution & Detection Output")
+            if sim_events:
+                res = sim_runner.run_scenario(sim_events, context=sim_context)
 
-                # Alerts raised inspection
-                if sim_result["alerts"]:
-                    st.markdown("#### Generated Security Alerts:")
-                    for al in sim_result["alerts"]:
-                        sev = al["severity"]
-                        badge_class = f"badge-{sev.lower()}"
-                        st.markdown(f"""
-                        <div style="border-left: 5px solid #EA580C; background-color: #F8FAFC; padding: 12px; border-radius: 4px; margin-bottom: 10px;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <b>{al['alert_id']} — {al['triggered_rule']}</b>
-                                <div><span class="{badge_class}">{sev}</span> <span class="badge-sim">SIMULATED</span></div>
-                            </div>
-                            <div style="font-size: 0.9rem; color: #374151; margin-top: 4px;">{al['detection_explanation']}</div>
-                            <div style="font-size: 0.8rem; color: #1D4ED8; margin-top: 4px;">💡 <b>Recommended Action:</b> {al['recommended_action']}</div>
-                        </div>
-                        """, unsafe_allow_html=True)
+                # Metric Tiles
+                m1, m2, m3, m4 = st.columns(4)
+                with m1:
+                    st.metric("Generated Telemetry", res["events_count"])
+                with m2:
+                    st.metric("Alerts Triggered", len(res["alerts"]))
+                with m3:
+                    st.metric("True Positives (TP)", res["true_positives"])
+                with m4:
+                    st.metric("False Positives (FP)", res["false_positives"], delta_color="inverse")
 
-                # Events table
-                with st.expander("Inspect Raw Generated Synthetic Events", expanded=False):
-                    df_sim_display = pd.DataFrame(sim_result["events"])[
-                        ["event_id", "timestamp_orig", "system", "actor", "action", "target", "source_ip", "result", "expected_classification"]
-                    ]
-                    st.dataframe(df_sim_display, use_container_width=True)
+                # Detection rules comparison
+                st.markdown(f"**Expected Rule Signatures:** `{', '.join(res['expected_rules']) if res['expected_rules'] else 'BENIGN'}`")
+                st.markdown(f"**Triggered Rule Signatures:** `{', '.join(set(res['detected_rules'])) if res['detected_rules'] else 'None'}`")
+
+                # Alerts Raised
+                if res["alerts"]:
+                    st.markdown("##### Raised Alerts Details:")
+                    for a in res["alerts"]:
+                        st.warning(f"**[{a['severity']}] {a['alert_id']} ({a['rule_id']}):** {a['detection_explanation']}")
+
+                # Generated Events Table
+                st.markdown("##### Generated Telemetry Stream (Explicitly Labeled SIMULATED):")
+                df_sim = pd.DataFrame(res["events"])
+                display_cols = [c for c in ["event_id", "timestamp_orig", "system", "action", "actor", "target", "source_ip", "expected_classification"] if c in df_sim.columns]
+                st.dataframe(df_sim[display_cols], use_container_width=True, hide_index=True)
+            else:
+                st.info("Configure scenario parameters in the left panel and click 'Generate & Run' to execute simulation.")
 
     with sim_tab2:
         st.subheader("Held-Out Generalization Evaluation Battery")
         st.markdown("""
         Evaluates TRACE against unseen variations:
-        - Different IPs, altered event ordering, and missing optional fields.
-        - Legitimate lookalikes (approved bank changes, normal sync queries, routine Tuesday exports).
+        - Novel IP addresses, title-casing variations, and altered event sequencing.
+        - Legitimate lookalikes (approved portal bank changes, routine high-volume sync, active employee kiosk logins).
         """)
 
         if st.button("▶️ Run Full Held-Out Evaluation Suite"):
@@ -731,19 +821,18 @@ elif nav_choice == "6. Cybersecurity Simulation Lab":
                 df_held_out.columns = ["Test Name", "Scenario Description", "Expected Alerts", "Actual Alerts", "Status"]
                 st.dataframe(df_held_out, use_container_width=True, hide_index=True)
 
-# -------------------------------------------------------------------------------------------------
-# TAB 7: DEFENSIVE EVALUATION ENGINE
-# -------------------------------------------------------------------------------------------------
-elif nav_choice == "7. Defensive Evaluation Engine":
-    st.header("Defensive Performance Evaluation Engine")
-    st.markdown("""
-    A reproducible, scientifically rigorous diagnostic framework measuring TRACE's detection capability,
-    alert precision, false-alarm mitigation, and adversarial robustness across enterprise cybersecurity telemetry.
-    """)
+
+# =================================================================================================
+# PAGE 6: PERFORMANCE LAB
+# =================================================================================================
+elif nav_page == "6. Performance Lab":
+    st.markdown('<div class="source-badge-simulated">🟣 DATA SOURCE: DEFENSIVE PERFORMANCE EVALUATION (CONTROLLED BENCHMARK)</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-header">Defensive Performance Evaluation Engine</div>', unsafe_allow_html=True)
+    st.markdown('<div class="soc-subheader">A reproducible, scientifically grounded diagnostic framework measuring alert precision, recall, false-alarm rate, and adversarial robustness.</div>', unsafe_allow_html=True)
 
     st.info("""
-    **Evidence-Grounding & Evaluation Principles**:
-    - **Original Evidence Separation**: In real competition evidence ($E01$–$E20$), ground truth is unlabelled for background telemetry. Supervised accuracy metrics are strictly NOT calculated on unlabelled case evidence to avoid unscientific bias.
+    **Strict Evidence-Grounding & Evaluation Principles**:
+    - **Original Evidence Integrity ($E01$–$E20$)**: Ground truth is unlabelled for raw background events. Supervised accuracy metrics are strictly NOT calculated on unlabelled case evidence to avoid unscientific bias.
     - **Isolated Benchmark Dataset**: All 34 benchmark test cases are programmatically synthesized with strict ground-truth labels (**$1$ = Suspicious**, **$0$ = Legitimate**), tagged with `SIMULATED_TEST_LAB` and `is_synthetic: True`.
     - **Safe Zero-Denominator Handling**: Where denominators evaluate to zero, metrics report `N/A` with an explicit mathematical note rather than arbitrary coercion.
     """)
@@ -760,7 +849,7 @@ elif nav_choice == "7. Defensive Evaluation Engine":
 
     selected_mode = st.selectbox("Select Evaluation Mode:", mode_options)
 
-    if st.button("🚀 Execute Defensive Performance Evaluation", key="btn_run_eval"):
+    if st.button("🚀 Execute Defensive Performance Evaluation", key="btn_run_eval_p6"):
         with st.spinner("Executing evaluation battery through ThreatDetectionEngine..."):
             if "All" in selected_mode:
                 suite_res = eval_engine.run_all()
@@ -773,9 +862,9 @@ elif nav_choice == "7. Defensive Evaluation Engine":
             else:
                 suite_res = eval_engine.run_robustness_testing()
 
-            st.session_state["evaluation_result"] = suite_res
+            st.session_state["p6_evaluation_result"] = suite_res
 
-    suite_res = st.session_state.get("evaluation_result", None)
+    suite_res = st.session_state.get("p6_evaluation_result", None)
 
     if suite_res is not None:
         m = suite_res.metrics
@@ -812,7 +901,7 @@ elif nav_choice == "7. Defensive Evaluation Engine":
         with c9:
             st.metric("False Positive Rate", fpr_str, m.fpr_note, delta_color="inverse")
         with c10:
-            st.metric("Avg Latency", f"{m.avg_detection_time_ms} ms", "Execution time")
+            st.metric("Avg Latency", f"{m.avg_detection_time_ms} ms", "Mean execution time")
 
         st.markdown("---")
         
@@ -887,38 +976,3 @@ elif nav_choice == "7. Defensive Evaluation Engine":
                 file_name=f"TRACE_Defensive_Evaluation_Data.json",
                 mime="application/json"
             )
-
-# -------------------------------------------------------------------------------------------------
-# TAB 8: INGESTION & INTEGRITY AUDIT
-# -------------------------------------------------------------------------------------------------
-elif nav_choice == "8. Ingestion & Integrity Audit":
-    st.header("Data Ingestion Pipeline & Integrity Verification")
-    st.markdown("Audit report confirming evidence preservation, zero synthetic distortion, and timezone handling.")
-
-    st.subheader("1. Timezone Handling Strategy")
-    st.markdown("""
-    - **LedgerOne API Logs (`E01`, `E18`)**: Stored in UTC (ISO 8601 `YYYY-MM-DDTHH:MM:SSZ`). Normalized to standard UTC timestamp.
-    - **HelpDeskr Audit Logs (`E02`)**: Recorded in tenant local time (IST, `DD/MM/YYYY HH:MM:SS`). Normalized by attaching IST (+05:30) and converting to UTC.
-    - **Single Sign-On Logs (`E03`)**: Recorded in UTC with explicit offset (`+00:00`). Normalized to standard UTC timestamp.
-    - **BlueVault Access Logs (`E05`)**: Recorded in Unix Epoch seconds. *Note: BlueVault system clock was never synchronized; timestamps are normalized to UTC with an explicit drift caveat.*
-    - **Private-Link Flow Logs (`E15`) & Vendor Change Logs (`E19`)**: Recorded in standard UTC.
-    """)
-
-    st.subheader("2. Identified Data Quality Issues & Unreliable Information")
-    st.markdown("""
-    | Source | Quality Issue | Mitigation in TRACE Engine |
-    | :--- | :--- | :--- |
-    | **E14 (Staff Roster)** | `status` column is uniformly marked `'active'` for all 420 rows, even for departed staff. | Ingestion checks `termination_date` directly rather than relying on `status`. |
-    | **E05 (BlueVault)** | Unsynchronized system clock and missing source IP addresses. | Timestamps flagged with drift disclaimer; correlation relies on principal IDs. |
-    | **E15 (Flow Logs)** | Host labels (e.g. `tb-build-02`) supplied by outside vendor. | Treated as unverified vendor metadata; verified against public records (`E20`). |
-    | **E17 (Threat Indicators)** | Indicator list provided by outside company marked unverified. | Treated as corroborative context rather than confirmed ground truth. |
-    """)
-
-    st.subheader("3. Pipeline Self-Test")
-    if st.button("Run Pipeline Self-Test"):
-        with st.spinner("Executing pipeline verification..."):
-            inv = ingestor.get_inventory()
-            events = get_normalised_events(base_dir)
-            alerts = get_alerts(base_dir)
-            cases = get_investigation_cases(base_dir)
-            st.success(f"Self-test passed: {len(inv)} evidence items, {len(events):,} events normalised, {len(alerts)} alerts generated, {len(cases)} investigation cases correlated!")
