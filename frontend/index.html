@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRACE — Threat Recognition, Analysis and Correlation Engine</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Masthead Navigation -->
+  <header class="masthead" role="banner">
+    <div class="brand-section">
+      <div class="brand-crest" aria-hidden="true">⚓</div>
+      <div class="brand-text">
+        <h1>TRACE</h1>
+        <p>Harbor &amp; Finch Freight · Threat Recognition, Analysis and Correlation Engine</p>
+      </div>
+    </div>
+
+    <div class="masthead-center">
+      <div class="view-toggle-group" role="group" aria-label="Investigation View Mode">
+        <button id="btn-view-timeline" class="view-toggle-btn active" aria-pressed="true">
+          <span>⏱️</span> Shipping Lanes
+        </button>
+        <button id="btn-view-graph" class="view-toggle-btn" aria-pressed="false">
+          <span>🕸️</span> Breach Graph
+        </button>
+      </div>
+    </div>
+
+    <div class="masthead-right">
+      <div class="status-pill" title="Defense Engine actively monitoring shipping corridors">
+        <span class="beacon-pulse" aria-hidden="true"></span>
+        <span>DEFENSE ACTIVE</span>
+      </div>
+      <button id="btn-theme-toggle" class="tool-btn" title="Toggle Light / Dark Theme [Key: T]" aria-label="Toggle Theme">
+        ☀️ Light
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="app-container" role="main">
+
+    <!-- 1. CYBER HERO BANNER (Image 2 Inspiration) -->
+    <section class="cyber-hero-banner" aria-label="System Defense Overview">
+      <div class="cyber-status-line">
+        <span class="cyber-status-pulse"></span>
+        <span>// SYSTEM STATUS: ONLINE &amp; MONITORING</span>
+      </div>
+      <h2 class="cyber-hero-title">
+        <span class="neon-green-text">BEHAVIORAL CONTRACT</span><br>
+        <span class="neon-green-text">DEFENSE PROTOCOL</span>
+      </h2>
+      <p class="cyber-hero-desc">
+        &gt; Continuous behavioral contract surveillance across enterprise shipping corridors. Zero trust telemetry correlation, multi-stage lateral breach interdiction, and automated ERP payment-run containment.
+      </p>
+      <div class="cyber-hero-actions">
+        <button id="hero-btn-lockdown" class="cyber-btn cyber-btn-launch" title="Isolate Corridors &amp; Lock Disbursement Gate">
+          [LOCK_DISBURSEMENT_GATE]
+        </button>
+        <button id="hero-btn-launch-replay" class="cyber-btn cyber-btn-dock" title="Launch Automated Temporal Replay">
+          [LAUNCH_CORRIDOR_REPLAY]
+        </button>
+        <button id="hero-btn-view-matrix" class="cyber-btn cyber-btn-dock" title="View MITRE ATT&amp;CK Mapping">
+          [MITRE_ATTACK_T1021]
+        </button>
+      </div>
+
+      <!-- 2. TOP TELEMETRY HUD GRID (Exact Pure Neon Green Inspiration) -->
+      <div class="hud-telemetry-grid">
+        <!-- Card 1: Corridor Integrity -->
+        <div class="hud-card hud-bracket-card">
+          <div class="hud-label">
+            <span>CORRIDOR INTEGRITY</span>
+            <span class="kpi-trend-pill positive">+12.4%</span>
+          </div>
+          <div class="hud-value neon-glow-green" id="hud-val-integrity">99.4%</div>
+          <div class="hud-subtext" style="color:#22C55E;">
+            <span class="hud-dot nominal"></span> NOMINAL · 4 CORRIDORS
+          </div>
+        </div>
+
+        <!-- Card 2: Velocity / Telemetry Throughput -->
+        <div class="hud-card hud-bracket-card">
+          <div class="hud-label">
+            <span>TELEMETRY VELOCITY</span>
+            <span class="kpi-trend-pill positive">+5.7%</span>
+          </div>
+          <div class="hud-value neon-glow-green" id="hud-val-velocity">1,842 EVT/S</div>
+          <div class="hud-subtext" style="color:#22C55E;">
+            <span class="hud-dot optimal"></span> OPTIMAL SYNCHRONIZATION
+          </div>
+        </div>
+
+        <!-- Card 3: Disbursement Gate (Neon Green Alert) -->
+        <div class="hud-card hud-bracket-card alert-card">
+          <div class="hud-label">
+            <span style="color:#22C55E;">DISBURSEMENT GATE</span>
+            <span class="kpi-trend-pill negative" id="hud-gate-pill">LOCKED</span>
+          </div>
+          <div class="hud-value neon-glow-green" id="hud-val-crew">HOLD 8 SEP</div>
+          <div class="hud-subtext" style="color:#22C55E;">
+            <span class="hud-dot alert"></span> BLOCKED ACCOUNT ****9083
+          </div>
+        </div>
+
+        <!-- Card 4: Defense Benchmark Score -->
+        <div class="hud-card hud-bracket-card">
+          <div class="hud-label">
+            <span>DEFENSE BENCHMARK</span>
+            <span class="kpi-trend-pill positive">+3.2%</span>
+          </div>
+          <div class="hud-value neon-glow-green" id="hud-val-score">98.6%</div>
+          <div class="hud-subtext" style="color:#22C55E;">
+            <span class="hud-dot nominal"></span> 0 FALSE ALARMS · 14 PRESERVED
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CENTER ORBITAL TRAJECTORY RADAR SCOPE (Image 1 Inspiration) -->
+    <section class="orbital-scope-panel hud-bracket-card" aria-label="Orbital Trajectory Radar">
+      <div class="orbital-scope-title">ORBITAL CORRIDOR TRAJECTORY &amp; RADAR SCOPE</div>
+      <div class="orbital-scope-canvas-wrap">
+        <svg class="orbital-radar-svg" viewBox="0 0 320 320">
+          <defs>
+            <linearGradient id="radar-sweep-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="rgba(34, 197, 94, 0.55)" />
+              <stop offset="100%" stop-color="rgba(34, 197, 94, 0.0)" />
+            </linearGradient>
+            <filter id="radar-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          <!-- Concentric radar range rings -->
+          <circle cx="160" cy="160" r="140" fill="none" stroke="rgba(34, 197, 94, 0.2)" stroke-width="1.2" stroke-dasharray="4 4" />
+          <circle cx="160" cy="160" r="105" fill="none" stroke="rgba(34, 197, 94, 0.35)" stroke-width="1.2" />
+          <circle cx="160" cy="160" r="70" fill="none" stroke="rgba(34, 197, 94, 0.45)" stroke-width="1.2" stroke-dasharray="2 3" />
+          <circle cx="160" cy="160" r="35" fill="none" stroke="rgba(34, 197, 94, 0.6)" stroke-width="1.2" />
+
+          <!-- Crosshairs -->
+          <line x1="160" y1="10" x2="160" y2="310" stroke="rgba(34, 197, 94, 0.2)" stroke-width="1" />
+          <line x1="10" y1="160" x2="310" y2="160" stroke="rgba(34, 197, 94, 0.2)" stroke-width="1" />
+
+          <!-- Corner bracket crosshairs -->
+          <path d="M 20 35 L 20 20 L 35 20" fill="none" stroke="#22C55E" stroke-width="1.5" />
+          <path d="M 300 35 L 300 20 L 285 20" fill="none" stroke="#22C55E" stroke-width="1.5" />
+          <path d="M 20 285 L 20 300 L 35 300" fill="none" stroke="#22C55E" stroke-width="1.5" />
+          <path d="M 300 285 L 300 300 L 285 300" fill="none" stroke="#22C55E" stroke-width="1.5" />
+
+          <!-- Rotating Radar Sweep Beam -->
+          <g class="radar-sweep-beam">
+            <path d="M 160 160 L 160 20 A 140 140 0 0 1 258 61 Z" fill="url(#radar-sweep-grad)" />
+          </g>
+
+          <!-- Center Core Protected Node -->
+          <circle cx="160" cy="160" r="8" fill="#22C55E" filter="url(#radar-glow)" />
+          <circle cx="160" cy="160" r="16" fill="none" stroke="#22C55E" stroke-width="1.5" opacity="0.6">
+            <animate attributeName="r" values="12;24;12" dur="3s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.8;0.1;0.8" dur="3s" repeatCount="indefinite" />
+          </circle>
+
+          <!-- Orbiting Corridors -->
+          <!-- LedgerOne Satellite (Orbit r=105) -->
+          <g id="radar-node-ledgerone" transform="translate(160, 55)">
+            <circle cx="0" cy="0" r="5" fill="#00FF66" filter="url(#radar-glow)" />
+            <text x="8" y="4" fill="#00FF66" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700">key-tb-07</text>
+          </g>
+          <!-- HelpDeskr Satellite (Orbit r=70) -->
+          <g id="radar-node-helpdeskr" transform="translate(225, 160)">
+            <circle cx="0" cy="0" r="5" fill="#22C55E" filter="url(#radar-glow)" />
+            <text x="8" y="4" fill="#22C55E" font-size="9" font-family="'JetBrains Mono', monospace">tb-sync-svc</text>
+          </g>
+          <!-- BlueVault Satellite (Orbit r=140) -->
+          <g id="radar-node-bluevault" transform="translate(60, 240)">
+            <circle cx="0" cy="0" r="5" fill="#22C55E" filter="url(#radar-glow)" />
+            <text x="8" y="4" fill="#22C55E" font-size="9" font-family="'JetBrains Mono', monospace">bvk-7f3a</text>
+          </g>
+          <!-- Anomaly / Threat blip (Red) -->
+          <g id="radar-threat-blip" transform="translate(235, 110)">
+            <circle cx="0" cy="0" r="6" fill="#22C55E" filter="url(#radar-glow)" />
+            <circle cx="0" cy="0" r="12" fill="none" stroke="#22C55E" stroke-width="1.5">
+              <animate attributeName="r" values="6;16;6" dur="1.5s" repeatCount="indefinite" />
+            </circle>
+            <text x="8" y="4" fill="#22C55E" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700">THREAT: 10.20.4.77</text>
+          </g>
+        </svg>
+      </div>
+      <!-- Bottom HUD Action Buttons matching Image 1 -->
+      <div class="orbital-hud-actions">
+        <button id="btn-radar-dock" class="cyber-btn cyber-btn-dock" title="Isolate Corridors &amp; Lock Payment Gate">[ DOCK ]</button>
+        <button id="btn-radar-launch" class="cyber-btn cyber-btn-launch" title="Launch Automated Temporal Replay">[ LAUNCH ]</button>
+      </div>
+    </section>
+
+    <!-- 4. REPLAY CONTROL DECK -->
+    <section class="control-deck" aria-label="Temporal Replay Deck">
+      <div class="deck-header">
+        <div class="deck-title-group">
+          <span class="deck-title">Corridor Replay Scrubbing Deck</span>
+          <span id="replay-timestamp-val" class="deck-timestamp">Loading timeline...</span>
+        </div>
+
+        <div class="deck-actions">
+          <button id="btn-rewind" class="deck-btn" title="Rewind to start" aria-label="Rewind">⏮</button>
+          <button id="btn-step-back" class="deck-btn" title="Step backward [Left Arrow]" aria-label="Step Back">◀</button>
+          <button id="btn-play-pause" class="deck-btn primary" title="Play/Pause [Space]" aria-label="Play Replay">▶</button>
+          <button id="btn-step-fwd" class="deck-btn" title="Step forward [Right Arrow]" aria-label="Step Forward">▶</button>
+          <select id="speed-select" class="speed-select" title="Replay Speed Multiplier" aria-label="Speed">
+            <option value="0.5">0.5x</option>
+            <option value="1" selected>1.0x</option>
+            <option value="2">2.0x</option>
+            <option value="4">4.0x</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Scrubber Bar -->
+      <div class="scrubber-container">
+        <div id="scrubber-track" class="scrubber-track" role="slider" aria-label="Replay Timeline Scrubber" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+          <div id="scrubber-progress" class="scrubber-progress">
+            <div class="scrubber-handle"></div>
+          </div>
+        </div>
+        <div class="scrubber-labels">
+          <span>01 Aug 2026 (Baseline)</span>
+          <span>15 Aug (Recon Probe)</span>
+          <span>03 Sep (Tampering)</span>
+          <span>08 Sep 2026 (Disbursement Gate)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 1: SHIPPING LANES TIMELINE -->
+    <div id="lanes-view-wrapper" class="lanes-view-wrapper">
+      <section id="shipping-lanes-board" class="shipping-lanes-board" aria-label="Credential Shipping Corridors">
+        <!-- Dynamic Causal Chain SVG overlay -->
+        <svg id="causal-chain-svg" class="causal-chain-svg" aria-hidden="true"></svg>
+
+        <!-- 4 Shipping Lanes Container -->
+        <div id="lanes-container" style="display:flex; flex-direction:column; gap:16px;">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </section>
+    </div>
+
+    <!-- VIEW 2: CROSS-SYSTEM BREACH GRAPH (Upgraded with Image 3 Tactical HUD) -->
+    <section id="graph-view-wrapper" class="graph-view-wrapper" aria-label="Cross-System Breach Graph">
+      <div class="graph-header">
+        <div>
+          <h2 style="font-size:1.05rem; font-weight:700;">Tactical Breach &amp; Causal Correlation Graph</h2>
+          <p style="font-size:0.78rem; color:var(--text-secondary);">Interactive topological constellation showing lateral pivots across internal build servers, leaked support credentials, and ERP database targets.</p>
+        </div>
+        <div class="graph-legend">
+          <div class="legend-item">
+            <div class="legend-swatch" style="background-color:var(--status-breach);"></div>
+            <span>Critical Violation</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background-color:var(--status-warning);"></div>
+            <span>High Severity</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background-color:#243B29; border-top:1px dashed #243B29;"></div>
+            <span>Causal Link</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tactical Constellation Graph Canvas (Image 3) -->
+      <div class="tactical-graph-wrapper">
+        <!-- Floating Tactical HUD Card (Top Left) -->
+        <div class="graph-hud-card">
+          <div class="graph-hud-icon">🎯</div>
+          <div>
+            <div class="graph-hud-stat">1842 events</div>
+            <div class="graph-hud-detail">Suspicious lateral movement · Mapped to MITRE ATT&amp;CK T1021</div>
+          </div>
+        </div>
+
+        <!-- Floating Tactical HUD Controls (Right Side) -->
+        <div class="graph-hud-controls">
+          <button class="graph-ctrl-btn" id="btn-graph-layers" title="Toggle Layer Visibility">📑</button>
+          <button class="graph-ctrl-btn" id="btn-graph-zoom-in" title="Zoom In">+</button>
+          <button class="graph-ctrl-btn" id="btn-graph-zoom-out" title="Zoom Out">-</button>
+          <button class="graph-ctrl-btn" id="btn-graph-reset" title="Recenter Tactical Scope">⛶</button>
+        </div>
+
+        <!-- Bottom Left Target Reticle Button -->
+        <button class="graph-target-btn" id="btn-graph-reticle" title="Lock Target on Exfiltration Pivot">🎯</button>
+
+        <!-- Dynamic Graph SVG -->
+        <svg id="graph-canvas-svg" class="tactical-graph-canvas"></svg>
+      </div>
+    </section>
+
+    <!-- INTERACTIVE MODULES GRID: PAYMENT GATE & ATTACK MUTATOR -->
+    <div class="modules-grid">
+
+      <!-- 1. Payment-Run Padlock Gate Simulator -->
+      <section class="gate-simulator-card" aria-label="Vendor Payment Gate Simulator">
+        <div class="card-title-bar">
+          <h2><span>🔒</span> 8 Sep Vendor Payment-Run Gate</h2>
+          <span id="gate-status-badge" class="gate-badge-locked">⛔ GATE LOCKED</span>
+        </div>
+
+        <p style="font-size:0.78rem; color:var(--text-secondary);">
+          TRACE places a barrier in front of the ERP payment disbursement run to prevent unauthorized vendor bank account diversions.
+        </p>
+
+        <!-- Gate Stepper -->
+        <div class="gate-stepper">
+          <div class="step-node" data-step="0">
+            <div class="step-circle">1</div>
+            <span>3 Sep (Intake)</span>
+          </div>
+          <div class="step-node active" data-step="1">
+            <div class="step-circle">2</div>
+            <span>5 Sep (Review)</span>
+          </div>
+          <div class="step-node" data-step="2">
+            <div class="step-circle">3</div>
+            <span>8 Sep (Cutoff)</span>
+          </div>
+        </div>
+
+        <!-- Decision Box -->
+        <div id="gate-decision-box" class="gate-decision-box held">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Callback Verification Checklist -->
+        <div class="checklist-group">
+          <span style="font-size:0.72rem; font-weight:700; color:var(--lane-ledgerone); text-transform:uppercase;">
+            Out-of-Band Callback Verification Checklist:
+          </span>
+
+          <div class="check-item checked" data-check="check1">
+            <div class="check-box">✓</div>
+            <div>Automated Delta Check: Routing changed from HDFC to offshore account without PO reference (FLAGGED)</div>
+          </div>
+
+          <div class="check-item" data-check="check2">
+            <div class="check-box"></div>
+            <div>Out-of-Band Telephone Callback: Coastal Packaging CFO verified and denied requesting any change (FAILED)</div>
+          </div>
+
+          <div class="check-item" data-check="check3">
+            <div class="check-box"></div>
+            <div>Cryptographic Dual-Control Token: Missing internal CFO digital signature authorization (FAILED)</div>
+          </div>
+        </div>
+
+        <button id="btn-rollback" class="rollback-btn" title="Revert Coastal Packaging to verified account ****1142">
+          <span>🛡️</span> Execute Rollback to Verified Account ****1142
+        </button>
+      </section>
+
+      <!-- 2. Attack Mutator Concept Demo -->
+      <section class="mutator-card" aria-label="Attack Mutator Concept Demo">
+        <div class="card-title-bar">
+          <h2><span>🧪</span> Attack Mutator Concept Demo</h2>
+          <span style="font-size:0.72rem; font-weight:700; color:var(--status-warning);">SYNTHETIC RESILIENCE TEST</span>
+        </div>
+
+        <div class="mutator-disclaimer">
+          ⚠️ <b>CONCEPT DEMO:</b> Test how behavioral contracts detect attacks even when the attacker evades IP blocklists or upgrades client headers. Missed detections are displayed transparently.
+        </div>
+
+        <!-- Mutator Controls Grid -->
+        <div class="mutator-controls-grid">
+          <div class="control-field">
+            <label for="mut-ip">Attacker Source IP</label>
+            <select id="mut-ip">
+              <option value="10.20.4.77" selected>10.20.4.77 (Internal Build Server)</option>
+              <option value="198.18.7.77">198.18.7.77 (Shared Broadband)</option>
+              <option value="203.0.113.5">203.0.113.5 (Novel External IP)</option>
+              <option value="10.20.4.12">10.20.4.12 (Legitimate Sync Host)</option>
+            </select>
+          </div>
+
+          <div class="control-field">
+            <label for="mut-ver">SDK Client Version</label>
+            <select id="mut-ver">
+              <option value="3.4.1" selected>LedgerSync/3.4.1 (Retired 15 Jul)</option>
+              <option value="4.2.0">LedgerSync/4.2.0 (Latest Compliant)</option>
+            </select>
+          </div>
+
+          <div class="control-field">
+            <label for="mut-time">Query Time Window</label>
+            <select id="mut-time">
+              <option value="12:10" selected>12:10 UTC (Out of Corridor)</option>
+              <option value="01:30">01:30 UTC (Inside 01:00-02:00 Window)</option>
+            </select>
+          </div>
+
+          <div class="control-field">
+            <label for="mut-app">Dual-Control Token</label>
+            <select id="mut-app">
+              <option value="null" selected>approval_ref: null (Unauthorized)</option>
+              <option value="APP-9912">approval_ref: APP-9912 (Approved)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Detector Matrix Output -->
+        <div id="mutator-matrix" class="detector-matrix">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+    </div>
+
+    <!-- 5. ADVANCED AI OVERVIEW & CORRIDOR DEFENSE ANALYTICS (Image 4 Inspiration) -->
+    <section class="analytics-dashboard-section" aria-label="AI Overview &amp; Corridor Analytics">
+      <!-- Top Analytics Bar -->
+      <div class="analytics-top-bar">
+        <div class="analytics-title">
+          <span>⚡</span> TRACE AI Overview &amp; Telemetry Analytics
+        </div>
+        <div class="analytics-top-actions">
+          <span class="analytics-date-pill">📅 Aug 1 – Sep 8, 2026 ▾</span>
+          <button class="analytics-share-btn" id="btn-export-intel" title="Export Security Intelligence Report">
+            <span>Export Intel</span> ↗
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 KPI Cards -->
+      <div class="analytics-kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span>Total Ingested Events</span>
+            <span class="kpi-trend-pill positive">+6%</span>
+          </div>
+          <div class="kpi-val">200.9k</div>
+          <div style="font-size:0.72rem; color:var(--text-secondary);">Enterprise logs across 4 corridors</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span>Active Sync Corridors</span>
+            <span class="kpi-trend-pill negative">-4%</span>
+          </div>
+          <div class="kpi-val">74.2k</div>
+          <div style="font-size:0.72rem; color:var(--text-secondary);">Contract-bounded endpoints</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-card-header">
+            <span>Mean Response Latency</span>
+            <span class="kpi-trend-pill positive">+12%</span>
+          </div>
+          <div class="kpi-val">13.2m</div>
+          <div style="font-size:0.72rem; color:var(--text-secondary);">Automated lateral detection speed</div>
+        </div>
+      </div>
+
+      <!-- Main Analytics Grid -->
+      <div class="analytics-main-grid">
+        <!-- Left Column: Wave Chart & Heatmap -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <!-- Glowing Area / Spline Wave Chart -->
+          <div class="wave-chart-card">
+            <div class="chart-header">
+              <h3>Active Corridors &amp; Event Ingress Waves</h3>
+              <span style="font-size:0.74rem; color:var(--lane-ledgerone); font-family:var(--font-mono);">PEAK: 101k EVT</span>
+            </div>
+            <div class="wave-svg-container" id="wave-chart-container">
+              <svg width="100%" height="100%" viewBox="0 0 600 180" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#22C55E" stop-opacity="0.5" />
+                    <stop offset="60%" stop-color="#059669" stop-opacity="0.15" />
+                    <stop offset="100%" stop-color="#09100B" stop-opacity="0.0" />
+                  </linearGradient>
+                  <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+                <!-- Grid Lines -->
+                <line x1="0" y1="35" x2="600" y2="35" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" />
+                <line x1="0" y1="80" x2="600" y2="80" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" />
+                <line x1="0" y1="125" x2="600" y2="125" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" />
+
+                <!-- Filled Area -->
+                <path d="M 0 140 Q 50 145, 90 120 T 170 130 T 250 50 T 320 60 T 400 130 T 480 110 T 600 140 L 600 180 L 0 180 Z" fill="url(#waveGradient)" />
+                <!-- Neon Wave Line -->
+                <path d="M 0 140 Q 50 145, 90 120 T 170 130 T 250 50 T 320 60 T 400 130 T 480 110 T 600 140" fill="none" stroke="#22C55E" stroke-width="3" filter="url(#neonGlow)" />
+
+                <!-- Interactive Scrubber Node on Peak (101k) -->
+                <g transform="translate(250, 50)">
+                  <circle cx="0" cy="0" r="14" fill="rgba(255,255,255,0.15)" />
+                  <circle cx="0" cy="0" r="6" fill="#FFFFFF" filter="url(#neonGlow)" />
+                  <line x1="0" y1="6" x2="0" y2="130" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.6" />
+                  <!-- Tooltip Badge -->
+                  <rect x="-32" y="-36" width="64" height="24" rx="12" fill="#FFFFFF" />
+                  <text x="0" y="-20" fill="#040705" font-size="11" font-weight="800" text-anchor="middle" font-family="'Inter', sans-serif">101k</text>
+                </g>
+              </svg>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">
+              <span>1</span><span>3</span><span>5</span><span>7</span><span>9</span><span>11</span><span>13</span><span>15</span><span>17</span><span>19</span><span>21</span><span>23</span><span>25</span><span>27</span><span>29</span><span>31</span>
+            </div>
+          </div>
+
+          <!-- User Activity Heatmap Matrix -->
+          <div class="heatmap-card">
+            <div class="chart-header">
+              <h3>Telemetry Activity Heatmap</h3>
+              <div class="heatmap-legend-row" style="gap:10px;">
+                <span>&lt;500 events</span>
+                <div style="width:12px; height:12px; background:#0B2313; border:1px solid #164E24; border-radius:2px;"></div>
+                <span>&gt;1000 events</span>
+                <div style="width:12px; height:12px; background:#166534; border:1px solid #22C55E; border-radius:2px;"></div>
+                <span>&gt;5000 events</span>
+                <div style="width:12px; height:12px; background:#22C55E; box-shadow:0 0 6px #22C55E; border-radius:2px;"></div>
+                <span>Anomaly Hazard</span>
+                <div style="width:12px; height:12px; background:#22C55E; border-radius:2px;"></div>
+              </div>
+            </div>
+
+            <!-- Heatmap Matrix Grid (6 times x 7 days) -->
+            <div class="heatmap-grid" id="heatmap-grid-container">
+              <!-- Row 1: 6pm -->
+              <div class="heatmap-row-label">6pm</div>
+              <div class="heatmap-cell lvl-1" title="Sun 6pm: 420 events"></div>
+              <div class="heatmap-cell lvl-2" title="Mon 6pm: 1,120 events"></div>
+              <div class="heatmap-cell lvl-3" title="Tue 6pm: 2,400 events"></div>
+              <div class="heatmap-cell lvl-1" title="Wed 6pm: 510 events"></div>
+              <div class="heatmap-cell lvl-3" title="Thu 6pm: 2,100 events"></div>
+              <div class="heatmap-cell lvl-4" title="Fri 6pm: 4,800 events"></div>
+              <div class="heatmap-cell lvl-2" title="Sat 6pm: 980 events"></div>
+
+              <!-- Row 2: 8pm -->
+              <div class="heatmap-row-label">8pm</div>
+              <div class="heatmap-cell lvl-2" title="Sun 8pm: 890 events"></div>
+              <div class="heatmap-cell lvl-4" title="Mon 8pm: 4,300 events"></div>
+              <div class="heatmap-cell lvl-2" title="Tue 8pm: 1,400 events"></div>
+              <div class="heatmap-cell lvl-3" title="Wed 8pm: 2,800 events"></div>
+              <div class="heatmap-cell lvl-4" title="Thu 8pm: 4,900 events"></div>
+              <div class="heatmap-cell lvl-1" title="Fri 8pm: 340 events"></div>
+              <div class="heatmap-cell lvl-2" title="Sat 8pm: 1,100 events"></div>
+
+              <!-- Row 3: 4am -->
+              <div class="heatmap-row-label">4am</div>
+              <div class="heatmap-cell lvl-1" title="Sun 4am: 120 events"></div>
+              <div class="heatmap-cell lvl-2" title="Mon 4am: 800 events"></div>
+              <div class="heatmap-cell lvl-1" title="Tue 4am: 250 events"></div>
+              <div class="heatmap-cell lvl-2" title="Wed 4am: 780 events"></div>
+              <div class="heatmap-cell lvl-1" title="Thu 4am: 190 events"></div>
+              <div class="heatmap-cell lvl-3" title="Fri 4am: 2,200 events"></div>
+              <div class="heatmap-cell lvl-1" title="Sat 4am: 110 events"></div>
+
+              <!-- Row 4: 12am -->
+              <div class="heatmap-row-label">12am</div>
+              <div class="heatmap-cell lvl-3" title="Sun 12am: 2,100 events"></div>
+              <div class="heatmap-cell lvl-1" title="Mon 12am: 310 events"></div>
+              <div class="heatmap-cell lvl-4" title="Tue 12am: 4,600 events"></div>
+              <div class="heatmap-cell lvl-2" title="Wed 12am: 1,200 events"></div>
+              <div class="heatmap-cell hazard" title="Thu 12:10 UTC: TAMPERING DETECTED! Bank detail change without PO ref!"></div>
+              <div class="heatmap-cell lvl-3" title="Fri 12am: 2,500 events"></div>
+              <div class="heatmap-cell lvl-2" title="Sat 12am: 990 events"></div>
+
+              <!-- Row 5: 8am -->
+              <div class="heatmap-row-label">8am</div>
+              <div class="heatmap-cell lvl-2" title="Sun 8am: 950 events"></div>
+              <div class="heatmap-cell lvl-3" title="Mon 8am: 3,200 events"></div>
+              <div class="heatmap-cell lvl-2" title="Tue 8am: 1,450 events"></div>
+              <div class="heatmap-cell lvl-4" title="Wed 8am: 5,100 events"></div>
+              <div class="heatmap-cell lvl-3" title="Thu 8am: 2,900 events"></div>
+              <div class="heatmap-cell lvl-4" title="Fri 8am: 4,700 events"></div>
+              <div class="heatmap-cell lvl-2" title="Sat 8am: 880 events"></div>
+
+              <!-- Row 6: 00am -->
+              <div class="heatmap-row-label">00am</div>
+              <div class="heatmap-cell lvl-1" title="Sun 00am: 140 events"></div>
+              <div class="heatmap-cell lvl-2" title="Mon 00am: 650 events"></div>
+              <div class="heatmap-cell lvl-1" title="Tue 00am: 210 events"></div>
+              <div class="heatmap-cell lvl-3" title="Wed 00am: 2,100 events"></div>
+              <div class="heatmap-cell lvl-2" title="Thu 00am: 1,050 events"></div>
+              <div class="heatmap-cell lvl-1" title="Fri 00am: 320 events"></div>
+              <div class="heatmap-cell lvl-1" title="Sat 00am: 180 events"></div>
+            </div>
+
+            <!-- Days of Week Row -->
+            <div class="heatmap-days-row">
+              <div></div>
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+
+            <!-- Distribution Ratio Bar -->
+            <div class="heatmap-dist-bar">
+              <div class="heatmap-dist-seg day" title="Daytime: 28%"></div>
+              <div class="heatmap-dist-seg morning" title="Morning: 60%"></div>
+              <div class="heatmap-dist-seg evening" title="Evening: 12%"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">
+              <span><b>28%</b> Day time</span>
+              <span><b>60%</b> Morning routine</span>
+              <span><b>12%</b> Evening time</span>
+            </div>
+            <div style="font-size:0.73rem; color:var(--text-muted); margin-top:4px;">
+              🤖 <b>AI Forecast:</b> Scheduled API reconciliations run reliably in 01:00-02:00 UTC window (+6%). Anomalous 12:10 UTC requests trigger instant circuit breaker.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: AI Comparison, Insight Card & Quality Score -->
+        <div class="analytics-subgrid-right">
+
+          <!-- AI-Derived Comparison (Green vs Red segmented stacks) -->
+          <div class="comparison-card">
+            <div class="chart-header">
+              <h3 style="font-size:0.88rem;">AI-Derived Behavioral Drift</h3>
+              <span style="font-size:0.7rem; color:var(--text-muted);">ENVELOPE METRIC</span>
+            </div>
+            <div class="comparison-scores-row">
+              <div class="comp-score-col">
+                <span class="comp-score-num" style="color:#10B981;">82</span>
+                <span class="comp-score-label">Policy Fit</span>
+              </div>
+              <div class="comp-score-col">
+                <span class="comp-score-num" style="color:#EF4444;">41</span>
+                <span class="comp-score-label">Anomaly Drift</span>
+              </div>
+            </div>
+            <!-- Segmented horizontal bar stacks -->
+            <div class="comparison-bars-container">
+              <div class="comp-bar-stack" title="Allowed Policy Alignment: 82/100">
+                <div class="comp-bar-segment green"></div>
+                <div class="comp-bar-segment green"></div>
+                <div class="comp-bar-segment green"></div>
+                <div class="comp-bar-segment green"></div>
+                <div class="comp-bar-segment green"></div>
+                <div class="comp-bar-segment green"></div>
+                <div class="comp-bar-segment green"></div>
+                <div class="comp-bar-segment green"></div>
+              </div>
+              <div class="comp-bar-stack" title="Drift Risk: 41/100">
+                <div class="comp-bar-segment red"></div>
+                <div class="comp-bar-segment red"></div>
+                <div class="comp-bar-segment red"></div>
+                <div class="comp-bar-segment red"></div>
+              </div>
+            </div>
+            <p style="font-size:0.72rem; color:var(--text-secondary); line-height:1.4;">
+              ⚠️ <b>Evaluation:</b> Telemetry adheres strictly to corridors during standard hours. Lateral off-hours activity from build server <code>10.20.4.77</code> constitutes high behavioral divergence.
+            </p>
+          </div>
+
+          <!-- AI Insight Card (Purple Gradient Glow) -->
+          <div class="ai-insight-card">
+            <div class="insight-header">
+              <span>✨ AI INSIGHTS</span>
+            </div>
+            <div class="insight-body">
+              Improve <span class="insight-highlight">32%</span> in corridor verification showing stronger routine adoption across active integrations.
+            </div>
+            <div class="insight-progress-bars">
+              <div class="insight-bar-chunk filled"></div>
+              <div class="insight-bar-chunk filled"></div>
+              <div class="insight-bar-chunk filled"></div>
+              <div class="insight-bar-chunk filled"></div>
+              <div class="insight-bar-chunk"></div>
+              <div class="insight-bar-chunk"></div>
+              <div class="insight-bar-chunk"></div>
+              <div class="insight-bar-chunk"></div>
+            </div>
+          </div>
+
+          <!-- Circular Speedometer Quality Score Gauge -->
+          <div class="gauge-card">
+            <div class="chart-header" style="width:100%;">
+              <h3 style="font-size:0.88rem;">Defense Quality Score</h3>
+              <span style="font-size:0.75rem; color:var(--status-setaside);">↗ HIGH</span>
+            </div>
+            <div class="gauge-svg-wrap">
+              <svg width="180" height="105" viewBox="0 0 180 105">
+                <!-- Outer Arc Background (Dotted) -->
+                <path d="M 20 95 A 70 70 0 0 1 160 95" fill="none" stroke="#162719" stroke-width="12" stroke-linecap="round" stroke-dasharray="3 6" />
+                <!-- Active Value Arc (Glow Cyan / Purple) -->
+                <path d="M 20 95 A 70 70 0 0 1 148 55" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" filter="url(#neonGlow)" />
+                <defs>
+                  <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#22C55E" />
+                    <stop offset="50%" stop-color="#22C55E" />
+                    <stop offset="100%" stop-color="#22C55E" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="gauge-val-label">
+                <div class="gauge-val-big">98%</div>
+                <div class="gauge-val-sub">Average Score</div>
+              </div>
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-secondary); text-align:center;">
+              Benchmark comparison: Traditional IOC = 64% vs TRACE = 98%
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- HONEST METRICS SCOREBOARD -->
+    <section class="metrics-section" aria-label="Honest Metrics Scoreboard">
+      <div class="card-title-bar">
+        <h2><span>📊</span> Honest Metrics Scoreboard (Ground Truth Benchmark)</h2>
+        <span style="font-size:0.75rem; color:var(--text-secondary);">Evaluated on CR-26-047 Synthetic Benchmark</span>
+      </div>
+
+      <div class="tuning-note">
+        <b>Notice on Tuning &amp; Generalization:</b> Numbers loaded from <code>metrics.json</code>. Detectors were calibrated on the supplied competition evidence pack. On novel unseen attack distributions, continuous behavioral envelope recalibration is required.
+      </div>
+
+      <div class="metrics-comparison-grid">
+        <!-- TRACE Engine -->
+        <div class="scoreboard-card champion">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b style="color:var(--lane-ledgerone); font-size:0.95rem;">TRACE (Behavioral Defense Engine)</b>
+            <span style="font-size:0.7rem; background:rgba(34, 197, 94, 0.15); color:var(--lane-ledgerone); padding:2px 8px; border-radius:4px; font-weight:700;">ZERO FALSE ALARMS</span>
+          </div>
+          <div id="cw-stats-container" class="scoreboard-stats-row">
+            <!-- Dynamically populated -->
+          </div>
+          <p style="font-size:0.74rem; color:var(--text-secondary);">
+            Maintained zero false alarms on legitimate staff in shared broadband subnet <code>198.18.7.0/24</code> by verifying credential contract envelopes rather than relying on brittle IP-only blocks.
+          </p>
+        </div>
+
+        <!-- Traditional IOC Blocklist -->
+        <div class="scoreboard-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b style="color:var(--text-secondary); font-size:0.95rem;">Traditional IOC / IP Blocklist Baseline</b>
+            <span style="font-size:0.7rem; background:rgba(34, 197, 94, 0.15); color:var(--status-breach); padding:2px 8px; border-radius:4px; font-weight:700;">14 FALSE ALARMS</span>
+          </div>
+          <div id="ioc-stats-container" class="scoreboard-stats-row">
+            <!-- Dynamically populated -->
+          </div>
+          <p style="font-size:0.74rem; color:var(--text-secondary);">
+            Blocking residential broadband subnet severed 14 innocent employees while missing the internal build server pivot (<code>10.20.4.77</code>) and off-hours API polling.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Slide-Over Drawer: Evidence Drill-Down & Contract Inspector -->
+  <div id="drawer-backdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="slide-drawer" class="slide-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+    <div class="drawer-header">
+      <div>
+        <h2 id="drawer-title" style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-bottom:2px;">Inspection Title</h2>
+        <div id="drawer-subtitle" style="font-size:0.75rem; color:var(--text-secondary); font-family:var(--font-mono);">Metadata</div>
+      </div>
+      <button id="drawer-close-btn" class="drawer-close-btn" aria-label="Close Drawer [Esc]">✕</button>
+    </div>
+    <div id="drawer-body" class="drawer-content">
+      <!-- Populated dynamically -->
+    </div>
+  </aside>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

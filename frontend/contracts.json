@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "1.0.0",
+  "organization": "Harbor & Finch Freight Pvt. Ltd.",
+  "contracts": {
+    "key-tb-07": {
+      "credential_id": "key-tb-07",
+      "credential_name": "TallyBridge ERP Integration Key",
+      "lane_id": "lane-ledgerone",
+      "owner": "TallyBridge Freight Sync Middleware",
+      "system": "LedgerOne Financial Suite",
+      "clauses": {
+        "allowed_networks": {
+          "label": "Allowed Network Pool",
+          "contract_spec": "Strict internal subnet 10.20.4.0/24. Production synchronization host tb-sync-app01 (10.20.4.12).",
+          "observed_anomaly": "Inbound queries originating from unauthorized build server tb-build-02 (10.20.4.77).",
+          "status": "VIOLATION"
+        },
+        "client_version": {
+          "label": "Client Version & Retirement",
+          "contract_spec": "LedgerSync SDK >= 4.0.0. Client version 3.4.1 was retired on 15 July 2026.",
+          "observed_anomaly": "Initial reconnaissance probe utilized retired client LedgerSync/3.4.1.",
+          "status": "VIOLATION"
+        },
+        "time_window": {
+          "label": "Synchronisation Time Window",
+          "contract_spec": "01:00 UTC – 02:00 UTC daily during scheduled overnight ledger reconciliation.",
+          "observed_anomaly": "Direct API queries executed at 12:10 UTC and 12:55 UTC (10 hours outside allowable corridor).",
+          "status": "VIOLATION"
+        },
+        "allowed_endpoints": {
+          "label": "Allowed Endpoints & Data Scope",
+          "contract_spec": "GET /v2/sync/inventory, GET /v2/invoices/status, POST /v2/sync/ack. Restricted: /v2/vendors/*/bank-details.",
+          "observed_anomaly": "Direct inspection and exfiltration of /v2/vendors/V-0412/bank-details and /v2/disbursements.",
+          "status": "VIOLATION"
+        },
+        "approval_rule": {
+          "label": "Dual-Control Approval Rule",
+          "contract_spec": "Mandatory approval_ref token (APP-xxxx or PO-xxxx) with cryptographic CFO authorization for any master file change.",
+          "observed_anomaly": "PATCH request submitted with approval_ref: null altering Coastal Packaging bank account to ****9083.",
+          "status": "CRITICAL_BREACH"
+        }
+      },
+      "contract_score": 18,
+      "risk_rating": "CRITICAL BREACH"
+    },
+    "tb-sync-svc": {
+      "credential_id": "tb-sync-svc",
+      "credential_name": "HelpDeskr Support Integration Service",
+      "lane_id": "lane-helpdeskr",
+      "owner": "Customer Support Operations",
+      "system": "HelpDeskr Enterprise Suite",
+      "clauses": {
+        "allowed_networks": {
+          "label": "Allowed Network Pool",
+          "contract_spec": "Internal application subnet 10.20.4.0/24 (tb-sync-app01).",
+          "observed_anomaly": "Operating within internal subnet but coordinating exfiltration with external broadband IPs.",
+          "status": "SUSPICIOUS"
+        },
+        "client_version": {
+          "label": "Client Version & Retirement",
+          "contract_spec": "HelpDeskr Agent >= 2.4.0.",
+          "observed_anomaly": "Valid agent header observed; version compliance satisfied.",
+          "status": "COMPLIANT"
+        },
+        "time_window": {
+          "label": "Operating Hours Window",
+          "contract_spec": "08:00 – 18:00 IST (02:30 – 12:30 UTC) during regular customer support dispatch.",
+          "observed_anomaly": "Bulk ticket exfiltration executed at 18:00 UTC (off-hours).",
+          "status": "VIOLATION"
+        },
+        "allowed_endpoints": {
+          "label": "Data Export Rate & Retention",
+          "contract_spec": "Maximum 1 export job per 24 hours. Mandatory 90-day retention lock on audit records.",
+          "observed_anomaly": "10 consecutive bulk ticket exports (EXP-5410-5419) followed by immediate audit deletion.",
+          "status": "VIOLATION"
+        },
+        "approval_rule": {
+          "label": "Export Authorization Rule",
+          "contract_spec": "Bulk export of vendor knowledge base requires approved compliance ticket EXP-AUTH.",
+          "observed_anomaly": "Dump of 9,840 vendor master records executed without compliance authorization ticket.",
+          "status": "VIOLATION"
+        }
+      },
+      "contract_score": 35,
+      "risk_rating": "HIGH RISK"
+    },
+    "bvk-7f3a": {
+      "credential_id": "bvk-7f3a",
+      "credential_name": "BlueVault Cloud Backup Key",
+      "lane_id": "lane-bluevault",
+      "owner": "Infrastructure & Backup Team",
+      "system": "BlueVault S3 Object Storage",
+      "clauses": {
+        "allowed_networks": {
+          "label": "Allowed Network Pool",
+          "contract_spec": "Strict AWS PrivateLink VPC endpoint 10.20.100.0/24. Internet ingress blocked.",
+          "observed_anomaly": "Credential invoked directly from public internet residential IP 198.18.7.23, .24, and .77.",
+          "status": "CRITICAL_BREACH"
+        },
+        "client_version": {
+          "label": "Client Version & Retirement",
+          "contract_spec": "BlueVault Backup Agent >= 1.8.2 with signed mTLS certificate.",
+          "observed_anomaly": "Generic Python boto3 client without valid client certificate.",
+          "status": "VIOLATION"
+        },
+        "time_window": {
+          "label": "Scheduled Backup Window",
+          "contract_spec": "Nightly snapshot window 02:00 – 04:00 UTC.",
+          "observed_anomaly": "Bucket enumeration and download queries invoked at 21:06 UTC.",
+          "status": "VIOLATION"
+        },
+        "allowed_endpoints": {
+          "label": "Object Scope & Permissions",
+          "contract_spec": "s3:PutObject on /automated-backups/*; zero read permission on /financial-ledgers/*.",
+          "observed_anomaly": "s3:GetObject calls directed at confidential financial archive dumps.",
+          "status": "VIOLATION"
+        },
+        "approval_rule": {
+          "label": "Key Protection & Rotation",
+          "contract_spec": "Keys must reside in AWS Secrets Manager; strictly prohibited from ticket documentation.",
+          "observed_anomaly": "Key was leaked in plaintext within customer support ticket TKT-48213.",
+          "status": "COMPROMISED"
+        }
+      },
+      "contract_score": 12,
+      "risk_rating": "COMPROMISED"
+    },
+    "sso-corporate": {
+      "credential_id": "sso-corporate",
+      "credential_name": "Corporate Identity & SSO Gateway",
+      "lane_id": "lane-sso",
+      "owner": "Information Security & Identity",
+      "system": "Okta Identity Cloud",
+      "clauses": {
+        "allowed_networks": {
+          "label": "Allowed Network Pool",
+          "contract_spec": "Corporate offices or verified remote staff with compliant ZTNA posture.",
+          "observed_anomaly": "Shared broadband subnet 198.18.7.0/24 contains both remote staff and attacker probes.",
+          "status": "MONITORED"
+        },
+        "client_version": {
+          "label": "Client Version & Retirement",
+          "contract_spec": "Modern browser with Okta Verify authenticator or hardware WebAuthn token.",
+          "observed_anomaly": "Scripted headless requests without WebAuthn challenge completion.",
+          "status": "VIOLATION"
+        },
+        "time_window": {
+          "label": "Permitted Access Window",
+          "contract_spec": "24/7 access permitted for active staff.",
+          "observed_anomaly": "Failed brute force admin logins occurring in rapid bursts (16:20 UTC).",
+          "status": "VIOLATION"
+        },
+        "allowed_endpoints": {
+          "label": "Access Entitlements",
+          "contract_spec": "Access scoped to active job function; immediate deprovisioning on termination.",
+          "observed_anomaly": "Departed clerk r.menon account remained active 21 days post-termination (hygiene gap).",
+          "status": "HYGIENE_DEFECT"
+        },
+        "approval_rule": {
+          "label": "Privileged Elevation Rule",
+          "contract_spec": "Admin portal sign-in requires dual-approver PIM check.",
+          "observed_anomaly": "Attempts to access 'admin.finance' and 'secops.root' directly via password spraying.",
+          "status": "VIOLATION"
+        }
+      },
+      "contract_score": 45,
+      "risk_rating": "ELEVATED CONCERN"
+    }
+  }
+}
