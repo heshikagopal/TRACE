@@ -1,0 +1,17 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary & inspection artifacts
+case evidence/
+evidence/
+evidence_inspection_summary.json
+inspect_evidence.py
+
+# Streamlit local state
+.streamlit/credentials.toml
+
+# OS generated files
+.DS_Store
+Thumbs.db
