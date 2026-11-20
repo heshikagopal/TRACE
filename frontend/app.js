@@ -81,6 +81,7 @@
       updateGateDisplay();
       updateRadarBlip();
       setupWaveChartInteraction();
+      setupIngestionModal();
     } catch (err) {
       console.error('Failed to load local JSON evidence:', err);
     }

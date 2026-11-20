@@ -33,6 +33,9 @@
     </div>
 
     <div class="masthead-right">
+      <button id="btn-open-ingestion-modal" class="cyber-btn cyber-btn-launch" style="padding:5px 12px; font-size:0.75rem;" title="Upload or paste unseen evaluator test data">
+        📥 UPLOAD TEST DATA
+      </button>
       <div class="status-pill" title="Defense Engine actively monitoring shipping corridors">
         <span class="beacon-pulse" aria-hidden="true"></span>
         <span>DEFENSE ACTIVE</span>
@@ -60,7 +63,10 @@
         &gt; Continuous behavioral contract surveillance across enterprise shipping corridors. Zero trust telemetry correlation, multi-stage lateral breach interdiction, and automated ERP payment-run containment.
       </p>
       <div class="cyber-hero-actions">
-        <button id="hero-btn-lockdown" class="cyber-btn cyber-btn-launch" title="Isolate Corridors &amp; Lock Disbursement Gate">
+        <button id="hero-btn-open-ingest" class="cyber-btn cyber-btn-launch" title="Upload and test unseen evaluation data">
+          [📥_EVALUATE_UNSEEN_DATA]
+        </button>
+        <button id="hero-btn-lockdown" class="cyber-btn cyber-btn-dock" title="Isolate Corridors &amp; Lock Disbursement Gate">
           [LOCK_DISBURSEMENT_GATE]
         </button>
         <button id="hero-btn-launch-replay" class="cyber-btn cyber-btn-dock" title="Launch Automated Temporal Replay">
@@ -770,6 +776,121 @@
       <!-- Populated dynamically -->
     </div>
   </aside>
+
+  <!-- Live Test Data Ingestion & Evaluator Modal -->
+  <div id="ingestion-modal-backdrop" class="drawer-backdrop" aria-hidden="true" style="display:none;"></div>
+  <div id="ingestion-modal" class="ingestion-modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-ingestion-title" style="display:none;">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-ingestion-title" style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0 0 2px 0;">
+          🧪 Live Evaluator Test Ingestion Suite
+        </h2>
+        <div style="font-size:0.75rem; color:#22C55E; font-family:var(--font-mono);">
+          Zero-Trust Behavioral Contract Verification · Dynamic Anomaly Scoring
+        </div>
+      </div>
+      <button id="modal-close-btn" class="drawer-close-btn" aria-label="Close Modal">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Drag & Drop Zone -->
+      <div id="dropzone-box" class="dropzone-box">
+        <input type="file" id="input-unseen-file" accept=".csv, .json, text/plain" style="display:none;">
+        <div style="font-size:2rem; margin-bottom:6px;">📁</div>
+        <div style="font-size:0.88rem; font-weight:700; color:var(--text-primary);">
+          Drag &amp; drop test CSV or JSON file here, or <span style="color:#22C55E; text-decoration:underline;">browse files</span>
+        </div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">
+          Supports API access logs, audit events, or sign-in telemetry
+        </div>
+      </div>
+
+      <!-- Quick 1-Click Evaluator Sample Batches -->
+      <div>
+        <div style="font-size:0.75rem; font-weight:700; color:var(--lane-ledgerone); text-transform:uppercase; margin-bottom:6px;">
+          ⚡ Or Load 1-Click Evaluator Benchmark Batches:
+        </div>
+        <div class="quick-batch-btns">
+          <button id="btn-batch-attacks" class="quick-batch-btn">🚨 Load Unseen Attack Batch</button>
+          <button id="btn-batch-benign" class="quick-batch-btn">🏢 Load Innocent Staff Traffic</button>
+          <button id="btn-batch-stress" class="quick-batch-btn">⚖️ Load 10-Event Stress Batch</button>
+        </div>
+      </div>
+
+      <!-- Raw text toggle/input -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+          <span style="font-size:0.74rem; color:var(--text-secondary); font-weight:600;">Or paste raw CSV / JSON text:</span>
+          <button id="btn-paste-sample" style="background:none; border:none; color:#22C55E; font-size:0.72rem; cursor:pointer;">Fill Template</button>
+        </div>
+        <textarea id="modal-paste-area" style="width:100%; height:70px; background:#040705; border:1px solid rgba(34, 197, 94, 0.3); border-radius:6px; color:#E2E8F0; font-family:var(--font-mono); font-size:0.75rem; padding:8px; box-sizing:border-box;" placeholder="ts_utc,source_ip,endpoint,method,api_key_id,approval_ref,vendor_id,target_account"></textarea>
+      </div>
+
+      <button id="btn-run-evaluation" class="rollback-btn" style="background:#22C55E; color:#040705; font-weight:800; border:none;">
+        ⚡ Run Live Contract Verification Engine
+      </button>
+
+      <!-- Live Evaluation Results Area -->
+      <div id="modal-results-container" style="display:none;">
+        <div style="border-top:1px solid rgba(34, 197, 94, 0.2); padding-top:14px; margin-top:6px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:0.85rem; font-weight:700; color:#22C55E;">📊 Live Evaluation Scorecard</span>
+            <span id="eval-batch-name" style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">Batch Results</span>
+          </div>
+
+          <!-- Mini KPI Row -->
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:12px;">
+            <div style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
+              <div style="font-size:0.68rem; color:var(--text-muted);">INGESTED</div>
+              <div id="modal-kpi-ingested" style="font-size:1.2rem; font-weight:800; color:#22C55E;">0</div>
+            </div>
+            <div style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
+              <div style="font-size:0.68rem; color:var(--text-muted);">THREATS FLAGGED</div>
+              <div id="modal-kpi-threats" style="font-size:1.2rem; font-weight:800; color:#22C55E;">0</div>
+            </div>
+            <div style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
+              <div style="font-size:0.68rem; color:var(--text-muted);">BENIGN PRESERVED</div>
+              <div id="modal-kpi-benign" style="font-size:1.2rem; font-weight:800; color:#22C55E;">0</div>
+            </div>
+            <div style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
+              <div style="font-size:0.68rem; color:var(--text-muted);">FALSE ALARMS</div>
+              <div id="modal-kpi-fp" style="font-size:1.2rem; font-weight:800; color:#22C55E;">0 (0.0%)</div>
+            </div>
+          </div>
+
+          <!-- Results Table Container -->
+          <div id="modal-table-wrap" style="max-height:220px; overflow-y:auto; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px;">
+            <table class="modal-results-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                  <th>Source IP</th>
+                  <th>Actor / Entity</th>
+                  <th>Target Endpoint</th>
+                  <th>Violated Rule / Preservation Rationale</th>
+                </tr>
+              </thead>
+              <tbody id="modal-results-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Bottom Actions -->
+          <div style="display:flex; gap:10px; margin-top:14px;">
+            <button id="btn-merge-timeline" class="cyber-btn cyber-btn-launch" style="flex:1;" title="Merge test events into live radar scope and scrubber">
+              🚀 Merge Into Live Timeline &amp; Radar
+            </button>
+            <button id="btn-download-eval-json" class="cyber-btn cyber-btn-dock" style="flex:1;" title="Export evaluation results as JSON">
+              📥 Download Report (JSON)
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="app.js"></script>
