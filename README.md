@@ -2,7 +2,7 @@
 **CRIMEATHON'26 — Defense Track**  
 **Investigation Case File:** CR-26-047 (Harbor & Finch Freight Pvt. Ltd.)  
 **Repository:** [github.com/heshikagopal/TRACE](https://github.com/heshikagopal/TRACE)
-**LIVE LINK:** [https://crimeathon1.vercel.app/] (https://crimeathon1.vercel.app/)
+**LIVE LINK:** https://crimeathon1.vercel.app/
 
 [![Unit Tests](https://img.shields.io/badge/Unit%20Tests-38%2F38%20Passing-22C55E?style=for-the-badge&logo=python&logoColor=white)](file:///c:/Users/heshi/OneDrive/Desktop/crimeathon/tests)
 [![Detection Rate](https://img.shields.io/badge/Detection%20Rate-100%25%20(8%2F8)-22C55E?style=for-the-badge)](file:///c:/Users/heshi/OneDrive/Desktop/crimeathon/metrics.json)
