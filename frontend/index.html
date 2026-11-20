@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,11 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+    rel="stylesheet">
 </head>
+
 <body>
 
   <!-- Masthead Navigation -->
@@ -33,14 +37,16 @@
     </div>
 
     <div class="masthead-right">
-      <button id="btn-open-ingestion-modal" class="cyber-btn cyber-btn-launch" style="padding:5px 12px; font-size:0.75rem;" title="Upload or paste unseen evaluator test data">
+      <button id="btn-open-ingestion-modal" class="cyber-btn cyber-btn-launch"
+        style="padding:5px 12px; font-size:0.75rem;" title="Upload or paste unseen evaluator test data">
         📥 UPLOAD TEST DATA
       </button>
       <div class="status-pill" title="Defense Engine actively monitoring shipping corridors">
         <span class="beacon-pulse" aria-hidden="true"></span>
         <span>DEFENSE ACTIVE</span>
       </div>
-      <button id="btn-theme-toggle" class="tool-btn" title="Toggle Light / Dark Theme [Key: T]" aria-label="Toggle Theme">
+      <button id="btn-theme-toggle" class="tool-btn" title="Toggle Light / Dark Theme [Key: T]"
+        aria-label="Toggle Theme">
         ☀️ Light
       </button>
     </div>
@@ -60,13 +66,16 @@
         <span class="neon-green-text">DEFENSE PROTOCOL</span>
       </h2>
       <p class="cyber-hero-desc">
-        &gt; Continuous behavioral contract surveillance across enterprise shipping corridors. Zero trust telemetry correlation, multi-stage lateral breach interdiction, and automated ERP payment-run containment.
+        &gt; Continuous behavioral contract surveillance across enterprise shipping corridors. Zero trust telemetry
+        correlation, multi-stage lateral breach interdiction, and automated ERP payment-run containment.
       </p>
       <div class="cyber-hero-actions">
-        <button id="hero-btn-open-ingest" class="cyber-btn cyber-btn-launch" title="Upload and test unseen evaluation data">
+        <button id="hero-btn-open-ingest" class="cyber-btn cyber-btn-launch"
+          title="Upload and test unseen evaluation data">
           [📥_EVALUATE_UNSEEN_DATA]
         </button>
-        <button id="hero-btn-lockdown" class="cyber-btn cyber-btn-dock" title="Isolate Corridors &amp; Lock Disbursement Gate">
+        <button id="hero-btn-lockdown" class="cyber-btn cyber-btn-dock"
+          title="Isolate Corridors &amp; Lock Disbursement Gate">
           [LOCK_DISBURSEMENT_GATE]
         </button>
         <button id="hero-btn-launch-replay" class="cyber-btn cyber-btn-dock" title="Launch Automated Temporal Replay">
@@ -146,9 +155,11 @@
           </defs>
 
           <!-- Concentric radar range rings -->
-          <circle cx="160" cy="160" r="140" fill="none" stroke="rgba(34, 197, 94, 0.2)" stroke-width="1.2" stroke-dasharray="4 4" />
+          <circle cx="160" cy="160" r="140" fill="none" stroke="rgba(34, 197, 94, 0.2)" stroke-width="1.2"
+            stroke-dasharray="4 4" />
           <circle cx="160" cy="160" r="105" fill="none" stroke="rgba(34, 197, 94, 0.35)" stroke-width="1.2" />
-          <circle cx="160" cy="160" r="70" fill="none" stroke="rgba(34, 197, 94, 0.45)" stroke-width="1.2" stroke-dasharray="2 3" />
+          <circle cx="160" cy="160" r="70" fill="none" stroke="rgba(34, 197, 94, 0.45)" stroke-width="1.2"
+            stroke-dasharray="2 3" />
           <circle cx="160" cy="160" r="35" fill="none" stroke="rgba(34, 197, 94, 0.6)" stroke-width="1.2" />
 
           <!-- Crosshairs -->
@@ -177,7 +188,8 @@
           <!-- LedgerOne Satellite (Orbit r=105) -->
           <g id="radar-node-ledgerone" transform="translate(160, 55)">
             <circle cx="0" cy="0" r="5" fill="#00FF66" filter="url(#radar-glow)" />
-            <text x="8" y="4" fill="#00FF66" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700">key-tb-07</text>
+            <text x="8" y="4" fill="#00FF66" font-size="9" font-family="'JetBrains Mono', monospace"
+              font-weight="700">key-tb-07</text>
           </g>
           <!-- HelpDeskr Satellite (Orbit r=70) -->
           <g id="radar-node-helpdeskr" transform="translate(225, 160)">
@@ -195,14 +207,17 @@
             <circle cx="0" cy="0" r="12" fill="none" stroke="#22C55E" stroke-width="1.5">
               <animate attributeName="r" values="6;16;6" dur="1.5s" repeatCount="indefinite" />
             </circle>
-            <text x="8" y="4" fill="#22C55E" font-size="9" font-family="'JetBrains Mono', monospace" font-weight="700">THREAT: 10.20.4.77</text>
+            <text x="8" y="4" fill="#22C55E" font-size="9" font-family="'JetBrains Mono', monospace"
+              font-weight="700">THREAT: 10.20.4.77</text>
           </g>
         </svg>
       </div>
       <!-- Bottom HUD Action Buttons matching Image 1 -->
       <div class="orbital-hud-actions">
-        <button id="btn-radar-dock" class="cyber-btn cyber-btn-dock" title="Isolate Corridors &amp; Lock Payment Gate">[ DOCK ]</button>
-        <button id="btn-radar-launch" class="cyber-btn cyber-btn-launch" title="Launch Automated Temporal Replay">[ LAUNCH ]</button>
+        <button id="btn-radar-dock" class="cyber-btn cyber-btn-dock" title="Isolate Corridors &amp; Lock Payment Gate">[
+          DOCK ]</button>
+        <button id="btn-radar-launch" class="cyber-btn cyber-btn-launch" title="Launch Automated Temporal Replay">[
+          LAUNCH ]</button>
       </div>
     </section>
 
@@ -216,9 +231,12 @@
 
         <div class="deck-actions">
           <button id="btn-rewind" class="deck-btn" title="Rewind to start" aria-label="Rewind">⏮</button>
-          <button id="btn-step-back" class="deck-btn" title="Step backward [Left Arrow]" aria-label="Step Back">◀</button>
-          <button id="btn-play-pause" class="deck-btn primary" title="Play/Pause [Space]" aria-label="Play Replay">▶</button>
-          <button id="btn-step-fwd" class="deck-btn" title="Step forward [Right Arrow]" aria-label="Step Forward">▶</button>
+          <button id="btn-step-back" class="deck-btn" title="Step backward [Left Arrow]"
+            aria-label="Step Back">◀</button>
+          <button id="btn-play-pause" class="deck-btn primary" title="Play/Pause [Space]"
+            aria-label="Play Replay">▶</button>
+          <button id="btn-step-fwd" class="deck-btn" title="Step forward [Right Arrow]"
+            aria-label="Step Forward">▶</button>
           <select id="speed-select" class="speed-select" title="Replay Speed Multiplier" aria-label="Speed">
             <option value="0.5">0.5x</option>
             <option value="1" selected>1.0x</option>
@@ -230,7 +248,8 @@
 
       <!-- Scrubber Bar -->
       <div class="scrubber-container">
-        <div id="scrubber-track" class="scrubber-track" role="slider" aria-label="Replay Timeline Scrubber" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+        <div id="scrubber-track" class="scrubber-track" role="slider" aria-label="Replay Timeline Scrubber"
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
           <div id="scrubber-progress" class="scrubber-progress">
             <div class="scrubber-handle"></div>
           </div>
@@ -262,7 +281,8 @@
       <div class="graph-header">
         <div>
           <h2 style="font-size:1.05rem; font-weight:700;">Tactical Breach &amp; Causal Correlation Graph</h2>
-          <p style="font-size:0.78rem; color:var(--text-secondary);">Interactive topological constellation showing lateral pivots across internal build servers, leaked support credentials, and ERP database targets.</p>
+          <p style="font-size:0.78rem; color:var(--text-secondary);">Interactive topological constellation showing
+            lateral pivots across internal build servers, leaked support credentials, and ERP database targets.</p>
         </div>
         <div class="graph-legend">
           <div class="legend-item">
@@ -318,7 +338,8 @@
         </div>
 
         <p style="font-size:0.78rem; color:var(--text-secondary);">
-          TRACE places a barrier in front of the ERP payment disbursement run to prevent unauthorized vendor bank account diversions.
+          TRACE places a barrier in front of the ERP payment disbursement run to prevent unauthorized vendor bank
+          account diversions.
         </p>
 
         <!-- Gate Stepper -->
@@ -350,12 +371,14 @@
 
           <div class="check-item checked" data-check="check1">
             <div class="check-box">✓</div>
-            <div>Automated Delta Check: Routing changed from HDFC to offshore account without PO reference (FLAGGED)</div>
+            <div>Automated Delta Check: Routing changed from HDFC to offshore account without PO reference (FLAGGED)
+            </div>
           </div>
 
           <div class="check-item" data-check="check2">
             <div class="check-box"></div>
-            <div>Out-of-Band Telephone Callback: Coastal Packaging CFO verified and denied requesting any change (FAILED)</div>
+            <div>Out-of-Band Telephone Callback: Coastal Packaging CFO verified and denied requesting any change
+              (FAILED)</div>
           </div>
 
           <div class="check-item" data-check="check3">
@@ -373,11 +396,13 @@
       <section class="mutator-card" aria-label="Attack Mutator Concept Demo">
         <div class="card-title-bar">
           <h2><span>🧪</span> Attack Mutator Concept Demo</h2>
-          <span style="font-size:0.72rem; font-weight:700; color:var(--status-warning);">SYNTHETIC RESILIENCE TEST</span>
+          <span style="font-size:0.72rem; font-weight:700; color:var(--status-warning);">SYNTHETIC RESILIENCE
+            TEST</span>
         </div>
 
         <div class="mutator-disclaimer">
-          ⚠️ <b>CONCEPT DEMO:</b> Test how behavioral contracts detect attacks even when the attacker evades IP blocklists or upgrades client headers. Missed detections are displayed transparently.
+          ⚠️ <b>CONCEPT DEMO:</b> Test how behavioral contracts detect attacks even when the attacker evades IP
+          blocklists or upgrades client headers. Missed detections are displayed transparently.
         </div>
 
         <!-- Mutator Controls Grid -->
@@ -478,7 +503,8 @@
           <div class="wave-chart-card">
             <div class="chart-header">
               <h3>Active Corridors &amp; Event Ingress Waves</h3>
-              <span style="font-size:0.74rem; color:var(--lane-ledgerone); font-family:var(--font-mono);">PEAK: 101k EVT</span>
+              <span style="font-size:0.74rem; color:var(--lane-ledgerone); font-family:var(--font-mono);">PEAK: 101k
+                EVT</span>
             </div>
             <div class="wave-svg-container" id="wave-chart-container">
               <svg width="100%" height="100%" viewBox="0 0 600 180" preserveAspectRatio="none">
@@ -499,22 +525,28 @@
                 <line x1="0" y1="125" x2="600" y2="125" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3" />
 
                 <!-- Filled Area -->
-                <path d="M 0 140 Q 50 145, 90 120 T 170 130 T 250 50 T 320 60 T 400 130 T 480 110 T 600 140 L 600 180 L 0 180 Z" fill="url(#waveGradient)" />
+                <path
+                  d="M 0 140 Q 50 145, 90 120 T 170 130 T 250 50 T 320 60 T 400 130 T 480 110 T 600 140 L 600 180 L 0 180 Z"
+                  fill="url(#waveGradient)" />
                 <!-- Neon Wave Line -->
-                <path d="M 0 140 Q 50 145, 90 120 T 170 130 T 250 50 T 320 60 T 400 130 T 480 110 T 600 140" fill="none" stroke="#22C55E" stroke-width="3" filter="url(#neonGlow)" />
+                <path d="M 0 140 Q 50 145, 90 120 T 170 130 T 250 50 T 320 60 T 400 130 T 480 110 T 600 140" fill="none"
+                  stroke="#22C55E" stroke-width="3" filter="url(#neonGlow)" />
 
                 <!-- Interactive Scrubber Node on Peak (101k) -->
                 <g transform="translate(250, 50)">
                   <circle cx="0" cy="0" r="14" fill="rgba(255,255,255,0.15)" />
                   <circle cx="0" cy="0" r="6" fill="#FFFFFF" filter="url(#neonGlow)" />
-                  <line x1="0" y1="6" x2="0" y2="130" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.6" />
+                  <line x1="0" y1="6" x2="0" y2="130" stroke="#FFFFFF" stroke-width="1.5" stroke-dasharray="2 2"
+                    opacity="0.6" />
                   <!-- Tooltip Badge -->
                   <rect x="-32" y="-36" width="64" height="24" rx="12" fill="#FFFFFF" />
-                  <text x="0" y="-20" fill="#040705" font-size="11" font-weight="800" text-anchor="middle" font-family="'Inter', sans-serif">101k</text>
+                  <text x="0" y="-20" fill="#040705" font-size="11" font-weight="800" text-anchor="middle"
+                    font-family="'Inter', sans-serif">101k</text>
                 </g>
               </svg>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">
+            <div
+              style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">
               <span>1</span><span>3</span><span>5</span><span>7</span><span>9</span><span>11</span><span>13</span><span>15</span><span>17</span><span>19</span><span>21</span><span>23</span><span>25</span><span>27</span><span>29</span><span>31</span>
             </div>
           </div>
@@ -525,11 +557,15 @@
               <h3>Telemetry Activity Heatmap</h3>
               <div class="heatmap-legend-row" style="gap:10px;">
                 <span>&lt;500 events</span>
-                <div style="width:12px; height:12px; background:#0B2313; border:1px solid #164E24; border-radius:2px;"></div>
+                <div style="width:12px; height:12px; background:#0B2313; border:1px solid #164E24; border-radius:2px;">
+                </div>
                 <span>&gt;1000 events</span>
-                <div style="width:12px; height:12px; background:#166534; border:1px solid #22C55E; border-radius:2px;"></div>
+                <div style="width:12px; height:12px; background:#166534; border:1px solid #22C55E; border-radius:2px;">
+                </div>
                 <span>&gt;5000 events</span>
-                <div style="width:12px; height:12px; background:#22C55E; box-shadow:0 0 6px #22C55E; border-radius:2px;"></div>
+                <div
+                  style="width:12px; height:12px; background:#22C55E; box-shadow:0 0 6px #22C55E; border-radius:2px;">
+                </div>
                 <span>Anomaly Hazard</span>
                 <div style="width:12px; height:12px; background:#22C55E; border-radius:2px;"></div>
               </div>
@@ -573,7 +609,8 @@
               <div class="heatmap-cell lvl-1" title="Mon 12am: 310 events"></div>
               <div class="heatmap-cell lvl-4" title="Tue 12am: 4,600 events"></div>
               <div class="heatmap-cell lvl-2" title="Wed 12am: 1,200 events"></div>
-              <div class="heatmap-cell hazard" title="Thu 12:10 UTC: TAMPERING DETECTED! Bank detail change without PO ref!"></div>
+              <div class="heatmap-cell hazard"
+                title="Thu 12:10 UTC: TAMPERING DETECTED! Bank detail change without PO ref!"></div>
               <div class="heatmap-cell lvl-3" title="Fri 12am: 2,500 events"></div>
               <div class="heatmap-cell lvl-2" title="Sat 12am: 990 events"></div>
 
@@ -601,7 +638,13 @@
             <!-- Days of Week Row -->
             <div class="heatmap-days-row">
               <div></div>
-              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+              <div>Sun</div>
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
             </div>
 
             <!-- Distribution Ratio Bar -->
@@ -610,13 +653,15 @@
               <div class="heatmap-dist-seg morning" title="Morning: 60%"></div>
               <div class="heatmap-dist-seg evening" title="Evening: 12%"></div>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">
+            <div
+              style="display:flex; justify-content:space-between; font-size:0.72rem; color:var(--text-secondary); margin-top:2px;">
               <span><b>28%</b> Day time</span>
               <span><b>60%</b> Morning routine</span>
               <span><b>12%</b> Evening time</span>
             </div>
             <div style="font-size:0.73rem; color:var(--text-muted); margin-top:4px;">
-              🤖 <b>AI Forecast:</b> Scheduled API reconciliations run reliably in 01:00-02:00 UTC window (+6%). Anomalous 12:10 UTC requests trigger instant circuit breaker.
+              🤖 <b>AI Forecast:</b> Scheduled API reconciliations run reliably in 01:00-02:00 UTC window (+6%).
+              Anomalous 12:10 UTC requests trigger instant circuit breaker.
             </div>
           </div>
         </div>
@@ -660,7 +705,8 @@
               </div>
             </div>
             <p style="font-size:0.72rem; color:var(--text-secondary); line-height:1.4;">
-              ⚠️ <b>Evaluation:</b> Telemetry adheres strictly to corridors during standard hours. Lateral off-hours activity from build server <code>10.20.4.77</code> constitutes high behavioral divergence.
+              ⚠️ <b>Evaluation:</b> Telemetry adheres strictly to corridors during standard hours. Lateral off-hours
+              activity from build server <code>10.20.4.77</code> constitutes high behavioral divergence.
             </p>
           </div>
 
@@ -670,7 +716,8 @@
               <span>✨ AI INSIGHTS</span>
             </div>
             <div class="insight-body">
-              Improve <span class="insight-highlight">32%</span> in corridor verification showing stronger routine adoption across active integrations.
+              Improve <span class="insight-highlight">32%</span> in corridor verification showing stronger routine
+              adoption across active integrations.
             </div>
             <div class="insight-progress-bars">
               <div class="insight-bar-chunk filled"></div>
@@ -693,9 +740,11 @@
             <div class="gauge-svg-wrap">
               <svg width="180" height="105" viewBox="0 0 180 105">
                 <!-- Outer Arc Background (Dotted) -->
-                <path d="M 20 95 A 70 70 0 0 1 160 95" fill="none" stroke="#162719" stroke-width="12" stroke-linecap="round" stroke-dasharray="3 6" />
+                <path d="M 20 95 A 70 70 0 0 1 160 95" fill="none" stroke="#162719" stroke-width="12"
+                  stroke-linecap="round" stroke-dasharray="3 6" />
                 <!-- Active Value Arc (Glow Cyan / Purple) -->
-                <path d="M 20 95 A 70 70 0 0 1 148 55" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" filter="url(#neonGlow)" />
+                <path d="M 20 95 A 70 70 0 0 1 148 55" fill="none" stroke="url(#gaugeGrad)" stroke-width="12"
+                  stroke-linecap="round" filter="url(#neonGlow)" />
                 <defs>
                   <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stop-color="#22C55E" />
@@ -726,7 +775,9 @@
       </div>
 
       <div class="tuning-note">
-        <b>Notice on Tuning &amp; Generalization:</b> Numbers loaded from <code>metrics.json</code>. Detectors were calibrated on the supplied competition evidence pack. On novel unseen attack distributions, continuous behavioral envelope recalibration is required.
+        <b>Notice on Tuning &amp; Generalization:</b> Numbers loaded from <code>metrics.json</code>. Detectors were
+        calibrated on the supplied competition evidence pack. On novel unseen attack distributions, continuous
+        behavioral envelope recalibration is required.
       </div>
 
       <div class="metrics-comparison-grid">
@@ -734,13 +785,16 @@
         <div class="scoreboard-card champion">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <b style="color:var(--lane-ledgerone); font-size:0.95rem;">TRACE (Behavioral Defense Engine)</b>
-            <span style="font-size:0.7rem; background:rgba(34, 197, 94, 0.15); color:var(--lane-ledgerone); padding:2px 8px; border-radius:4px; font-weight:700;">ZERO FALSE ALARMS</span>
+            <span
+              style="font-size:0.7rem; background:rgba(34, 197, 94, 0.15); color:var(--lane-ledgerone); padding:2px 8px; border-radius:4px; font-weight:700;">ZERO
+              FALSE ALARMS</span>
           </div>
           <div id="cw-stats-container" class="scoreboard-stats-row">
             <!-- Dynamically populated -->
           </div>
           <p style="font-size:0.74rem; color:var(--text-secondary);">
-            Maintained zero false alarms on legitimate staff in shared broadband subnet <code>198.18.7.0/24</code> by verifying credential contract envelopes rather than relying on brittle IP-only blocks.
+            Maintained zero false alarms on legitimate staff in shared broadband subnet <code>198.18.7.0/24</code> by
+            verifying credential contract envelopes rather than relying on brittle IP-only blocks.
           </p>
         </div>
 
@@ -748,13 +802,16 @@
         <div class="scoreboard-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <b style="color:var(--text-secondary); font-size:0.95rem;">Traditional IOC / IP Blocklist Baseline</b>
-            <span style="font-size:0.7rem; background:rgba(34, 197, 94, 0.15); color:var(--status-breach); padding:2px 8px; border-radius:4px; font-weight:700;">14 FALSE ALARMS</span>
+            <span
+              style="font-size:0.7rem; background:rgba(34, 197, 94, 0.15); color:var(--status-breach); padding:2px 8px; border-radius:4px; font-weight:700;">14
+              FALSE ALARMS</span>
           </div>
           <div id="ioc-stats-container" class="scoreboard-stats-row">
             <!-- Dynamically populated -->
           </div>
           <p style="font-size:0.74rem; color:var(--text-secondary);">
-            Blocking residential broadband subnet severed 14 innocent employees while missing the internal build server pivot (<code>10.20.4.77</code>) and off-hours API polling.
+            Blocking residential broadband subnet severed 14 innocent employees while missing the internal build server
+            pivot (<code>10.20.4.77</code>) and off-hours API polling.
           </p>
         </div>
       </div>
@@ -767,8 +824,10 @@
   <aside id="slide-drawer" class="slide-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
     <div class="drawer-header">
       <div>
-        <h2 id="drawer-title" style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-bottom:2px;">Inspection Title</h2>
-        <div id="drawer-subtitle" style="font-size:0.75rem; color:var(--text-secondary); font-family:var(--font-mono);">Metadata</div>
+        <h2 id="drawer-title" style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin-bottom:2px;">
+          Inspection Title</h2>
+        <div id="drawer-subtitle" style="font-size:0.75rem; color:var(--text-secondary); font-family:var(--font-mono);">
+          Metadata</div>
       </div>
       <button id="drawer-close-btn" class="drawer-close-btn" aria-label="Close Drawer [Esc]">✕</button>
     </div>
@@ -778,11 +837,13 @@
   </aside>
 
   <!-- Live Test Data Ingestion & Evaluator Modal -->
-  <div id="ingestion-modal-backdrop" class="drawer-backdrop" aria-hidden="true" style="display:none;"></div>
-  <div id="ingestion-modal" class="ingestion-modal-container" role="dialog" aria-modal="true" aria-labelledby="modal-ingestion-title" style="display:none;">
+  <div id="ingestion-modal-backdrop" class="modal-backdrop" aria-hidden="true" style="display:none;"></div>
+  <div id="ingestion-modal" class="ingestion-modal-container" role="dialog" aria-modal="true"
+    aria-labelledby="modal-ingestion-title" style="display:none;">
     <div class="modal-header">
       <div>
-        <h2 id="modal-ingestion-title" style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0 0 2px 0;">
+        <h2 id="modal-ingestion-title"
+          style="font-size:1.05rem; font-weight:700; color:var(--text-primary); margin:0 0 2px 0;">
           🧪 Live Evaluator Test Ingestion Suite
         </h2>
         <div style="font-size:0.75rem; color:#22C55E; font-family:var(--font-mono);">
@@ -798,7 +859,8 @@
         <input type="file" id="input-unseen-file" accept=".csv, .json, text/plain" style="display:none;">
         <div style="font-size:2rem; margin-bottom:6px;">📁</div>
         <div style="font-size:0.88rem; font-weight:700; color:var(--text-primary);">
-          Drag &amp; drop test CSV or JSON file here, or <span style="color:#22C55E; text-decoration:underline;">browse files</span>
+          Drag &amp; drop test CSV or JSON file here, or <span style="color:#22C55E; text-decoration:underline;">browse
+            files</span>
         </div>
         <div style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">
           Supports API access logs, audit events, or sign-in telemetry
@@ -807,7 +869,8 @@
 
       <!-- Quick 1-Click Evaluator Sample Batches -->
       <div>
-        <div style="font-size:0.75rem; font-weight:700; color:var(--lane-ledgerone); text-transform:uppercase; margin-bottom:6px;">
+        <div
+          style="font-size:0.75rem; font-weight:700; color:var(--lane-ledgerone); text-transform:uppercase; margin-bottom:6px;">
           ⚡ Or Load 1-Click Evaluator Benchmark Batches:
         </div>
         <div class="quick-batch-btns">
@@ -820,13 +883,19 @@
       <!-- Raw text toggle/input -->
       <div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <span style="font-size:0.74rem; color:var(--text-secondary); font-weight:600;">Or paste raw CSV / JSON text:</span>
-          <button id="btn-paste-sample" style="background:none; border:none; color:#22C55E; font-size:0.72rem; cursor:pointer;">Fill Template</button>
+          <span style="font-size:0.74rem; color:var(--text-secondary); font-weight:600;">Or paste raw CSV / JSON
+            text:</span>
+          <button id="btn-paste-sample"
+            style="background:none; border:none; color:#22C55E; font-size:0.72rem; cursor:pointer;">Fill
+            Template</button>
         </div>
-        <textarea id="modal-paste-area" style="width:100%; height:70px; background:#040705; border:1px solid rgba(34, 197, 94, 0.3); border-radius:6px; color:#E2E8F0; font-family:var(--font-mono); font-size:0.75rem; padding:8px; box-sizing:border-box;" placeholder="ts_utc,source_ip,endpoint,method,api_key_id,approval_ref,vendor_id,target_account"></textarea>
+        <textarea id="modal-paste-area"
+          style="width:100%; height:70px; background:#040705; border:1px solid rgba(34, 197, 94, 0.3); border-radius:6px; color:#E2E8F0; font-family:var(--font-mono); font-size:0.75rem; padding:8px; box-sizing:border-box;"
+          placeholder="ts_utc,source_ip,endpoint,method,api_key_id,approval_ref,vendor_id,target_account"></textarea>
       </div>
 
-      <button id="btn-run-evaluation" class="rollback-btn" style="background:#22C55E; color:#040705; font-weight:800; border:none;">
+      <button id="btn-run-evaluation" class="rollback-btn"
+        style="background:#22C55E; color:#040705; font-weight:800; border:none;">
         ⚡ Run Live Contract Verification Engine
       </button>
 
@@ -835,31 +904,37 @@
         <div style="border-top:1px solid rgba(34, 197, 94, 0.2); padding-top:14px; margin-top:6px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <span style="font-size:0.85rem; font-weight:700; color:#22C55E;">📊 Live Evaluation Scorecard</span>
-            <span id="eval-batch-name" style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">Batch Results</span>
+            <span id="eval-batch-name"
+              style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono);">Batch Results</span>
           </div>
 
           <!-- Mini KPI Row -->
           <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:12px;">
-            <div style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
+            <div
+              style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
               <div style="font-size:0.68rem; color:var(--text-muted);">INGESTED</div>
               <div id="modal-kpi-ingested" style="font-size:1.2rem; font-weight:800; color:#22C55E;">0</div>
             </div>
-            <div style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
+            <div
+              style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
               <div style="font-size:0.68rem; color:var(--text-muted);">THREATS FLAGGED</div>
               <div id="modal-kpi-threats" style="font-size:1.2rem; font-weight:800; color:#22C55E;">0</div>
             </div>
-            <div style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
+            <div
+              style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
               <div style="font-size:0.68rem; color:var(--text-muted);">BENIGN PRESERVED</div>
               <div id="modal-kpi-benign" style="font-size:1.2rem; font-weight:800; color:#22C55E;">0</div>
             </div>
-            <div style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
+            <div
+              style="background:#040705; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px; padding:10px; text-align:center;">
               <div style="font-size:0.68rem; color:var(--text-muted);">FALSE ALARMS</div>
               <div id="modal-kpi-fp" style="font-size:1.2rem; font-weight:800; color:#22C55E;">0 (0.0%)</div>
             </div>
           </div>
 
           <!-- Results Table Container -->
-          <div id="modal-table-wrap" style="max-height:220px; overflow-y:auto; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px;">
+          <div id="modal-table-wrap"
+            style="max-height:220px; overflow-y:auto; border:1px solid rgba(34, 197, 94, 0.2); border-radius:6px;">
             <table class="modal-results-table">
               <thead>
                 <tr>
@@ -879,10 +954,12 @@
 
           <!-- Bottom Actions -->
           <div style="display:flex; gap:10px; margin-top:14px;">
-            <button id="btn-merge-timeline" class="cyber-btn cyber-btn-launch" style="flex:1;" title="Merge test events into live radar scope and scrubber">
+            <button id="btn-merge-timeline" class="cyber-btn cyber-btn-launch" style="flex:1;"
+              title="Merge test events into live radar scope and scrubber">
               🚀 Merge Into Live Timeline &amp; Radar
             </button>
-            <button id="btn-download-eval-json" class="cyber-btn cyber-btn-dock" style="flex:1;" title="Export evaluation results as JSON">
+            <button id="btn-download-eval-json" class="cyber-btn cyber-btn-dock" style="flex:1;"
+              title="Export evaluation results as JSON">
               📥 Download Report (JSON)
             </button>
           </div>
@@ -895,4 +972,5 @@
   <!-- Scripts -->
   <script src="app.js"></script>
 </body>
+
 </html>

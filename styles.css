@@ -2151,6 +2151,24 @@ a {
 }
 
 /* Ingestion Modal & Live Test Data Evaluator */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+  display: none;
+}
+
+.modal-backdrop.active {
+  display: block !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
 .ingestion-modal-container {
   position: fixed;
   top: 50%;
@@ -2168,6 +2186,10 @@ a {
   flex-direction: column;
   overflow: hidden;
   color: #E2E8F0;
+}
+
+.ingestion-modal-container.active {
+  display: flex !important;
 }
 
 .modal-header {
