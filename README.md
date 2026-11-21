@@ -1,173 +1,293 @@
-# TRACE: Threat Recognition, Analysis and Correlation Engine
-**CRIMEATHON'26 — Defense Track**  
-**Investigation Case File:** CR-26-047 (Harbor & Finch Freight Pvt. Ltd.)  
-**Repository:** [github.com/heshikagopal/TRACE](https://github.com/heshikagopal/TRACE)
-**LIVE LINK:** https://crimeathon1.vercel.app/
+# TRACE — Threat Recognition, Analysis & Correlation Engine
 
-[![Unit Tests](https://img.shields.io/badge/Unit%20Tests-38%2F38%20Passing-22C55E?style=for-the-badge&logo=python&logoColor=white)](file:///c:/Users/heshi/OneDrive/Desktop/crimeathon/tests)
-[![Detection Rate](https://img.shields.io/badge/Detection%20Rate-100%25%20(8%2F8)-22C55E?style=for-the-badge)](file:///c:/Users/heshi/OneDrive/Desktop/crimeathon/metrics.json)
-[![False Alarms](https://img.shields.io/badge/False%20Positives-0%20(14%20Staff%20Preserved)-22C55E?style=for-the-badge)](file:///c:/Users/heshi/OneDrive/Desktop/crimeathon/metrics.json)
-[![Case Status](https://img.shields.io/badge/Case%20CR--26--047-Resolved%20%26%20Contained-22C55E?style=for-the-badge)](file:///c:/Users/heshi/OneDrive/Desktop/crimeathon/reports)
+<p align="center">
+  <strong>CRIMEATHON'26 | DEFENSE TRACK</strong>
+</p>
 
----
+<p align="center">
+  An intelligent cybersecurity investigation and threat detection platform designed to identify, analyze, correlate, and contain sophisticated cyber-enabled financial fraud.
+</p>
 
-## 1. Executive Summary
+<p align="center">
+  <a href="https://crimeathon1.vercel.app/">
+    <img src="https://img.shields.io/badge/LIVE%20DEMO-Visit%20TRACE-22C55E?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/heshikagopal/TRACE">
+    <img src="https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github" />
+  </a>
+</p>
 
-**TRACE** (**T**hreat **R**ecognition, **A**nalysis and **C**orrelation **E**ngine) is a dual-interface cyber defense and behavioral forensics system built for CRIMEATHON'26. It investigates and thwarts an advanced cyber-enabled financial fraud attack against **Harbor & Finch Freight Pvt. Ltd.** (Case File: `CR-26-047`).
-
-### The Incident in Brief
-* **The Crime:** An adversary sought to illicitly siphon **$48,920** on the scheduled **September 8, 2026** vendor disbursement run by replacing the verified bank account of supplier **Coastal Packaging Ltd (Vendor `V-0412`)** (`****1142`) with a fraudulent offshore account (`****9083`).
-* **The Kill Chain:** 
-  1. *Reconnaissance:* Initial API probes using a deprecated SDK client header (`LedgerSync/3.4.1`) retired 15 July 2026.
-  2. *Credential Harvest:* Mass scraping of 9,840 customer support records from HelpDeskr, discovering BlueVault backup key `bvk-7f3a` pasted into ticket `TKT-48213`.
-  3. *Cloud Exfiltration:* Accessing BlueVault S3 financial buckets from residential broadband (`198.18.7.23/.24/.77`).
-  4. *Internal Pivot:* Moving laterally into unmonitored internal build server `tb-build-02` (`10.20.4.77`).
-  5. *Tampering:* Executing an unauthorized off-hours API PATCH at 01:44:30 UTC with `approval_ref: null` to divert vendor payouts.
-* **The TRACE Solution:** By evaluating **Behavioral Contracts** (network CIDR, client SDK version, reconciliation time windows, and cryptographic dual-control signatures) rather than naive IP blocklists, TRACE:
-  * Achieved a **100% breach detection rate** (8 of 8 attack stages identified).
-  * Generated **0 False Alarms**, preserving **14 innocent remote employees** operating from the same residential broadband subnet (`198.18.7.0/24`).
-  * Locked the **8 Sep Disbursement Gate** and provided a one-click **Rollback** to legitimate account `****1142`, saving the **$48,920**.
+<p align="center">
+  <img src="https://img.shields.io/badge/Tests-38%2F38%20Passing-22C55E?style=flat-square" />
+  <img src="https://img.shields.io/badge/Detection%20Benchmark-8%2F8-22C55E?style=flat-square" />
+  <img src="https://img.shields.io/badge/False%20Positives-0-22C55E?style=flat-square" />
+  <img src="https://img.shields.io/badge/Track-Defensive%20Cybersecurity-blue?style=flat-square" />
+</p>
 
 ---
 
-## 2. Dual-Interface Architecture
+## 1. Overview
 
-TRACE provides two synchronized, complementary operational interfaces:
+**TRACE (Threat Recognition, Analysis and Correlation Engine)** is a dual-interface cybersecurity defense and behavioral forensics platform developed for **CRIMEATHON'26 – Defense Track**.
 
+TRACE investigates complex cyber-enabled financial fraud by analyzing activities across multiple enterprise systems, identifying suspicious behavioral patterns, correlating digital evidence, and supporting incident containment.
+
+Unlike traditional security systems that primarily depend on IP blocklists, TRACE uses **Behavioral Contracts** to distinguish legitimate activities from suspicious behavior.
+
+### Investigation Case
+
+| Detail | Information |
+|---|---|
+| Case ID | CR-26-047 |
+| Organization | Harbor & Finch Freight Pvt. Ltd. |
+| Target Vendor | Coastal Packaging Ltd. |
+| Vendor ID | V-0412 |
+| Financial Exposure | $48,920 |
+| Attack Objective | Unauthorized vendor bank-account modification |
+| Investigation Status | Resolved and contained in the case simulation |
+
+### The Incident
+
+The investigation focuses on an attempted financial fraud involving the replacement of a legitimate vendor bank account with a fraudulent account before a scheduled vendor disbursement.
+
+The reconstructed attack sequence includes:
+
+1. **Reconnaissance:** Suspicious API probes using a deprecated SDK client.
+2. **Credential Exposure:** Discovery of a cloud backup key in customer support records.
+3. **Cloud Access:** Unauthorized access to financial storage resources.
+4. **Internal Movement:** Suspicious activity involving an internal build server.
+5. **Financial Tampering:** An unauthorized API request attempting to modify vendor banking information.
+
+TRACE correlates evidence from multiple enterprise systems to reconstruct the incident and demonstrate defensive containment.
+
+---
+
+## 2. Key Features
+
+### Intelligent Threat Detection
+- Behavioral-contract-based security monitoring.
+- Detection of suspicious API activity.
+- SDK version and network behavior validation.
+- Identification of unusual access patterns.
+- Transparent risk scoring.
+
+### Digital Forensics & Evidence Correlation
+- Multi-format evidence ingestion.
+- Timestamp normalization across different time zones.
+- Cross-system event correlation.
+- Interactive entity relationship graphs.
+- Reconstructed incident timelines.
+
+### Interactive Cybersecurity Dashboard
+- Live-style security monitoring interface.
+- Interactive attack timeline replay.
+- Visual breach relationship graph.
+- Communication corridor monitoring.
+- Security metrics and benchmark visualization.
+
+### Incident Containment
+- Payment-run protection simulation.
+- Three-stage verification mechanism.
+- Banking information validation.
+- Interactive rollback demonstration.
+- Financial exposure monitoring.
+
+### Simulation & Evaluation
+- Five adversary simulation scenarios.
+- Eight robustness testing dimensions.
+- Benchmark comparison against traditional IP blocklists.
+- Automated test suite.
+- Exportable forensic reports.
+
+---
+
+## 3. System Architecture
+
+TRACE consists of two complementary interfaces.
+
+### Interface 1: SOC Workstation – Python Backend
+
+**Main file:** `app.py`
+
+Technologies:
+- Python 3.10+
+- Streamlit
+- Pandas
+- NumPy
+- NetworkX
+
+Responsibilities:
+- Evidence ingestion and normalization.
+- Forensic investigation.
+- Threat detection and risk scoring.
+- Entity relationship graph generation.
+- Adversary simulation.
+- Defensive evaluation.
+- Report generation.
+
+### Interface 2: Cyber HUD – Frontend Dashboard
+
+**Main file:** `index.html`
+
+Technologies:
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- SVG
+
+Responsibilities:
+- Security telemetry visualization.
+- Interactive attack timeline.
+- Threat relationship visualization.
+- Payment protection simulation.
+- Incident containment demonstration.
+- Security benchmark presentation.
+
+### Architecture Flow
+
+```text
+       ENTERPRISE EVIDENCE FILES
+              E01 – E20
+                  |
+                  v
+        DATA INGESTION ENGINE
+                  |
+                  v
+       NORMALIZATION & VALIDATION
+                  |
+                  v
+        BEHAVIORAL DETECTION
+                  |
+                  v
+       CROSS-SYSTEM CORRELATION
+                  |
+          +-------+-------+
+          |               |
+          v               v
+    SOC WORKSTATION    CYBER HUD
+      (Python)         (Frontend)
+          |               |
+          v               v
+    FORENSIC REPORTS   VISUAL MONITORING
+          |               |
+          +-------+-------+
+                  |
+                  v
+         INCIDENT CONTAINMENT
 ```
-                                  ┌───────────────────────────────────────────────┐
-                                  │            20 EVIDENCE FILES (E01–E20)         │
-                                  │           109,428 Heterogeneous Records       │
-                                  └──────────────────────┬────────────────────────┘
-                                                         │
-                                        ┌────────────────┴───────────────┐
-                                        ▼                                ▼
-                     ┌──────────────────────────────────┐ ┌──────────────────────────────────┐
-                     │   TRACE Python Engine (Backend)  │ │   TRACE Cyber HUD (Frontend UI)  │
-                     │  14 Modular Python Engine Files  │ │  Pure Static Cyberpunk Operations│
-                     │    Streamlit SOC Workstation     │ │   Zero-Dependency HTML5/CSS3/JS  │
-                     │      Runs on: localhost:8501     │ │      Runs on: localhost:8000     │
-                     └──────────────────────────────────┘ └──────────────────────────────────┘
-```
-
-### Interface 1: SOC Workstation / Analytics Engine (`app.py`)
-* **Technology:** Python 3.10+, Streamlit, NetworkX, Pandas, NumPy.
-* **Purpose:** Forensic investigation, multi-dataset evidence normalization, entity relationship graph exploration, synthetic simulation lab, and defensive diagnostic auditing.
-* **Key Features:**
-  * Ingestion and normalization of **109,428 raw events** across UTC, IST, and Unix epoch seconds.
-  * Interactive NetworkX entity-relationship knowledge graph with typed causal edges.
-  * Simulation Laboratory testing 5 adversary scenarios (A–E) and 8 robustness stress dimensions.
-  * Exportable forensic PDF/Markdown/JSON audit reports.
-
-### Interface 2: Cyber HUD Operations Deck (`index.html` / `frontend/`)
-* **Technology:** Pure HTML5, Vanilla JavaScript (ES6+), Modern CSS3 with Neon Green (`#22C55E`) stealth aesthetics.
-* **Purpose:** Real-time tactical monitoring, interactive timeline scrubbing, breach graph constellation, and interactive containment.
-* **Key Features:**
-  * **Orbital Trajectory & Radar Scope:** Live SVG radar sweeping across 4 communication corridors (`LedgerOne`, `HelpDeskr`, `BlueVault`, `SSO`) and tracking compromised build server `10.20.4.77`.
-  * **Top Telemetry HUD Grid:** Real-time indicators showing **99.4% Corridor Integrity**, **1,842 EVT/S Telemetry Velocity**, **HOLD 8 SEP Gate Status**, and **98.6% Benchmark Score**.
-  * **Corridor Replay Scrubbing Deck:** Interactive time-travel player (0.5x–4.0x) scrubbing across the 8 August to 8 September timeline.
-  * **Tactical Constellation Breach Graph:** Visual representation of lateral attacker hops across external IPs, support tickets, internal build hosts, and ERP tables.
-  * **Payment-Run Padlock Gate Simulator:** 3-stage out-of-band callback verification (Delta check, phone callback, dual-control token) with an interactive **"Execute Rollback"** button.
-  * **Attack Mutator Concept Demo:** Interactive testing sandbox allowing evaluators to mutate attacker IPs, SDK headers, and query times to observe real-time detector resilience.
-  * **Honest Metrics Scoreboard:** Empirical ground-truth benchmark comparison between TRACE and traditional IP blocklists.
 
 ---
 
-## 3. Evidence Mapping & Case Evidence Base
+## 4. Technology Stack
 
-TRACE processes all 20 pristine competition evidence files (`E01`–`E20` in `data/original/`):
-
-| ID | Evidence Source | Format | Records / Size | Primary Investigative Value |
-| :---: | :--- | :---: | :---: | :--- |
-| **E01** | `E01_ledgerone_api_access.csv` | CSV | 45,210 rows | Baseline API activity; reveals normal synchronization patterns |
-| **E02** | `E02_helpdeskr_audit_log.csv` | CSV | 28,450 rows | Credential searches; 30 bulk export jobs over 90 mins |
-| **E03** | `E03_sso_signin_log.csv` | CSV | 18,320 rows | Unrevoked login by terminated staff Rohan Menon (`r.menon`) |
-| **E04** | `E04_connected_software_register.json` | JSON | 12 integrations | Approved integration CIDRs, credential scopes, client SDK policies |
-| **E05** | `E05_bluevault_access_log.csv` | CSV | 14,890 rows | Unauthorized storage access using leaked backup key `bvk-7f3a` |
-| **E06** | `E06_billing_alert_and_invoice.pdf` | PDF | 2 pages | HelpDeskr overage invoice corroborating mass export spike |
-| **E07** | `E07_onboarding_review_file.pdf` | PDF | 4 pages | Vendor due diligence gaps and missing dual-control carve-outs |
-| **E08** | `E08_contract_excerpt.pdf` | PDF | 3 pages | Legal MSA terms (Sections 5.1, 5.3, 7.2) on security breach notice |
-| **E09** | `E09_risk_register_extract.xlsx` | Excel | 28 entries | Known institutional risk R-018: unrevoked terminated employee logins |
-| **E10** | `E10_it_security_policy_v2_1.pdf` | PDF | 12 pages | Mandates 90-day log locks & dual-control CFO approval for bank edits |
-| **E11** | `E11_internal_audit_report_IA_2025_09.pdf` | PDF | 6 pages | Historical audit finding regarding unrevoked accounts |
-| **E12** | `E12_email_notice.pdf` | PDF | 1 page | TallyBridge security advisory acknowledging potential key leak |
-| **E13** | `E13_support_team_chat_export.json` | JSON | 420 messages | Support chat showing plaintext key `bvk-7f3a` pasted into ticket |
-| **E14** | `E14_staff_roster.csv` | CSV | 85 staff | HR roster confirming Rohan Menon departed on 30 June 2026 |
-| **E15** | `E15_network_link_flow_log.csv` | CSV | 2,140 flows | Maps internal IP `10.20.4.77` to decommissioned host `tb-build-02` |
-| **E16** | `E16_followup_email_notice.pdf` | PDF | 1 page | Follow-up confirmation of compromised TallyBridge developer workstation |
-| **E17** | `E17_indicator_list.csv` | CSV | 45 indicators | Vendor threat indicators (unverified external threat intelligence) |
-| **E18** | `E18_ledgerone_api_access_1_to_7_sep.csv` | CSV | 418 rows | Bank detail probing and unauthorized PATCH calls from `10.20.4.77` |
-| **E19** | `E19_vendor_master_change_log.csv` | CSV | 12 changes | Record of Coastal Packaging bank modification to `****9083` |
-| **E20** | `E20_public_records_pack.pdf` | PDF | 8 pages | OSINT documentation corroborating `tb-build-02` re-provisioning |
+| Category | Technologies |
+|---|---|
+| Programming Language | Python |
+| Frontend | HTML5, CSS3, JavaScript |
+| Backend Framework | Streamlit |
+| Data Processing | Pandas, NumPy |
+| Graph Analysis | NetworkX |
+| Visualization | SVG, CSS, JavaScript |
+| Data Formats | CSV, JSON, Excel, PDF |
+| Testing | Python Unittest |
+| Deployment | Vercel |
+| Version Control | Git & GitHub |
 
 ---
 
-## 4. Key Metrics & Numbers Reference Guide
+## 5. Evidence Processing
 
-Every number on the TRACE dashboard represents an empirically verified forensic measurement:
+TRACE processes 20 competition evidence files (E01–E20), containing heterogeneous enterprise records.
 
-| Metric | Displayed Value | Explanation |
-| :--- | :---: | :--- |
-| **Protected Funds** | **`$48,920`** | The financial disbursement value slated for Coastal Packaging Ltd (`V-0412`) protected from diversion. |
-| **Verified Account** | **`****1142`** | The legitimate, verified domestic bank account belonging to Coastal Packaging Ltd. |
-| **Rogue Target Account** | **`****9083`** | The fraudulent offshore bank routing inserted by the adversary via API `key-tb-07`. |
-| **Ingested Records** | **`109,428`** | Exact count of raw enterprise log entries ingested, parsed, and normalized across `E01`–`E20`. |
-| **Breaches Detected** | **`8 / 8 (100%)`** | Full-spectrum detection of all 8 attacker phases without missing a single stage. |
-| **False Positives** | **`0`** | Zero false accusations against legitimate operations. |
-| **Innocent Staff Preserved** | **`14 employees`** | Legitimate remote workers on shared residential subnet `198.18.7.0/24` left unhindered. |
-| **Traditional IOC False Positives** | **`14`** | Traditional IP blocklists severed 14 innocent workers while completely missing the internal pivot. |
-| **Processing Latency** | **`1.2 ms`** | Average time taken by the TRACE detection pipeline to inspect and score an incoming event. |
-| **Peak Event Throughput** | **`101,000 EVT`** | Highest recorded burst volume handled during automated overnight synchronization. |
-| **Behavioral Drift Score** | **`82 vs 41`** | Policy Fit score (82/100) vs. Anomaly Drift Risk score (41/100). |
-| **Defensive Quality Score** | **`98.6%`** | Overall benchmark rating evaluated against ground-truth adversary variations. |
+| Evidence | Source | Investigative Purpose |
+|---|---|---|
+| E01 | LedgerOne API Logs | Baseline API activity |
+| E02 | HelpDeskr Audit Logs | Suspicious support activity |
+| E03 | SSO Sign-in Logs | Authentication investigation |
+| E04 | Connected Software Register | Integration policy validation |
+| E05 | BlueVault Access Logs | Cloud access investigation |
+| E06 | Billing Alert & Invoice | Evidence of bulk exports |
+| E07 | Onboarding Review | Vendor due diligence |
+| E08 | Contract Excerpt | Security obligations |
+| E09 | Risk Register | Institutional risk identification |
+| E10 | IT Security Policy | Security policy validation |
+| E11 | Internal Audit Report | Historical audit findings |
+| E12 | Email Notice | Security advisory |
+| E13 | Support Chat Export | Credential exposure investigation |
+| E14 | Staff Roster | Employee verification |
+| E15 | Network Flow Logs | Internal infrastructure mapping |
+| E16 | Follow-up Email | Workstation compromise evidence |
+| E17 | Indicator List | External threat indicators |
+| E18 | API Access Logs | Suspicious API modifications |
+| E19 | Vendor Change Log | Banking modification evidence |
+| E20 | Public Records | Infrastructure investigation |
 
 ---
 
-## 5. Project Directory Structure
+## 6. Performance & Evaluation Metrics
 
-```
-crimeathon/
-├── app.py                             # Streamlit SOC Workstation & Forensics Engine
-├── index.html                         # TRACE Cyber HUD Operations Deck (Root)
-├── styles.css                         # Cyberpunk Neon-Green Stylesheet
-├── app.js                             # Interactive HUD JavaScript Engine
-├── events.json                        # Normalized timeline events & set-aside records
-├── contracts.json                     # Behavioral contracts specification
-├── metrics.json                       # Ground-truth evaluation & scoreboard metrics
-├── requirements.txt                   # Python environment dependencies
-├── vercel.json                        # Vercel zero-build static deployment configuration
-├── .vercelignore                      # Blocks backend code from cloud build scanning
+The following values represent the project's documented competition benchmark and test results.
+
+| Metric | Result |
+|---|---:|
+| Evidence Files | 20 |
+| Processed Records | 109,428 |
+| Attack Stages Detected | 8/8 |
+| Benchmark Detection Rate | 100% |
+| False Positives | 0 |
+| Legitimate Employees Preserved | 14 |
+| Automated Unit Tests | 38/38 |
+| Average Processing Latency | 1.2 ms |
+| Defensive Quality Score | 98.6% |
+
+**Important:** These are results from the supplied competition evidence and documented benchmark/simulation environment, not independently validated production deployment results.
+
+---
+
+## 7. Project Structure
+
+```text
+TRACE/
 │
-├── frontend/                          # Mirrored static distribution directory
+├── app.py
+├── index.html
+├── styles.css
+├── app.js
+├── events.json
+├── contracts.json
+├── metrics.json
+├── requirements.txt
+├── vercel.json
+│
+├── frontend/
 │   ├── index.html
 │   ├── styles.css
 │   ├── app.js
 │   ├── events.json
 │   ├── contracts.json
-│   ├── metrics.json
-│   └── vercel.json
+│   └── metrics.json
 │
 ├── data/
-│   └── original/                      # Pristine competition evidence files (E01–E20)
+│   └── original/
+│       └── E01 – E20
 │
-├── trace_engine/                      # 14 Modular Core Backend Engines
-│   ├── __init__.py
-│   ├── ingestion.py                   # Multi-format parsers (CSV, JSON, Excel, PDF)
-│   ├── normalisation.py               # Schema unifier and timezone normalizer (109k events)
-│   ├── alert_schema.py                # Standardized ThreatAlert dataclasses
-│   ├── risk_scoring.py                # Composite transparent risk calculation
-│   ├── rules.py                       # Modular behavioral detection rules
-│   ├── detection.py                   # ThreatDetectionEngine orchestrator
-│   ├── correlation_models.py          # InvestigationCase & CorrelatedEvent models
-│   ├── correlation_scoring.py         # Multi-factor attribution & penalty engine
-│   ├── graph_builder.py               # NetworkX entity-relationship knowledge graph
-│   ├── correlation.py                 # Cross-system correlation engine (Cases 01–04)
-│   ├── synthetic_data.py              # Synthetic telemetry generator for benchmarking
-│   ├── scenario_templates.py          # Adversary scenarios A–E generator
-│   ├── simulation.py                  # Simulation lab runner & confusion matrix
-│   └── evaluation.py                  # Defensive evaluation engine (Modes A–D)
+├── trace_engine/
+│   ├── ingestion.py
+│   ├── normalisation.py
+│   ├── alert_schema.py
+│   ├── risk_scoring.py
+│   ├── rules.py
+│   ├── detection.py
+│   ├── correlation_models.py
+│   ├── correlation_scoring.py
+│   ├── graph_builder.py
+│   ├── correlation.py
+│   ├── synthetic_data.py
+│   ├── scenario_templates.py
+│   ├── simulation.py
+│   └── evaluation.py
 │
-├── reports/                           # 7 Comprehensive Forensic & Competition Reports
+├── reports/
 │   ├── competition_technical_report.md
 │   ├── reconstructed_incident_timeline.md
 │   ├── evidence_mapping_report.md
@@ -176,95 +296,168 @@ crimeathon/
 │   ├── testing_and_qa_audit_report.md
 │   └── competition_demonstration_script.md
 │
-├── tests/                             # Comprehensive 38-Test Automated QA Suite
-│   ├── __init__.py
-│   ├── test_foundation.py             # Ingestion, schema, and baseline detection tests
-│   ├── test_detection_engine.py       # Detection rules, negatives, duplicates, invalid timestamps
-│   ├── test_correlation_engine.py     # Typed relationships, timelines, clock drift, NetworkX graph
-│   ├── test_simulation_lab.py         # Scenarios A–E, confusion matrix, held-out variation battery
-│   └── test_evaluation_engine.py      # Diagnostic metrics, zero-safe math, evaluation modes
+├── tests/
+│   ├── test_foundation.py
+│   ├── test_detection_engine.py
+│   ├── test_correlation_engine.py
+│   ├── test_simulation_lab.py
+│   └── test_evaluation_engine.py
 │
 └── .github/
     └── workflows/
-        └── gh-pages.yml               # GitHub Actions CI/CD for automated GitHub Pages hosting
+        └── gh-pages.yml
 ```
 
 ---
 
-## 6. Installation & Execution Guide
+## 8. Installation & Setup
 
-### Prerequisite
-* Python 3.10, 3.11, or 3.12 installed.
+### Prerequisites
 
-### Step 1: Install Dependencies
+- Python 3.10, 3.11, or 3.12
+- Git
+- A web browser
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/heshikagopal/TRACE.git
+cd TRACE
+```
+
+### Step 2: Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-### Step 2: Run Full Automated Test Suite (38 Tests)
-Execute the complete diagnostic suite to verify ingestion, detection rules, correlation chains, and evaluation engines:
+### Step 3: Run Automated Tests
+
 ```bash
 python -m unittest discover tests
 ```
-*Expected output: `Ran 38 tests in ~11s ... OK` (0 errors, 0 failures).*
 
----
+Expected result: 38 tests passing.
 
-### Step 3: Run the Interfaces Locally
+### Step 4: Launch the Cyber HUD
 
-#### Option A: Launch the TRACE Cyber HUD Dashboard (Port 8000)
-Run with Python's built-in HTTP server (zero npm dependencies required):
 ```bash
 python -m http.server 8000
 ```
-Open your browser to: **`http://localhost:8000/`**
 
-#### Option B: Launch the SOC Workstation Application (Port 8501)
+Open:
+
+```text
+http://localhost:8000/
+```
+
+### Step 5: Launch the SOC Workstation
+
 ```bash
 streamlit run app.py
 ```
-Open your browser to: **`http://localhost:8501/`**
+
+Open:
+
+```text
+http://localhost:8501/
+```
 
 ---
 
-## 7. Cloud Deployment Guide
+## 9. Live Deployment
 
-### Deploying the Cyber HUD to Vercel
-TRACE is fully configured for instantaneous, serverless static deployment on Vercel:
-1. Push your changes to GitHub: `git push origin main`.
-2. In your Vercel Dashboard, click **Add New Project** and select `TRACE`.
-3. In Project Settings:
-   * **Framework Preset:** Leave as `Other`.
-   * **Root Directory:** Leave as `./` (or `frontend`).
-   * **Build Command:** Keep turned **OFF** (gray).
-4. Click **Deploy**. Vercel will deploy the static site in ~10 seconds.
+Experience the TRACE Cyber HUD through the deployed application.
 
-### Deploying the Cyber HUD to GitHub Pages
-The repository includes an automated GitHub Actions workflow (`.github/workflows/gh-pages.yml`):
-1. Navigate to your repository on GitHub.
-2. Go to **Settings** > **Pages**.
-3. Under **Build and deployment** > **Source**, select **GitHub Actions**.
-4. The site will automatically build and publish to `https://<username>.github.io/TRACE/`.
+<p align="center">
+  <a href="https://crimeathon1.vercel.app/">
+    <img src="https://img.shields.io/badge/OPEN%20LIVE%20PROJECT-TRACE-22C55E?style=for-the-badge" />
+  </a>
+</p>
+
+**Live Demo:** https://crimeathon1.vercel.app/
+
+**GitHub Repository:** https://github.com/heshikagopal/TRACE
 
 ---
 
-## 8. Forensic Demonstration Script (60-Second Walkthrough)
+## 10. Team & Contributors
 
-When demonstrating TRACE to evaluators or stakeholders:
+Built collaboratively for **CRIMEATHON'26 – Defense Track**.
 
-1. **Top HUD Status (0:00–0:15):**  
-   Highlight the **99.4% Corridor Integrity** and **HOLD 8 SEP** gate status. Explain that TRACE continuously monitors behavioral contracts across shipping corridors rather than simple IP addresses.
-2. **Corridor Replay Scrubbing (0:15–0:30):**  
-   Hit **Play (▶)** on the Scrubber Deck. Show how the engine travels from August 1 to September 8, uncovering the deprecated client probe on Aug 9, the support ticket dump on Aug 11, the leaked cloud key on Aug 14, and the unauthorized bank modification on Sep 3.
-3. **Tactical Breach Graph (0:30–0:45):**  
-   Click the **Breach Graph (🕸️)** button. Trace the adversary's lateral hop from external IP `198.18.7.41` to support ticket `TKT-48213`, pivot to internal build server `10.20.4.77`, and the targeted call on `/v2/vendors/V-0412/bank-details`.
-4. **Padlock Gate & Rollback (0:45–1:00):**  
-   Scroll to the **Payment-Run Padlock Gate**. Show that the 3-step verification failed because of the unverified routing delta, failed phone callback, and missing CFO token (`approval_ref: null`). Click **"Execute Rollback to Verified Account ****1142"** to demonstrate real-time incident containment and the preservation of **$48,920**.
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/heshikagopal">
+        <img src="https://github.com/heshikagopal.png" width="100px;" alt="Heshika Gopal"/>
+        <br />
+        <sub><b>Heshika Gopal</b></sub>
+      </a>
+      <br />
+      <sub>Project Lead</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Nikitha2509">
+        <img src="https://github.com/Nikitha2509.png" width="100px;" alt="Nikitha"/>
+        <br />
+        <sub><b>Nikitha</b></sub>
+      </a>
+      <br />
+      <sub>Contributor</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/kowshikashish">
+        <img src="https://github.com/kowshikashish.png" width="100px;" alt="Kowshik Ashish"/>
+        <br />
+        <sub><b>Kowshik Ashish</b></sub>
+      </a>
+      <br />
+      <sub>Contributor</sub>
+    </td>
+  </tr>
+</table>
+
+We collaborated on developing TRACE, combining cybersecurity concepts, evidence analysis, threat correlation, and interactive visualization to demonstrate a comprehensive defensive investigation platform.
+
+**Team:** AAZHI
 
 ---
 
-## 9. License & Integrity Statement
+## 11. Ethical Considerations
 
-* **Competition Track:** CRIMEATHON'26 Defensive Cybersecurity Track.
-* **Ethics & Integrity:** All synthetic test generation is strictly confined in-memory to isolated test fixtures (`SIM-...`). No active network scanning, credential attacks, or external connections are performed.
-* **Author:** Heshika Gopal (Lead Developer & Security Researcher).
+TRACE is designed as a defensive cybersecurity investigation and simulation platform.
+
+- No active network scanning is performed.
+- No real credential attacks are conducted.
+- Synthetic adversary scenarios are restricted to isolated testing environments.
+- Evidence analysis focuses on defensive investigation and incident response.
+- The rollback functionality is demonstrated within the project's case simulation.
+
+---
+
+## 12. Future Enhancements
+
+Potential directions for further development include:
+
+- Integration with live Security Information and Event Management (SIEM) platforms.
+- Real-time security event ingestion.
+- Advanced machine learning-based anomaly detection.
+- Automated incident response integrations.
+- Enhanced threat intelligence correlation.
+- Multi-organization monitoring capabilities.
+
+---
+
+## 13. Acknowledgements
+
+We thank the CRIMEATHON'26 organizers for providing the opportunity to explore cybersecurity challenges and develop a defensive investigation solution.
+
+---
+
+<p align="center">
+  <strong>TRACE — Turning Digital Evidence into Actionable Cyber Defense.</strong>
+</p>
+
+<p align="center">
+  Built with dedication by Team AAZHI.
+</p>
